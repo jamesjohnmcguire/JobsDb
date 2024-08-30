@@ -1,0 +1,6 @@
+[submodule "SourceCode/Database.ToolKit"]
+	path = SourceCode/Database.ToolKit
+	url = https://github.com/jamesjohnmcguire/DigitalZenWorks.Database.ToolKit
+[submodule "SourceCode/HttpTool"]
+	path = SourceCode/HttpTool
+	url = https://github.com/jamesjohnmcguire/HttpTool.git
