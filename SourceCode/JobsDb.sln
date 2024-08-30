@@ -3,7 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsDbApplication", "JobsDbApplication\JobsDbApplication.csproj", "{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobsDbApplication", "JobsDbApplication\JobsDbApplication.csproj", "{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalZenWorks.Database.ToolKit", "Database.ToolKit\DatabaseLibraryNet\DigitalZenWorks.Database.ToolKit.csproj", "{A2E10862-2CB0-45C6-AACF-41FE51505CD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseLibraryNetTests", "Database.ToolKit\DatabaseLibraryNet\DatabaseLibraryNetTests\DatabaseLibraryNetTests.csproj", "{139A1635-09CF-44C3-9FDF-2B6517906DDD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTools", "HttpTool\SourceCode\WebTools\WebTools.csproj", "{CC903C24-C359-4735-89A7-C12EA8BDAF92}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTools.Test", "HttpTool\SourceCode\WebTools.Test\WebTools.Test.csproj", "{CE9C13D3-3463-426D-B4B8-EC6898C4B7A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpTool", "HttpTool\SourceCode\HttpTool\HttpTool.csproj", "{CA638BA2-53A5-48FD-9F2B-9F72C01DF001}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +25,26 @@ Global
 		{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2E10862-2CB0-45C6-AACF-41FE51505CD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2E10862-2CB0-45C6-AACF-41FE51505CD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2E10862-2CB0-45C6-AACF-41FE51505CD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2E10862-2CB0-45C6-AACF-41FE51505CD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{139A1635-09CF-44C3-9FDF-2B6517906DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{139A1635-09CF-44C3-9FDF-2B6517906DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{139A1635-09CF-44C3-9FDF-2B6517906DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{139A1635-09CF-44C3-9FDF-2B6517906DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC903C24-C359-4735-89A7-C12EA8BDAF92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC903C24-C359-4735-89A7-C12EA8BDAF92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC903C24-C359-4735-89A7-C12EA8BDAF92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC903C24-C359-4735-89A7-C12EA8BDAF92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE9C13D3-3463-426D-B4B8-EC6898C4B7A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9C13D3-3463-426D-B4B8-EC6898C4B7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE9C13D3-3463-426D-B4B8-EC6898C4B7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9C13D3-3463-426D-B4B8-EC6898C4B7A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA638BA2-53A5-48FD-9F2B-9F72C01DF001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA638BA2-53A5-48FD-9F2B-9F72C01DF001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA638BA2-53A5-48FD-9F2B-9F72C01DF001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA638BA2-53A5-48FD-9F2B-9F72C01DF001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
