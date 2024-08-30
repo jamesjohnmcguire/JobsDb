@@ -1,0 +1,42 @@
+DROP TABLE IF EXISTS Jobs;
+CREATE TABLE Jobs
+(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	contactId INTEGER DEFAULT NULL,
+	created DATETIME,
+	updated DATETIME,
+	FOREIGN KEY(contactId) REFERENCES contacts(id)
+);
+
+DROP TABLE IF EXISTS Accounts;
+CREATE TABLE Accounts
+(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	userName TEXT NOT NULL,
+	password TEXT NOT NULL,
+	notes TEXT NOT NULL,
+	created DATETIME,
+	updated DATETIME
+);
+
+DROP TABLE IF EXISTS Contacts;
+CREATE TABLE Contacts
+(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	organizationId INTEGER DEFAULT NULL,
+	created DATETIME,
+	updated DATETIME,
+	FOREIGN KEY(organizationId) REFERENCES organizations(id)
+);
+
+DROP TABLE IF EXISTS Organizations;
+CREATE TABLE Organizations
+(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	created DATETIME,
+	updated DATETIME
+);
+
