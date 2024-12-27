@@ -1,0 +1,11 @@
+JobsDb
+	https://app.apijobs.dev/
+	https://app.apijobs.dev/,,AnythingGoesHere12#,Api Key: 89edd855a53820c0c5476191e7413abdd6d0a542768379cdd869f7e282a36794
+
+	curl --location 'https://api.apijobs.dev/v1/job/search' \
+	  --header 'apikey: 89edd855a53820c0c5476191e7413abdd6d0a542768379cdd869f7e282a36794' \
+	  --header 'Content-Type: application/json' \
+	  --data '{
+		"q" : "Reactjs"
+	  }'
+	Jobs Db	Seb from apijobs	A real time job search api for your github project. Free plan available	2024-08-19
