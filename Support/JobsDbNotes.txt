@@ -9,3 +9,10 @@ JobsDb
 		"q" : "Reactjs"
 	  }'
 	Jobs Db	Seb from apijobs	A real time job search api for your github project. Free plan available	2024-08-19
+LinkedIn Scraper
+	https://www.linkedin.com/jobs/linkedin-jobs?trk=jobs_directory&original_referer=https%3A%2F%2Fwww.linkedin.com%2Fdirectory%2Fjobs%3Ftrk%3Dhomepage-jobseeker_directory_jobSearchDirectoryUrl&position=1&pageNum=0
+	https://www.linkedin.com/jobs/search/?currentJobId=4102930544
+	https://github.com/joeyism/linkedin_scraper
+	https://www.reddit.com/r/webscraping/comments/11fm3zn/linkedin_scraping/
+	https://www.zenrows.com/blog/web-scraping-c-sharp
+	https://stackoverflow.com/questions/26523418/c-sharp-get-content-from-url-like-facebook-and-linkedin-does
