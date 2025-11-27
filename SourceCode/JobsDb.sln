@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35122.118
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobsDbApplication", "JobsDbApplication\JobsDbApplication.csproj", "{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalZenWorks.Database.ToolKit", "Database.ToolKit\DatabaseLibraryNet\DigitalZenWorks.Database.ToolKit.csproj", "{A2E10862-2CB0-45C6-AACF-41FE51505CD0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseLibraryNetTests", "Database.ToolKit\DatabaseLibraryNet\DatabaseLibraryNetTests\DatabaseLibraryNetTests.csproj", "{139A1635-09CF-44C3-9FDF-2B6517906DDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalZenWorks.Database.ToolKit.Tests", "Database.ToolKit\DatabaseLibraryNetTests\DigitalZenWorks.Database.ToolKit.Tests.csproj", "{139A1635-09CF-44C3-9FDF-2B6517906DDD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTools", "HttpTool\SourceCode\WebTools\WebTools.csproj", "{CC903C24-C359-4735-89A7-C12EA8BDAF92}"
 EndProject
@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsDbLibrary", "JobsDbLibrary\JobsDbLibrary.csproj", "{C5132C70-DC48-4064-B580-B38DC26C252F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsDbConsole", "JobsDbConsole\JobsDbConsole.csproj", "{0A6880E5-3C3E-4484-BD40-852E92F7C76B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{C5132C70-DC48-4064-B580-B38DC26C252F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5132C70-DC48-4064-B580-B38DC26C252F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5132C70-DC48-4064-B580-B38DC26C252F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
