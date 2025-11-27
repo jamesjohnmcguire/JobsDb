@@ -1,0 +1,137 @@
+- Microsoft.EntityFrameworkCore.Sqlite
+   - Microsoft.EntityFrameworkCore.Tools
+   - HtmlAgilityPack (for scraping)
+   - Selenium.WebDriver (for LinkedIn scraping)
+
+Implement Specific Scrapers: Create LinkedInScraper and TokyoDevScraper classes that inherit from JobScraperBase
+Add Migrations: Run EF Core migrations to create the database schema
+
+<PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
+<PackageReference Include="Selenium.WebDriver" Version="4.15.0" />
+<PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="119.0.6045.10500" />
+
+_scraperService.RegisterScraper("LinkedIn", new LinkedInScraper(_jobRepository, credentialRepository));
+_scraperService.RegisterScraper("TokyoDev", new TokyoDevScraper(_jobRepository, credentialRepository));
+
+var tester = new ScraperTester();
+await tester.TestTokyoDev();
+
+
+How to use it:
+Step 1: Run the ScraperTester to understand TokyoDev's structure:
+csharpvar tester = new ScraperTester();
+await tester.TestTokyoDev();
+This will:
+
+Download the jobs page
+Save it as tokyodev_jobs.html
+Print out analysis of potential selectors
+Tell you exactly what to look for
+
+Step 2: Open tokyodev_jobs.html in your browser or text editor and search for patterns like:
+
+class="job"
+class="listing"
+class="card"
+Look for repeated HTML structures (each one is a job)
+Step 3: Update the selectors in TokyoDevScraper.cs based on what you find
+Step 4: Test with TestSelector() to verify:
+csharpawait tester.TestSelector("https://www.tokyodev.com/jobs", "//your-xpath-here");
+
+
+To use this version:
+Replace the TokyoDev scraper registration in your MainWindow:
+csharp_scraperService.RegisterScraper("TokyoDev", 
+    new TokyoDevScraperSelenium(_jobRepository, credentialRepository));
+
+Setup Instructions
+1. Create Configuration File
+The app will auto-create a default config on first run at:
+%LocalAppData%\JobsDb\jobsdb_config.json
+
+{
+  "MasterPassword": "JobsDb2024!",
+  "Credentials": [
+    {
+      "Source": "LinkedIn",
+      "Username": "your_email@example.com",
+      "Password": "your_actual_password",
+      "IsActive": true,
+      "Notes": "Your personal LinkedIn account"
+    },
+    {
+      "Source": "TokyoDev",
+      "Username": "your_email@example.com",
+      "Password": "your_password",
+      "IsActive": false,
+      "Notes": "Not needed unless they add authentication"
+    }
+  ],
+  "SearchDefaults": {
+    "Keywords": "software developer",
+    "Location": "Tokyo, Japan",
+    "JobType": "Full-time"
+  },
+  "ScraperSettings": {
+    "RunHeadless": false,
+    "PageLoadTimeoutSeconds": 30,
+    "ImplicitWaitSeconds": 10,
+    "ScrollDelayMs": 2000,
+    "LoginTimeoutSeconds": 60,
+    "SaveDebugHtml": true
+  }
+}
+
+
+2. Update Your Credentials
+Replace the placeholder email/password with your actual LinkedIn credentials.
+Security Note: The JSON file stores passwords in plain text locally. The passwords are encrypted when stored in the database. Keep this file secure and don't commit it to source control!
+3. Configure Settings
+RunHeadless:
+
+false = See the browser (useful for first-time setup)
+true = Run in background (for automated scheduled runs)
+
+LoginTimeoutSeconds:
+
+Time to wait if LinkedIn requires 2FA/verification
+Set to 60-120 seconds to give yourself time to complete verification manually
+
+4. Register Scrapers in Your App
+Update your MainWindow.cs or startup code:
+
+var configManager = new ConfigurationManager();
+var cookieManager = new CookieManager();
+
+_scraperService.RegisterScraper("LinkedIn", 
+    new LinkedInScraper(_jobRepository, _credentialRepository, cookieManager, configManager));
+
+_scraperService.RegisterScraper("TokyoDev", 
+    new TokyoDevScraperSelenium(_jobRepository, _credentialRepository, cookieManager, configManager));
+
+File Locations
+All files are stored in: %LocalAppData%\JobsDb\
+JobsDb/
+├── jobsdb_config.json          # Your credentials and settings
+├── jobsdb.db                   # SQLite database
+├── Cookies/
+│   ├── linkedin_cookies.json   # Saved LinkedIn session
+│   └── tokyodev_cookies.json   # Saved TokyoDev session
+└── ChromeProfile/              # Chrome user data (persistent login)
+
+Advanced: Scheduled Automation
+Set RunHeadless: true and schedule the scraper to run automatically:
+Windows Task Scheduler:
+Program: C:\Path\To\JobsDb.exe
+Arguments: --scrape-all
+Schedule: Daily at 8:00 AM
+The scraper will run silently in the background using your saved session!
+
+
+var configManager = new ConfigurationManager();
+var cookieManager = new CookieManager();
+
+_scraperService.RegisterScraper("LinkedIn", 
+    new LinkedInScraper(_jobRepository, _credentialRepository, 
+        cookieManager, configManager));
+		
