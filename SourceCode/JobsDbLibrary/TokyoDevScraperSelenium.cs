@@ -1,7 +1,10 @@
 using HtmlAgilityPack;
+using JobsDb.Core.Configuration;
 using JobsDb.Core.Models;
 using JobsDb.Core.Repositories;
-using JobsDbLibrary.Configuration;
+using JobsDb.Core.Services;
+
+//using JobsDbLibrary.Configuration;
 using JobsDbLibrary.Scrapers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -106,7 +109,7 @@ namespace JobsDb.Core.Scrapers
 								}
 							}
 
-							var existing = await _jobRepository.GetBySourceIdAsync(_sourceName, job.SourceJobId);
+							var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
                             
 							if (existing == null)
 							{
@@ -172,7 +175,8 @@ namespace JobsDb.Core.Scrapers
 			_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
             
 			// Remove webdriver property
-			_driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+			IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)_driver;
+			jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 		}
 
 		private void CleanupDriver()
@@ -245,7 +249,7 @@ namespace JobsDb.Core.Scrapers
 		{
 			var job = new Job
 			{
-				Source = _sourceName,
+				Source = sourceName,
 				DatePosted = DateTime.UtcNow,
 				DateScraped = DateTime.UtcNow
 			};

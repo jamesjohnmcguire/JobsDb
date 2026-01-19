@@ -1,5 +1,5 @@
-﻿//namespace JobsDb.Core.Scrapers
-namespace JobsDb.Core.Services
+﻿namespace JobsDb.Core.Scrapers
+//namespace JobsDb.Core.Services
 {
 	using HtmlAgilityPack;
 	using JobsDb.Core.Models;
@@ -41,7 +41,7 @@ namespace JobsDb.Core.Services
 		/// <summary>
 		/// Scrape jobs from the source. Must be implemented by derived classes.
 		/// </summary>
-		public abstract Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null);
+//		public abstract Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null);
 
 		public ICredentialRepository CredentialRepository
 		{
@@ -74,7 +74,7 @@ namespace JobsDb.Core.Services
 		/// </summary>
 		protected async Task<Job> AddOrUpdateJobAsync(Job job)
 		{
-			var existing = await _jobRepository.GetBySourceIdAsync(job.Source, job.SourceJobId);
+			var existing = await jobRepository.GetBySourceIdAsync(job.Source, job.SourceJobId);
 
 			if (existing != null)
 			{
@@ -91,14 +91,14 @@ namespace JobsDb.Core.Services
 				existing.RemoteType = job.RemoteType;
 				existing.DateScraped = DateTime.UtcNow;
 
-				return await _jobRepository.UpdateAsync(existing);
+				return await jobRepository.UpdateAsync(existing);
 			}
 			else
 			{
-				job.Source = _sourceName;
+				job.Source = sourceName;
 				job.DateScraped = DateTime.UtcNow;
 				job.Status = ApplicationStatus.NotApplied;
-				return await _jobRepository.AddAsync(job);
+				return await jobRepository.AddAsync(job);
 			}
 		}
 

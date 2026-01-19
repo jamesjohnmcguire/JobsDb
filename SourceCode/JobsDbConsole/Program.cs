@@ -1,6 +1,8 @@
 ﻿namespace JobsDbConsole
 {
-	using JobsDb.Core.Utilities;
+	using JobsDbLibrary.Scrapers;
+	using System;
+	using System.Threading.Tasks;
 
 	internal class Program
 	{

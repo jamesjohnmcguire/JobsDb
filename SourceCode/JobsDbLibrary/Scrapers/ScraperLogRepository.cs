@@ -1,4 +1,6 @@
-﻿using JobsDb.Core.Repositories;
+﻿using JobsDb.Core.Data;
+using JobsDb.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

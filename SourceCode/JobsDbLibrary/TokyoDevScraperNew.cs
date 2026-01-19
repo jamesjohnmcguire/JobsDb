@@ -55,16 +55,17 @@ namespace JobsDb.Core.Scrapers
 				// - They might be list items: <li class="job-item">
 				// - Or links: <a href="/jobs/[job-id]">
 
+				var jobNodesOriginal = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]")
+					 ?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
+					 ?? doc.DocumentNode.SelectNodes("//div[@class='job']");
+
 
 				var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]");
-                
-				var jobNodes2 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]") 
-					?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
-					?? doc.DocumentNode.SelectNodes("//div[@class='job']");
-                
-					?? doc.DocumentNode.SelectNodes("//article")
-					?? doc.DocumentNode.SelectNodes("//li[contains(@class, 'listing')]")
-					?? doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/') and not(contains(@href, '/jobs?'))]");
+
+				var jobNodes4 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]")
+					 ?? doc.DocumentNode.SelectNodes("//article")
+					 ?? doc.DocumentNode.SelectNodes("//li[contains(@class, 'listing')]")
+					 ?? doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/') and not(contains(@href, '/jobs?'))]");
 
 				if (jobNodes == null || !jobNodes.Any())
 				{
@@ -86,7 +87,7 @@ namespace JobsDb.Core.Scrapers
                             
 							if (job != null && !string.IsNullOrEmpty(job.Title))
 							{
-								var existing = await _jobRepository.GetBySourceIdAsync(_sourceName, job.SourceJobId);
+								var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
                                 
 								if (existing == null)
 								{
@@ -187,7 +188,7 @@ namespace JobsDb.Core.Scrapers
 			}
 
 			job.DatePosted = DateTime.UtcNow; // Default to today if not found
-			job.Source = _sourceName;
+			job.Source = sourceName;
 
 			return job;
 		}

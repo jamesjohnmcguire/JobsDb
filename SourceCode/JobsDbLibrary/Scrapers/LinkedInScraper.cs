@@ -125,7 +125,7 @@ namespace JobsDbLibrary.Scrapers
 								Console.WriteLine($"    Warning: Could not fetch details - {ex.Message}");
 							}
 
-							var existing = await _jobRepository.GetBySourceIdAsync(_sourceName, job.SourceJobId);
+							var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
                             
 							if (existing == null)
 							{
@@ -190,7 +190,8 @@ namespace JobsDbLibrary.Scrapers
 			_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
             
 			// Remove webdriver property
-			_driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+			IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)_driver;
+			jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 		}
 
 		private void CleanupDriver()
@@ -260,7 +261,7 @@ namespace JobsDbLibrary.Scrapers
 				{
 					Console.WriteLine("✓ Successfully logged in");
 					credential.LastUsed = DateTime.UtcNow;
-					await _credentialRepository.AddOrUpdateAsync(credential);
+					await credentialRepository.AddOrUpdateAsync(credential);
 				}
 				else
 				{
@@ -336,7 +337,7 @@ namespace JobsDbLibrary.Scrapers
 		{
 			var job = new Job
 			{
-				Source = _sourceName,
+				Source = sourceName,
 				DateScraped = DateTime.UtcNow,
 				JobType = "Full-time"
 			};

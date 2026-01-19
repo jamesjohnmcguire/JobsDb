@@ -1,9 +1,13 @@
 namespace JobsDb.Core.Configuration
 {
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
 	using System.Text.Json;
 	using System.Text.Json.Serialization;
 	using JobsDb.Core.Models;
-	using JobsDb.Core.Services;
+//	using JobsDb.Core.Services;
+	using JobsDb.Core.Scrapers;
 
 	/// <summary>
 	/// Manages configuration including credentials loaded from JSON file

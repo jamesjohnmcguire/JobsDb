@@ -1,4 +1,6 @@
-﻿namespace JobsDb.Core.Configuration
+﻿using System.Collections.Generic;
+
+namespace JobsDb.Core.Configuration
 {
 	public class AppConfiguration
 	{

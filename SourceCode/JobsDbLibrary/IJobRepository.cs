@@ -1,6 +1,8 @@
 ﻿namespace JobsDb.Core.Repositories
 {
 	using JobsDb.Core.Models;
+	using System.Collections.Generic;
+	using System.Threading.Tasks;
 
 	public interface IJobRepository
 	{

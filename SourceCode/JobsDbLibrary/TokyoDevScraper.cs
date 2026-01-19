@@ -1,5 +1,6 @@
 using HtmlAgilityPack;
 using JobsDb.Core.Models;
+using JobsDb.Core.Repositories;
 using JobsDbLibrary.Scrapers;
 
 //using JobsDb.Core.Repositories;
@@ -172,7 +173,7 @@ namespace JobsDb.Core.Scrapers
 			}
 
 			job.DatePosted = DateTime.UtcNow; // Default to today if not found
-			job.Source = _sourceName;
+			job.Source = sourceName;
 
 			return job;
 		}

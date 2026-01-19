@@ -1,7 +1,13 @@
 ﻿namespace JobsDb.Core.Repositories
 {
+	using JobsDb.Core.Data;
 	using JobsDb.Core.Models;
 	using JobsDb.Core.Scrapers;
+	using JobsDbLibrary.Scrapers;
+	using Microsoft.EntityFrameworkCore;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Threading.Tasks;
 
 	public class CredentialRepository : ICredentialRepository
 	{
