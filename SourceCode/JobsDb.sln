@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11222.15 d18.0
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobsDbApplication", "JobsDbApplication\JobsDbApplication.csproj", "{62DE77BB-5830-48D3-ADA3-0A8BABCEB042}"
 EndProject
@@ -24,6 +24,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsDbLibrary", "JobsDbLibrary\JobsDbLibrary.csproj", "{C5132C70-DC48-4064-B580-B38DC26C252F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsDbConsole", "JobsDbConsole\JobsDbConsole.csproj", "{0A6880E5-3C3E-4484-BD40-852E92F7C76B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalZenWorks.Common.Utilities", "UtilitiesNet\UtilitiesNetLibrary\DigitalZenWorks.Common.Utilities.csproj", "{4B3BF25E-F1A7-7C3B-8B13-F2B8991536CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalZenWorks.Common.Utilities.Tests", "UtilitiesNet\UtilitiesNetTests\DigitalZenWorks.Common.Utilities.Tests.csproj", "{6F00EA26-C75E-E6FA-FFD9-846712454949}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,14 @@ Global
 		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A6880E5-3C3E-4484-BD40-852E92F7C76B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B3BF25E-F1A7-7C3B-8B13-F2B8991536CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B3BF25E-F1A7-7C3B-8B13-F2B8991536CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B3BF25E-F1A7-7C3B-8B13-F2B8991536CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B3BF25E-F1A7-7C3B-8B13-F2B8991536CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F00EA26-C75E-E6FA-FFD9-846712454949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F00EA26-C75E-E6FA-FFD9-846712454949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F00EA26-C75E-E6FA-FFD9-846712454949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F00EA26-C75E-E6FA-FFD9-846712454949}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
