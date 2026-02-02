@@ -1,13 +1,12 @@
-namespace JobsDb.Core.Models
+namespace JobsDb.Core.Models;
+
+public enum ApplicationStatus
 {
-	public enum ApplicationStatus
-	{
-		NotApplied,
-		Applied,
-		Interviewing,
-		Offered,
-		Rejected,
-		Withdrawn,
-		Accepted
-	}
+	NotApplied,
+	Applied,
+	Interviewing,
+	Offered,
+	Rejected,
+	Withdrawn,
+	Accepted
 }

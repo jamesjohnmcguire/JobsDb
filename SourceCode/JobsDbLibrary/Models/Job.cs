@@ -1,60 +1,56 @@
+namespace JobsDb.Core.Models;
+
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace JobsDb.Core.Models
+public class Job
 {
-	using System;
+	[Key]
+	public int Id { get; set; }
 
-	using System.ComponentModel.DataAnnotations;
-	using System.ComponentModel.DataAnnotations.Schema;
+	[Required]
+	public string Title { get; set; }
 
-	public class Job
-	{
-		[Key]
-		public int Id { get; set; }
+	[Required]
+	public string Company { get; set; }
 
-		[Required]
-		public string Title { get; set; }
+	public string Location { get; set; }
 
-		[Required]
-		public string Company { get; set; }
+	public string Description { get; set; }
 
-		public string Location { get; set; }
+	public string Requirements { get; set; }
 
-		public string Description { get; set; }
+	[Required]
+	public string Source { get; set; } // "LinkedIn", "TokyoDev", etc.
 
-		public string Requirements { get; set; }
+	[Required]
+	public string SourceUrl { get; set; }
 
-		[Required]
-		public string Source { get; set; } // "LinkedIn", "TokyoDev", etc.
+	public string SourceJobId { get; set; }
 
-		[Required]
-		public string SourceUrl { get; set; }
+	public decimal? SalaryMin { get; set; }
 
-		public string SourceJobId { get; set; }
+	public decimal? SalaryMax { get; set; }
 
-		public decimal? SalaryMin { get; set; }
+	public string SalaryCurrency { get; set; }
 
-		public decimal? SalaryMax { get; set; }
+	public string JobType { get; set; } // Full-time, Part-time, Contract, etc.
 
-		public string SalaryCurrency { get; set; }
+	public string RemoteType { get; set; } // On-site, Remote, Hybrid
 
-		public string JobType { get; set; } // Full-time, Part-time, Contract, etc.
+	public DateTime DatePosted { get; set; }
 
-		public string RemoteType { get; set; } // On-site, Remote, Hybrid
+	public DateTime DateScraped { get; set; }
 
-		public DateTime DatePosted { get; set; }
+	public DateTime? DateApplied { get; set; }
 
-		public DateTime DateScraped { get; set; }
+	public ApplicationStatus Status { get; set; }
 
-		public DateTime? DateApplied { get; set; }
+	public int? Priority { get; set; } // 1-5 rating
 
-		public ApplicationStatus Status { get; set; }
+	public string Notes { get; set; }
 
-		public int? Priority { get; set; } // 1-5 rating
-
-		public string Notes { get; set; }
-
-		public bool IsArchived { get; set; }
-	}
+	public bool IsArchived { get; set; }
 }
 
