@@ -1,9 +1,11 @@
 using System.Configuration;
-using System.Data;
-using System.Windows;
 
 namespace JobsDbApplication
 {
+	using System.Configuration;
+	using System.Data;
+	using System.Windows;
+
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -12,3 +14,4 @@ namespace JobsDbApplication
     }
 
 }
+

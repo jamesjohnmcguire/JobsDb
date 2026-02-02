@@ -1,15 +1,17 @@
 using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDb.Core.Repositories
 {
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Models;
+	using JobsDb.Core.Repositories;
+	using Microsoft.EntityFrameworkCore;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public class JobRepository : IJobRepository
 	{
 		private readonly JobsDbContext _context;
@@ -102,3 +104,4 @@ namespace JobsDb.Core.Repositories
 		}
 	}
 }
+

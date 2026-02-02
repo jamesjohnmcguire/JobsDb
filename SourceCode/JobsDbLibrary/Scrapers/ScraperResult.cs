@@ -1,12 +1,14 @@
 using JobsDb.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDbLibrary.Scrapers
 {
+	using JobsDb.Core.Models;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	/// <summary>
 	/// Result returned by scraper operations
 	/// </summary>
@@ -26,3 +28,4 @@ namespace JobsDbLibrary.Scrapers
 		public int UpdatedJobsCount { get; set; }
 	}
 }
+

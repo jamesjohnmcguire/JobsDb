@@ -1,20 +1,22 @@
 using NUnit.Framework;
-using JobsDb.Core.Services;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Data;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using JobsDb.Core;
-using JobsDbLibrary.Scrapers;
-using JobsDb.Core.Scrapers;
-using System.Linq;
 
 namespace JobsDb.Tests.Services
 {
+	using NUnit.Framework;
+	using JobsDb.Core.Services;
+	using JobsDb.Core.Models;
+	using JobsDb.Core.Repositories;
+	using JobsDb.Core.Data;
+	using Moq;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Threading.Tasks;
+	using JobsDb.Core;
+	using JobsDbLibrary.Scrapers;
+	using JobsDb.Core.Scrapers;
+	using System.Linq;
+
     [TestFixture]
     public class CredentialEncryptionTests
     {
@@ -358,3 +360,4 @@ namespace JobsDb.Tests.Services
         }
     }
 }
+

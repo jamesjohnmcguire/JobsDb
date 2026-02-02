@@ -1,11 +1,11 @@
-using NUnit.Framework;
-using JobsDb.Core.Configuration;
-using System;
-using System.IO;
-using System.Text.Json;
-
 namespace JobsDb.Tests.Configuration
 {
+	using NUnit.Framework;
+	using JobsDb.Core.Configuration;
+	using System;
+	using System.IO;
+	using System.Text.Json;
+
     [TestFixture]
     public class ConfigurationManagerTests
     {

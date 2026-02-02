@@ -1,12 +1,14 @@
 using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
 
 namespace JobsDb.Core.Services
 {
+	using OpenQA.Selenium;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Text.Json;
+
 	/// <summary>
 	/// Manages browser cookies to persist login sessions
 	/// Saves cookies after successful login, loads them to avoid re-login
@@ -191,3 +193,4 @@ namespace JobsDb.Core.Services
 		}
 	}
 }
+

@@ -1,12 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDbLibrary.Scrapers
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel.DataAnnotations;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public class ScraperCredential
 	{
 		[Key]
@@ -28,3 +30,4 @@ namespace JobsDbLibrary.Scrapers
 		public bool IsActive { get; set; }
 	}
 }
+

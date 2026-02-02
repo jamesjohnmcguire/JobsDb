@@ -1,15 +1,17 @@
 using NUnit.Framework;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
-using System.Linq;
-using JobsDbLibrary.Scrapers;
-using JobsDb.Core.Scrapers;
 
 namespace JobsDb.Tests.Data
 {
+	using NUnit.Framework;
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Models;
+	using Microsoft.EntityFrameworkCore;
+	using System;
+	using System.IO;
+	using System.Linq;
+	using JobsDbLibrary.Scrapers;
+	using JobsDb.Core.Scrapers;
+
     [TestFixture]
     public class JobsDbContextTests
     {
@@ -349,3 +351,4 @@ namespace JobsDb.Tests.Data
         }
     }
 }
+

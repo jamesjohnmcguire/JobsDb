@@ -1,11 +1,13 @@
 using NUnit.Framework;
-using JobsDb.Core.Models;
-using System;
-using JobsDbLibrary.Scrapers;
-using JobsDb.Core.Scrapers;
 
 namespace JobsDb.Tests.Models
 {
+	using NUnit.Framework;
+	using JobsDb.Core.Models;
+	using System;
+	using JobsDbLibrary.Scrapers;
+	using JobsDb.Core.Scrapers;
+
     [TestFixture]
     public class JobTests
     {
@@ -198,3 +200,4 @@ namespace JobsDb.Tests.Models
         }
     }
 }
+

@@ -1,16 +1,18 @@
 using HtmlAgilityPack;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDbLibrary.Scrapers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace JobsDb.Core.Scrapers
 {
+	using HtmlAgilityPack;
+	using JobsDb.Core.Models;
+	using JobsDb.Core.Repositories;
+	using JobsDbLibrary.Scrapers;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Net.Http;
+	using System.Threading.Tasks;
+
 	public class TokyoDevScraper : JobScraperBase
 	{
 		private readonly HttpClient _httpClient;
@@ -272,3 +274,4 @@ namespace JobsDb.Core.Scrapers
 		}
 	}
 }
+

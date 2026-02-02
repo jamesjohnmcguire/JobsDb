@@ -2,6 +2,8 @@ using System.Windows;
 
 namespace REghZyFramework.Themes
 {
+	using System.Windows;
+
     public partial class ColourfulLightTheme
     {
         private void CloseWindow_Event(object sender, RoutedEventArgs e)
@@ -31,3 +33,4 @@ namespace REghZyFramework.Themes
         public void MinimizeWind(Window window) => window.WindowState = WindowState.Minimized;
     }
 }
+

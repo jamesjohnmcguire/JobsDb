@@ -1,12 +1,14 @@
 using JobsDbLibrary.Scrapers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDb.Core.Repositories
 {
+	using JobsDbLibrary.Scrapers;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public interface IScraperLogRepository
 	{
 		Task<List<ScraperLog>> GetRecentLogsAsync(int count = 50);
@@ -14,3 +16,4 @@ namespace JobsDb.Core.Repositories
 		Task<ScraperLog> AddAsync(ScraperLog log);
 	}
 }
+

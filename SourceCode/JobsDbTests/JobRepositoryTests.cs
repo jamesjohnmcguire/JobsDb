@@ -1,16 +1,18 @@
 using NUnit.Framework;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using JobsDbLibrary.Scrapers;
 
 namespace JobsDb.Tests.Repositories
 {
+	using NUnit.Framework;
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Models;
+	using JobsDb.Core.Repositories;
+	using Microsoft.EntityFrameworkCore;
+	using System;
+	using System.IO;
+	using System.Linq;
+	using System.Threading.Tasks;
+	using JobsDbLibrary.Scrapers;
+
     [TestFixture]
     public class JobRepositoryTests
     {
@@ -374,3 +376,4 @@ namespace JobsDb.Tests.Repositories
         }
     }
 }
+

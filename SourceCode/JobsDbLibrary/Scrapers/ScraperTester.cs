@@ -1,12 +1,14 @@
 using HtmlAgilityPack;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace JobsDbLibrary.Scrapers
 {
+	using HtmlAgilityPack;
+	using System;
+	using System.IO;
+	using System.Linq;
+	using System.Net.Http;
+	using System.Threading.Tasks;
+
 	/// <summary>
 	/// Utility class to help debug and test scrapers by analyzing HTML structure
 	/// Run this first to understand the page structure before adjusting selectors
@@ -208,3 +210,4 @@ namespace JobsDbLibrary.Scrapers
 		}
 	}
 }
+

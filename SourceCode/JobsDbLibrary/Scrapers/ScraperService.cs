@@ -1,13 +1,15 @@
 using JobsDb.Core.Data;
-using JobsDb.Core.Scrapers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDbLibrary.Scrapers
 {
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Scrapers;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	/// <summary>
 	/// Service to manage and run multiple scrapers
 	/// </summary>
@@ -92,3 +94,4 @@ namespace JobsDbLibrary.Scrapers
 		}
 	}
 }
+

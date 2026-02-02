@@ -1,12 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDb.Core.Scrapers
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel.DataAnnotations;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public class SearchFilter
 	{
 		[Key]
@@ -28,3 +30,4 @@ namespace JobsDb.Core.Scrapers
 		public DateTime? LastRunDate { get; set; }
 	}
 }
+

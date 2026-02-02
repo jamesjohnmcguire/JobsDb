@@ -1,16 +1,18 @@
 using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-
+}
 namespace JobsDb
 {
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Models;
+	using JobsDb.Core.Repositories;
+	using JobsDb.Core.Services;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Windows;
+	using System.Windows.Controls;
+
     public partial class MainWindow : Window
     {
         private readonly JobsDbContext _context;

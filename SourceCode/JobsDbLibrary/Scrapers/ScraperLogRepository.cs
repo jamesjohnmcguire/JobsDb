@@ -1,14 +1,16 @@
 using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDbLibrary.Scrapers
 {
+	using JobsDb.Core.Data;
+	using JobsDb.Core.Repositories;
+	using Microsoft.EntityFrameworkCore;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public class ScraperLogRepository : IScraperLogRepository
 	{
 		private readonly JobsDbContext _context;
@@ -43,3 +45,4 @@ namespace JobsDbLibrary.Scrapers
 		}
 	}
 }
+

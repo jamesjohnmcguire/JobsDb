@@ -1,12 +1,14 @@
 using JobsDbLibrary.Scrapers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JobsDb.Core.Repositories
 {
+	using JobsDbLibrary.Scrapers;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public interface ICredentialRepository
 	{
 		Task<ScraperCredential> GetBySourceAsync(string source);
@@ -15,3 +17,4 @@ namespace JobsDb.Core.Repositories
 		Task<bool> DeleteBySourceAsync(string source);
 	}
 }
+

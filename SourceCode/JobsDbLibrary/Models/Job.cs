@@ -2,6 +2,8 @@ using System;
 
 namespace JobsDb.Core.Models
 {
+	using System;
+
 	using System.ComponentModel.DataAnnotations;
 	using System.ComponentModel.DataAnnotations.Schema;
 
@@ -55,3 +57,4 @@ namespace JobsDb.Core.Models
 		public bool IsArchived { get; set; }
 	}
 }
+

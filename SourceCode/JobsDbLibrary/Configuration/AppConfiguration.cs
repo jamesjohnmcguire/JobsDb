@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 namespace JobsDb.Core.Configuration
 {
+	using System.Collections.Generic;
+
 	public class AppConfiguration
 	{
 		public string MasterPassword { get; set; }
@@ -10,3 +12,4 @@ namespace JobsDb.Core.Configuration
 		public ScraperSettingsConfig ScraperSettings { get; set; }
 	}
 }
+
