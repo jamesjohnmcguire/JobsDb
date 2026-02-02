@@ -1,4 +1,4 @@
-﻿namespace JobsDb.Core.Models
+namespace JobsDb.Core.Models
 {
 	public enum ApplicationStatus
 	{

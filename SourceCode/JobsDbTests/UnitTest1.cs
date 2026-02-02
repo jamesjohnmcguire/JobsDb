@@ -1,4 +1,4 @@
-﻿namespace JobsDbTests
+namespace JobsDbTests
 {
 	using NUnit.Framework;
 

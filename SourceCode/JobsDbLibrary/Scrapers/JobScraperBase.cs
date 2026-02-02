@@ -1,4 +1,4 @@
-﻿namespace JobsDb.Core.Scrapers
+namespace JobsDb.Core.Scrapers
 //namespace JobsDb.Core.Services
 {
 	using HtmlAgilityPack;

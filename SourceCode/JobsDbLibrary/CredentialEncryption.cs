@@ -1,4 +1,4 @@
-﻿namespace JobsDb.Core
+namespace JobsDb.Core
 {
 	using System;
 	using System.Security.Cryptography;

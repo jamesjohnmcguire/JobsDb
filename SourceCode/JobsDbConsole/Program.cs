@@ -1,4 +1,4 @@
-﻿namespace JobsDbConsole
+namespace JobsDbConsole
 {
 	using JobsDbLibrary.Scrapers;
 	using System;

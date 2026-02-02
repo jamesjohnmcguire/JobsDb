@@ -1,4 +1,4 @@
-﻿using JobsDb.Core.Models;
+using JobsDb.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

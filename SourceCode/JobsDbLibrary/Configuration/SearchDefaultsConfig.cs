@@ -1,4 +1,4 @@
-﻿namespace JobsDb.Core.Configuration
+namespace JobsDb.Core.Configuration
 {
 	public class SearchDefaultsConfig
 	{

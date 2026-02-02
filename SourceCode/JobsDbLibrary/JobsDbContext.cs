@@ -1,4 +1,4 @@
-﻿
+
 namespace JobsDb.Core.Data;
 
 using JobsDb.Core.Models;

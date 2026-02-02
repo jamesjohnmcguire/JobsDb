@@ -1,4 +1,4 @@
-﻿namespace JobsDb.Core.Repositories
+namespace JobsDb.Core.Repositories
 {
 	using JobsDb.Core.Scrapers;
 	using System.Collections.Generic;

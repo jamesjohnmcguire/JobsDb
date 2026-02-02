@@ -1,4 +1,4 @@
-﻿using JobsDb.Core.Data;
+using JobsDb.Core.Data;
 using JobsDb.Core.Scrapers;
 using System;
 using System.Collections.Generic;

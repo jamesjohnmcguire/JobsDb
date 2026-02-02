@@ -1,4 +1,4 @@
-﻿using JobsDb.Core.Data;
+using JobsDb.Core.Data;
 using JobsDb.Core.Models;
 using JobsDb.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
