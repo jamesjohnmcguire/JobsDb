@@ -1,0 +1,274 @@
+using HtmlAgilityPack;
+using JobsDb.Core.Models;
+using JobsDb.Core.Repositories;
+using JobsDbLibrary.Scrapers;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace JobsDb.Core.Scrapers
+{
+	public class TokyoDevScraper : JobScraperBase
+	{
+		private readonly HttpClient _httpClient;
+		private const string BaseUrl = "https://www.tokyodev.com";
+		private const string JobsUrl = "https://www.tokyodev.com/jobs";
+
+		public TokyoDevScraper(
+			IJobRepository jobRepository,
+			ICredentialRepository credentialRepository) 
+			: base(jobRepository, credentialRepository, "TokyoDev")
+		{
+			_httpClient = new HttpClient();
+			_httpClient.DefaultRequestHeaders.Add("User-Agent", 
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+		}
+
+		public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
+		{
+			var stopwatch = Stopwatch.StartNew();
+			var result = new ScraperResult();
+
+			try
+			{
+				// TokyoDev typically doesn't require login for basic job listings
+				// But we can use credentials if they implement a login system later
+				var credential = await GetCredentialsAsync();
+                
+				if (credential != null && credential.IsActive)
+				{
+					await LoginAsync(credential);
+				}
+
+				// Fetch the jobs page
+				var jobsHtml = await _httpClient.GetStringAsync(JobsUrl);
+				var doc = new HtmlDocument();
+				doc.LoadHtml(jobsHtml);
+
+				// Parse job listings - IMPORTANT: Inspect https://www.tokyodev.com/jobs in your browser
+				// Right-click on a job listing → Inspect Element to find the correct CSS classes
+				// Common patterns to try:
+				// - Job cards might be: <div class="job-card">, <article class="listing">, etc.
+				// - They might be list items: <li class="job-item">
+				// - Or links: <a href="/jobs/[job-id]">
+
+				var jobNodesOriginal = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]")
+					 ?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
+					 ?? doc.DocumentNode.SelectNodes("//div[@class='job']");
+
+
+				var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]");
+
+				var jobNodes4 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]")
+					 ?? doc.DocumentNode.SelectNodes("//article")
+					 ?? doc.DocumentNode.SelectNodes("//li[contains(@class, 'listing')]")
+					 ?? doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/') and not(contains(@href, '/jobs?'))]");
+
+				if (jobNodes == null || !jobNodes.Any())
+				{
+                						// Try alternative selectors
+					// jobNodes = doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/')]");
+
+					// Debug: Save HTML to file to inspect
+					System.IO.File.WriteAllText("tokyodev_debug.html", jobsHtml);
+					throw new Exception("No job nodes found. Check tokyodev_debug.html for structure.");
+				}
+
+				if (jobNodes != null)
+				{
+					foreach (var jobNode in jobNodes)
+					{
+						try
+						{
+							var job = await ParseJobNodeAsync(jobNode);
+                            
+							if (job != null && !string.IsNullOrEmpty(job.Title))
+							{
+								var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
+                                
+								if (existing == null)
+								{
+									await AddOrUpdateJobAsync(job);
+									result.JobsAdded++;
+								}
+								else
+								{
+									await AddOrUpdateJobAsync(job);
+									result.JobsUpdated++;
+								}
+                                
+								result.Jobs.Add(job);
+							}
+						}
+						catch (Exception ex)
+						{
+							// Log but continue with other jobs
+							Console.WriteLine($"Error parsing job: {ex.Message}");
+						}
+					}
+				}
+
+				result.JobsFound = result.Jobs.Count;
+				result.Success = true;
+			}
+			catch (Exception ex)
+			{
+				result.Success = false;
+				result.ErrorMessage = ex.Message;
+			}
+
+			stopwatch.Stop();
+			result.Duration = stopwatch.Elapsed;
+			return result;
+		}
+
+		private async Task<Job> ParseJobNodeAsync(HtmlNode node)
+		{
+			var job = new Job();
+
+			// Extract job title
+			var titleNode = node.SelectSingleNode(".//h2") 
+				?? node.SelectSingleNode(".//h3")
+				?? node.SelectSingleNode(".//a[contains(@class, 'job-title')]");
+            
+			if (titleNode != null)
+			{
+				job.Title = HtmlEntity.DeEntitize(titleNode.InnerText.Trim());
+			}
+
+			// Extract company
+			var companyNode = node.SelectSingleNode(".//span[contains(@class, 'company')]")
+				?? node.SelectSingleNode(".//div[contains(@class, 'company')]");
+            
+			if (companyNode != null)
+			{
+				job.Company = HtmlEntity.DeEntitize(companyNode.InnerText.Trim());
+			}
+
+			// Extract location
+			var locationNode = node.SelectSingleNode(".//span[contains(@class, 'location')]")
+				?? node.SelectSingleNode(".//div[contains(@class, 'location')]");
+            
+			if (locationNode != null)
+			{
+				job.Location = HtmlEntity.DeEntitize(locationNode.InnerText.Trim());
+			}
+
+			// Extract job URL
+			var linkNode = node.SelectSingleNode(".//a[@href]") ?? node;
+			var href = linkNode.GetAttributeValue("href", string.Empty);
+            
+			if (!string.IsNullOrEmpty(href))
+			{
+				job.SourceUrl = href.StartsWith("http") ? href : $"{BaseUrl}{href}";
+                
+				// Extract job ID from URL
+				var urlParts = href.Split('/');
+				job.SourceJobId = urlParts.LastOrDefault(p => !string.IsNullOrWhiteSpace(p)) ?? Guid.NewGuid().ToString();
+			}
+			else
+			{
+				job.SourceJobId = Guid.NewGuid().ToString();
+			}
+
+			// If we have a URL, fetch the full job details
+			if (!string.IsNullOrEmpty(job.SourceUrl))
+			{
+				try
+				{
+					await FetchJobDetailsAsync(job);
+				}
+				catch
+				{
+					// Continue with basic info if details fetch fails
+				}
+			}
+
+			job.DatePosted = DateTime.UtcNow; // Default to today if not found
+			job.Source = sourceName;
+
+			return job;
+		}
+
+		private async Task FetchJobDetailsAsync(Job job)
+		{
+			var detailsHtml = await _httpClient.GetStringAsync(job.SourceUrl);
+			var doc = new HtmlDocument();
+			doc.LoadHtml(detailsHtml);
+
+			// Extract description
+			var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
+				?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'job-content')]")
+				?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'description')]");
+            
+			if (descNode != null)
+			{
+				job.Description = HtmlEntity.DeEntitize(descNode.InnerText.Trim());
+			}
+
+			// Extract requirements
+			var reqNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'requirements')]")
+				?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'requirements')]");
+            
+			if (reqNode != null)
+			{
+				job.Requirements = HtmlEntity.DeEntitize(reqNode.InnerText.Trim());
+			}
+
+			// Extract salary if available
+			var salaryNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'salary')]")
+				?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'salary')]");
+            
+			if (salaryNode != null)
+			{
+				var salaryText = salaryNode.InnerText.Trim();
+				ParseSalary(salaryText, job);
+			}
+
+			// Extract job type (Full-time, Part-time, etc.)
+			var typeNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'job-type')]");
+			if (typeNode != null)
+			{
+				job.JobType = HtmlEntity.DeEntitize(typeNode.InnerText.Trim());
+			}
+
+			// Extract remote type
+			var remoteNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'remote')]");
+			if (remoteNode != null)
+			{
+				job.RemoteType = HtmlEntity.DeEntitize(remoteNode.InnerText.Trim());
+			}
+		}
+
+		private void ParseSalary(string salaryText, Job job)
+		{
+			// Parse salary strings like "¥5,000,000 - ¥8,000,000" or "$50,000 - $80,000"
+			var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
+            
+			if (numbers.Count >= 2)
+			{
+				if (decimal.TryParse(numbers[0].Value.Replace(",", ""), out var min))
+					job.SalaryMin = min;
+                
+				if (decimal.TryParse(numbers[1].Value.Replace(",", ""), out var max))
+					job.SalaryMax = max;
+			}
+
+			// Determine currency
+			if (salaryText.Contains("¥") || salaryText.ToLower().Contains("jpy"))
+				job.SalaryCurrency = "JPY";
+			else if (salaryText.Contains("$") || salaryText.ToLower().Contains("usd"))
+				job.SalaryCurrency = "USD";
+		}
+
+		protected override async Task<bool> LoginAsync(ScraperCredential credential)
+		{
+			// TokyoDev typically doesn't require login for job listings
+			// Implement if they add authentication in the future
+			return await Task.FromResult(true);
+		}
+	}
+}
