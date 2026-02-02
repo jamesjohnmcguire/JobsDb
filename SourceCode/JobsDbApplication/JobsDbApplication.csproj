@@ -9,6 +9,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="PresentationFramework.Aero2" Version="1.0.1" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="../stylecop.json" />
 	</ItemGroup>
 
 </Project>

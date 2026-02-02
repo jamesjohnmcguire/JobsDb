@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using JobsDb.Core;
 using JobsDbLibrary.Scrapers;
 using JobsDb.Core.Scrapers;
+using System.Linq;
 
 namespace JobsDb.Tests.Services
 {
