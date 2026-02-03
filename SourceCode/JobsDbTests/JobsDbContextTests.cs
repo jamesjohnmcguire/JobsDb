@@ -314,7 +314,14 @@ public class JobsDbContextTests
         {
             Title = "Test",
             Company = "Test Co",
-            Source = "Test",
+			Description = "Test Description",
+			JobType = "Full-time",
+			Notes = "Test Notes",
+			Location = "Remote",
+			Requirements = "None",
+			RemoteType = "Remote",
+			SalaryCurrency = "USD",
+			Source = "Test",
             SourceUrl = "https://test.com",
             SourceJobId = "123",
             DatePosted = DateTime.UtcNow
