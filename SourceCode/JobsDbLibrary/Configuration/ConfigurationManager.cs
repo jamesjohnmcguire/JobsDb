@@ -90,41 +90,9 @@ public class ConfigurationManager
 
 	private AppConfiguration CreateDefaultConfiguration()
 	{
-		return new AppConfiguration
-		{
-			MasterPassword = "JobsDb2024!",
-			Credentials = new List<CredentialConfig>
-			{
-				new CredentialConfig
-				{
-					Source = "LinkedIn",
-					Username = "your_email@example.com",
-					Password = "your_password_here",
-					IsActive = true
-				},
-				new CredentialConfig
-				{
-					Source = "TokyoDev",
-					Username = "your_email@example.com",
-					Password = "your_password_here",
-					IsActive = false // TokyoDev doesn't require login currently
-				}
-			},
-			SearchDefaults = new SearchDefaultsConfig
-			{
-				Keywords = "software developer",
-				Location = "Tokyo, Japan",
-				JobType = "Full-time"
-			},
-			ScraperSettings = new ScraperSettingsConfig
-			{
-				RunHeadless = false,
-				PageLoadTimeoutSeconds = 30,
-				ImplicitWaitSeconds = 10,
-				ScrollDelayMs = 2000,
-				LoginTimeoutSeconds = 60
-			}
-		};
+		AppConfiguration appConfig = new AppConfiguration();
+
+		return appConfig;
 	}
 
 	public string GetDecryptedPassword(string source)
@@ -140,6 +108,8 @@ public class ConfigurationManager
 
 	public CredentialConfig GetCredentialConfig(string source)
 	{
-		return _config.Credentials.Find(c => c.Source == source);
+		CredentialConfig? credentialsConfig =
+			_config.Credentials.Find(c => c.Source == source);
+		return credentialsConfig;
 	}
 }
