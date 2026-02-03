@@ -6,40 +6,83 @@
 
 namespace JobsDb.Tests.Data;
 
-using NUnit.Framework;
 using JobsDb.Core.Data;
 using JobsDb.Core.Models;
+using JobsDb.Core.Scrapers;
+using JobsDbLibrary.Scrapers;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
+using OpenQA.Selenium.BiDi.Script;
 using System;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
-using JobsDbLibrary.Scrapers;
-using JobsDb.Core.Scrapers;
+using System.Net.NetworkInformation;
 
 [TestFixture]
 public class JobsDbContextTests
 {
     private JobsDbContext _context;
-    private string _testDbPath;
+	private Job testJob;
+	private Job testJobAppied;
+	private string _testDbPath;
 
-    [SetUp]
-    public void SetUp()
-    {
-        _testDbPath = Path.Combine(Path.GetTempPath(), $"test_db_{Guid.NewGuid()}.db");
-        _context = new JobsDbContext(_testDbPath);
-    }
+	/// <summary>
+	/// The one time setup method.
+	/// </summary>
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
+	{
+		_testDbPath =
+			Path.Combine(Path.GetTempPath(), $"test_db_{Guid.NewGuid()}.db");
 
-    [TearDown]
-    public void TearDown()
-    {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
-            
-        if (File.Exists(_testDbPath))
-            File.Delete(_testDbPath);
-    }
+		testJob = new Job
+		{
+			Title = "Test",
+			Company = "Test Company",
+			Description = "Test Description",
+			JobType = "Full-time",
+			Notes = "Test Notes",
+			Location = "Remote",
+			Requirements = "None",
+			RemoteType = "Remote",
+			SalaryCurrency = "USD",
+			Source = "Test",
+			SourceUrl = "https://test.com",
+			SourceJobId = "123",
+			DatePosted = DateTime.UtcNow
+		};
 
-    [Test]
+		testJobAppied = testJob;
+		testJobAppied.Status = ApplicationStatus.Applied;
+	}
+
+	/// <summary>
+	/// One time tear down method.
+	/// </summary>
+	[OneTimeTearDown]
+	public void OneTimeTearDown()
+	{
+		if (File.Exists(_testDbPath))
+		{
+			File.Delete(_testDbPath);
+		}
+	}
+
+	[SetUp]
+	public void SetUp()
+	{
+		_context = new JobsDbContext(_testDbPath);
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		_context.Database.EnsureDeleted();
+		_context.Dispose();
+	}
+
+	[Test]
     public void Initialize_CreatesDatabase()
     {
         // Act
@@ -100,41 +143,24 @@ public class JobsDbContextTests
         Assert.That(_context.SearchFilters, Is.Not.Null);
     }
 
-    [Test]
-    public void Job_UniqueConstraint_EnforcesSourceAndSourceJobId()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var job1 = new Job
-        {
-            Title = "Test Job",
-            Company = "Company A",
-            Source = "LinkedIn",
-            SourceUrl = "https://test.com/1",
-            SourceJobId = "12345",
-            DatePosted = DateTime.UtcNow
-        };
+	[Test]
+	public void Job_UniqueConstraint_EnforcesSourceAndSourceJobId()
+	{
+		_context.Initialize();
 
-        var job2 = new Job
-        {
-            Title = "Different Job",
-            Company = "Company B",
-            Source = "LinkedIn",
-            SourceUrl = "https://test.com/2",
-            SourceJobId = "12345", // Same SourceJobId
-            DatePosted = DateTime.UtcNow
-        };
+		Job badJob = testJob;
+		badJob.Title = "Different Job";
+		badJob.Company = "Company B";
+		badJob.Source = "LinkedIn";
+		badJob.SourceUrl = "https://test.com/2";
 
-        // Act
-        _context.Jobs.Add(job1);
-        _context.SaveChanges();
+		_context.Jobs.Add(testJob);
+		_context.SaveChanges();
 
-        _context.Jobs.Add(job2);
+		_context.Jobs.Add(badJob);
 
-        // Assert
-        Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
-    }
+		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+	}
 
     [Test]
     public void ScraperCredential_UniqueSource_EnforcesConstraint()
@@ -168,59 +194,33 @@ public class JobsDbContextTests
         Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
     }
 
-    [Test]
-    public void Job_StatusEnum_SavesAsString()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var job = new Job
-        {
-            Title = "Test",
-            Company = "Test Co",
-            Source = "Test",
-            SourceUrl = "https://test.com",
-            SourceJobId = "123",
-            DatePosted = DateTime.UtcNow,
-            Status = ApplicationStatus.Applied
-        };
+	[Test]
+	public void Job_StatusEnum_SavesAsString()
+	{
+		_context.Initialize();
 
-        // Act
-        _context.Jobs.Add(job);
-        _context.SaveChanges();
+		_context.Jobs.Add(testJob);
+		_context.SaveChanges();
 
-        // Verify it's stored as string in database
-        var saved = _context.Jobs.First();
-            
-        // Assert
-        Assert.That(saved.Status, Is.EqualTo(ApplicationStatus.Applied));
-    }
+		// Verify it's stored as string in database
+		var saved = _context.Jobs.First();
 
-    [Test]
-    public void Job_DateScraped_HasDefaultValue()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var job = new Job
-        {
-            Title = "Test",
-            Company = "Test Co",
-            Source = "Test",
-            SourceUrl = "https://test.com",
-            SourceJobId = "123",
-            DatePosted = DateTime.UtcNow
-        };
+		Assert.That(saved.Status, Is.EqualTo(ApplicationStatus.Applied));
+	}
 
-        // Act
-        _context.Jobs.Add(job);
-        _context.SaveChanges();
+	[Test]
+	public void Job_DateScraped_HasDefaultValue()
+	{
+		_context.Initialize();
 
-        var saved = _context.Jobs.First();
+		_context.Jobs.Add(testJob);
+		_context.SaveChanges();
 
-        // Assert
-        Assert.That(saved.DateScraped, Is.Not.EqualTo(default(DateTime)));
-    }
+		var saved = _context.Jobs.First();
+
+		// Assert
+		Assert.That(saved.DateScraped, Is.Not.EqualTo(default(DateTime)));
+	}
 
     [Test]
     public void SearchFilter_CreatedDate_HasDefaultValue()
@@ -274,27 +274,13 @@ public class JobsDbContextTests
         // Arrange
         _context.Initialize();
 
-        // Act - Query using indexed columns should work efficiently
-        var job = new Job
-        {
-            Title = "Test",
-            Company = "TestCompany",
-            Location = "Tokyo",
-            Source = "LinkedIn",
-            SourceUrl = "https://test.com",
-            SourceJobId = "123",
-            DatePosted = DateTime.UtcNow,
-            Status = ApplicationStatus.Applied,
-            IsArchived = false
-        };
-
-        _context.Jobs.Add(job);
+        _context.Jobs.Add(testJobAppied);
         _context.SaveChanges();
 
         // These queries use indexes
         var byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
-        var byCompany = _context.Jobs.Where(j => j.Company == "TestCompany").ToList();
-        var byLocation = _context.Jobs.Where(j => j.Location == "Tokyo").ToList();
+        var byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
+        var byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
         var byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
 
         // Assert
@@ -307,27 +293,9 @@ public class JobsDbContextTests
     [Test]
     public void Context_MultipleInstances_UseSameDatabase()
     {
-        // Arrange
         _context.Initialize();
-            
-        var job = new Job
-        {
-            Title = "Test",
-            Company = "Test Co",
-			Description = "Test Description",
-			JobType = "Full-time",
-			Notes = "Test Notes",
-			Location = "Remote",
-			Requirements = "None",
-			RemoteType = "Remote",
-			SalaryCurrency = "USD",
-			Source = "Test",
-            SourceUrl = "https://test.com",
-            SourceJobId = "123",
-            DatePosted = DateTime.UtcNow
-        };
 
-        _context.Jobs.Add(job);
+        _context.Jobs.Add(testJob);
         _context.SaveChanges();
 
         // Act - Create new context with same path
