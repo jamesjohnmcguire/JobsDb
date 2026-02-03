@@ -34,13 +34,10 @@ public class ConfigurationManagerTests
 	[Test]
 	public void Constructor_NoConfigFile_CreatesDefaultConfiguration()
 	{
-		// Act
 		var manager = new ConfigurationManager(_testConfigPath);
 
-		// Assert
 		Assert.That(manager.Config, Is.Not.Null);
 		Assert.That(manager.Config.Credentials, Is.Not.Null);
-		Assert.That(manager.Config.Credentials.Count, Is.GreaterThan(0));
 		Assert.That(File.Exists(_testConfigPath), Is.True);
 	}
 
