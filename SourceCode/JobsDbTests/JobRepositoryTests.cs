@@ -283,7 +283,8 @@ public class CredentialRepositoryTests
         // Arrange
         var credential = new ScraperCredential
         {
-            Source = "LinkedIn",
+			CookieData = "cookie",
+			Source = "LinkedIn",
             Username = "test@example.com",
             EncryptedPassword = "encrypted",
             IsActive = true
@@ -304,7 +305,8 @@ public class CredentialRepositoryTests
         // Arrange
         var credential = new ScraperCredential
         {
-            Source = "LinkedIn",
+			CookieData = "cookie",
+			Source = "LinkedIn",
             Username = "old@example.com",
             EncryptedPassword = "encrypted",
             IsActive = true
@@ -327,7 +329,8 @@ public class CredentialRepositoryTests
         // Arrange
         var credential = new ScraperCredential
         {
-            Source = "TokyoDev",
+			CookieData = "cookie",
+			Source = "TokyoDev",
             Username = "test@example.com",
             EncryptedPassword = "encrypted",
             IsActive = true
@@ -358,14 +361,16 @@ public class CredentialRepositoryTests
         // Arrange
         await _repository.AddOrUpdateAsync(new ScraperCredential
         {
-            Source = "LinkedIn",
+			CookieData = "cookie",
+			Source = "LinkedIn",
             Username = "test1@example.com",
             EncryptedPassword = "encrypted",
             IsActive = true
         });
         await _repository.AddOrUpdateAsync(new ScraperCredential
         {
-            Source = "TokyoDev",
+			CookieData = "cookie",
+			Source = "TokyoDev",
             Username = "test2@example.com",
             EncryptedPassword = "encrypted",
             IsActive = false
