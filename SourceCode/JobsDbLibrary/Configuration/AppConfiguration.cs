@@ -10,8 +10,18 @@ using System.Collections.Generic;
 
 public class AppConfiguration
 {
-	public string MasterPassword { get; set; }
-	public List<CredentialConfig> Credentials { get; set; }
-	public SearchDefaultsConfig SearchDefaults { get; set; }
-	public ScraperSettingsConfig ScraperSettings { get; set; }
+	/// <summary>
+	/// Initializes a new instance of the <see cref="AppConfiguration"/> class.
+	/// </summary>
+	public AppConfiguration()
+	{
+		Credentials = new List<CredentialConfig>();
+		SearchDefaults = new SearchDefaultsConfig();
+		ScraperSettings = new ScraperSettingsConfig();
+	}
+
+	public string? MasterPassword { get; set; }
+	public List<CredentialConfig>? Credentials { get; set; }
+	public SearchDefaultsConfig? SearchDefaults { get; set; }
+	public ScraperSettingsConfig? ScraperSettings { get; set; }
 }
