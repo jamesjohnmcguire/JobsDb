@@ -20,12 +20,10 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 [TestFixture]
-public class JobsDbContextTests
+internal sealed class JobsDbContextTests : BaseTestsSupport
 {
     private JobsDbContext _context;
-	private Job testJob;
 	private Job testJobAppied;
-	private string _testDbPath;
 
 	/// <summary>
 	/// The one time setup method.
@@ -33,27 +31,7 @@ public class JobsDbContextTests
 	[OneTimeSetUp]
 	public void OneTimeSetUp()
 	{
-		_testDbPath =
-			Path.Combine(Path.GetTempPath(), $"test_db_{Guid.NewGuid()}.db");
-
-		testJob = new Job
-		{
-			Title = "Test",
-			Company = "Test Company",
-			Description = "Test Description",
-			JobType = "Full-time",
-			Notes = "Test Notes",
-			Location = "Remote",
-			Requirements = "None",
-			RemoteType = "Remote",
-			SalaryCurrency = "USD",
-			Source = "Test",
-			SourceUrl = "https://test.com",
-			SourceJobId = "123",
-			DatePosted = DateTime.UtcNow
-		};
-
-		testJobAppied = testJob;
+		testJobAppied = TestJob;
 		testJobAppied.Status = ApplicationStatus.Applied;
 	}
 
@@ -63,16 +41,12 @@ public class JobsDbContextTests
 	[OneTimeTearDown]
 	public void OneTimeTearDown()
 	{
-		if (File.Exists(_testDbPath))
-		{
-			File.Delete(_testDbPath);
-		}
 	}
 
 	[SetUp]
 	public void SetUp()
 	{
-		_context = new JobsDbContext(_testDbPath);
+		_context = new JobsDbContext(TestDbPath);
 	}
 
 	[TearDown]
@@ -89,7 +63,7 @@ public class JobsDbContextTests
         _context.Initialize();
 
         // Assert
-        Assert.That(File.Exists(_testDbPath), Is.True);
+        Assert.That(File.Exists(TestDbPath), Is.True);
         Assert.That(_context.Database.CanConnect(), Is.True);
     }
 
@@ -100,7 +74,7 @@ public class JobsDbContextTests
         var path = _context.GetDatabasePath();
 
         // Assert
-        Assert.That(path, Is.EqualTo(_testDbPath));
+        Assert.That(path, Is.EqualTo(TestDbPath));
     }
 
     [Test]
@@ -148,13 +122,13 @@ public class JobsDbContextTests
 	{
 		_context.Initialize();
 
-		Job badJob = testJob;
+		Job badJob = TestJob;
 		badJob.Title = "Different Job";
 		badJob.Company = "Company B";
 		badJob.Source = "LinkedIn";
 		badJob.SourceUrl = "https://test.com/2";
 
-		_context.Jobs.Add(testJob);
+		_context.Jobs.Add(TestJob);
 		_context.SaveChanges();
 
 		_context.Jobs.Add(badJob);
@@ -170,7 +144,8 @@ public class JobsDbContextTests
             
         var cred1 = new ScraperCredential
         {
-            Source = "LinkedIn",
+			CookieData = "cookie",
+			Source = "LinkedIn",
             Username = "user1@example.com",
             EncryptedPassword = "encrypted1",
             IsActive = true
@@ -199,7 +174,7 @@ public class JobsDbContextTests
 	{
 		_context.Initialize();
 
-		_context.Jobs.Add(testJob);
+		_context.Jobs.Add(TestJob);
 		_context.SaveChanges();
 
 		// Verify it's stored as string in database
@@ -213,7 +188,7 @@ public class JobsDbContextTests
 	{
 		_context.Initialize();
 
-		_context.Jobs.Add(testJob);
+		_context.Jobs.Add(TestJob);
 		_context.SaveChanges();
 
 		var saved = _context.Jobs.First();
@@ -232,8 +207,10 @@ public class JobsDbContextTests
         {
             Name = "Test Filter",
             Keywords = "developer",
-            IsActive = true
-        };
+            IsActive = true,
+			Location = "Remote",
+			Source = "TestSource"
+		};
 
         // Act
         _context.SearchFilters.Add(filter);
@@ -253,7 +230,9 @@ public class JobsDbContextTests
             
         var cred = new ScraperCredential
         {
-            Source = "TestSource",
+			CookieData = "cookie",
+			IsActive = true,
+			Source = "TestSource",
             Username = "test@example.com",
             EncryptedPassword = "encrypted"
         };
@@ -295,11 +274,11 @@ public class JobsDbContextTests
     {
         _context.Initialize();
 
-        _context.Jobs.Add(testJob);
+        _context.Jobs.Add(TestJob);
         _context.SaveChanges();
 
         // Act - Create new context with same path
-        using (var context2 = new JobsDbContext(_testDbPath))
+        using (var context2 = new JobsDbContext(TestDbPath))
         {
             var jobs = context2.Jobs.ToList();
 
