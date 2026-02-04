@@ -78,6 +78,38 @@ internal abstract class BaseTestsSupport : IDisposable
 	}
 
 	/// <summary>
+	/// Copy a job object.
+	/// </summary>
+	/// <param name="job">The job to be copied.</param>
+	/// <returns>The copied job.</returns>
+	protected static Job CopyJob(Job job)
+	{
+		Job copyJob = new Job
+		{
+			Title = job.Title,
+			Company = job.Company,
+			Description = job.Description,
+			JobType = job.JobType,
+			Notes = job.Notes,
+			Location = job.Location,
+			Requirements = job.Requirements,
+			RemoteType = job.RemoteType,
+			SalaryCurrency = job.SalaryCurrency,
+			Source = job.Source,
+			SourceUrl = job.SourceUrl,
+			SourceJobId = job.SourceJobId,
+			DatePosted = job.DatePosted,
+			DateScraped = job.DateScraped,
+			DateApplied = job.DateApplied,
+			Status = job.Status,
+			Priority = job.Priority,
+			IsArchived = job.IsArchived
+		};
+
+		return copyJob;
+	}
+
+	/// <summary>
 	/// Dispose method.
 	/// </summary>
 	/// <param name="disposing">True to release both managed and unmanaged

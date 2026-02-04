@@ -12,7 +12,6 @@ using JobsDb.Core.Scrapers;
 using JobsDbLibrary.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using OpenQA.Selenium.BiDi.Script;
 using System;
 using System.Data.Common;
 using System.IO;
@@ -31,7 +30,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[OneTimeSetUp]
 	public void OneTimeSetUp()
 	{
-		testJobAppied = TestJob;
+		testJobAppied = CopyJob(TestJob);
 		testJobAppied.Status = ApplicationStatus.Applied;
 	}
 
@@ -174,7 +173,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	{
 		_context.Initialize();
 
-		_context.Jobs.Add(TestJob);
+		_context.Jobs.Add(testJobAppied);
 		_context.SaveChanges();
 
 		// Verify it's stored as string in database

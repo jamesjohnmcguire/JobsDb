@@ -229,11 +229,11 @@ public class ScraperServiceTests
     [Test]
     public async Task RunAllScrapersAsync_MultipleScrapers_RunsAll()
     {
-        // Arrange
-        var scraper1 = new MockTestScraper(
+		// Arrange
+		MockTestScraper scraper1 = new MockTestScraper(
             Mock.Of<IJobRepository>(),
             Mock.Of<ICredentialRepository>());
-        var scraper2 = new MockTestScraper(
+		MockTestScraper scraper2 = new MockTestScraper(
             Mock.Of<IJobRepository>(),
             Mock.Of<ICredentialRepository>());
 

@@ -63,7 +63,7 @@ public class ScraperService
 			JobsAdded = result.JobsAdded,
 			JobsUpdated = result.JobsUpdated,
 			Success = result.Success,
-			ErrorMessage = result.ErrorMessage,
+			ErrorMessage = result.ErrorMessage ?? string.Empty,
 			DurationMs = (int)result.Duration.TotalMilliseconds
 		};
 

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using JobsDbLibrary.Scrapers;
 
 [TestFixture]
-public class JobRepositoryTests
+internal sealed class JobRepositoryTests : BaseTestsSupport
 {
     private JobsDbContext _context;
     private JobRepository _repository;
@@ -43,28 +43,23 @@ public class JobRepositoryTests
             File.Delete(_testDbPath);
     }
 
-    [Test]
-    public async Task AddAsync_ValidJob_AddsToDatabase()
-    {
-        // Arrange
-        var job = CreateTestJob();
+	[Test]
+	public async Task AddAsync_ValidJob_AddsToDatabase()
+	{
+		var result = await _repository.AddAsync(TestJob);
 
-        // Act
-        var result = await _repository.AddAsync(job);
+		Assert.That(result.Id, Is.GreaterThan(0));
+		Assert.That(result.DateScraped, Is.Not.EqualTo(default(DateTime)));
 
-        // Assert
-        Assert.That(result.Id, Is.GreaterThan(0));
-        Assert.That(result.DateScraped, Is.Not.EqualTo(default(DateTime)));
-            
-        var jobs = await _repository.GetAllAsync();
-        Assert.That(jobs.Count, Is.EqualTo(1));
-    }
+		var jobs = await _repository.GetAllAsync();
+		Assert.That(jobs.Count, Is.EqualTo(1));
+	}
 
     [Test]
     public async Task GetByIdAsync_ExistingJob_ReturnsJob()
     {
-        // Arrange
-        var job = await _repository.AddAsync(CreateTestJob());
+		Job tempJob = CopyJob(TestJob);
+		Job job = await _repository.AddAsync(tempJob);
 
         // Act
         var result = await _repository.GetByIdAsync(job.Id);
@@ -88,8 +83,8 @@ public class JobRepositoryTests
     [Test]
     public async Task GetBySourceIdAsync_ExistingJob_ReturnsJob()
     {
-        // Arrange
-        var job = await _repository.AddAsync(CreateTestJob());
+		Job tempJob = CopyJob(TestJob);
+		Job job = await _repository.AddAsync(tempJob);
 
         // Act
         var result = await _repository.GetBySourceIdAsync(job.Source, job.SourceJobId);
@@ -102,8 +97,9 @@ public class JobRepositoryTests
     [Test]
     public async Task UpdateAsync_ExistingJob_UpdatesDatabase()
     {
-        // Arrange
-        var job = await _repository.AddAsync(CreateTestJob());
+		Job tempJob = CopyJob(TestJob);
+		Job job = await _repository.AddAsync(tempJob);
+
         job.Title = "Updated Title";
         job.Status = ApplicationStatus.Applied;
 
@@ -116,20 +112,18 @@ public class JobRepositoryTests
         Assert.That(updated.Status, Is.EqualTo(ApplicationStatus.Applied));
     }
 
-    [Test]
-    public async Task DeleteAsync_ExistingJob_RemovesFromDatabase()
-    {
-        // Arrange
-        var job = await _repository.AddAsync(CreateTestJob());
+	[Test]
+	public async Task DeleteAsync_ExistingJob_RemovesFromDatabase()
+	{
+		Job tempJob = CopyJob(TestJob);
+		Job job = await _repository.AddAsync(tempJob);
 
-        // Act
-        var result = await _repository.DeleteAsync(job.Id);
+		var result = await _repository.DeleteAsync(job.Id);
 
-        // Assert
-        Assert.That(result, Is.True);
-        var deleted = await _repository.GetByIdAsync(job.Id);
-        Assert.That(deleted, Is.Null);
-    }
+		Assert.That(result, Is.True);
+		var deleted = await _repository.GetByIdAsync(job.Id);
+		Assert.That(deleted, Is.Null);
+	}
 
     [Test]
     public async Task DeleteAsync_NonExistingJob_ReturnsFalse()
@@ -144,10 +138,19 @@ public class JobRepositoryTests
     [Test]
     public async Task GetByStatusAsync_FiltersByStatus_ReturnsMatchingJobs()
     {
-        // Arrange
-        await _repository.AddAsync(CreateTestJob(status: ApplicationStatus.NotApplied));
-        await _repository.AddAsync(CreateTestJob(status: ApplicationStatus.Applied));
-        await _repository.AddAsync(CreateTestJob(status: ApplicationStatus.Applied));
+		Job tempJob = CopyJob(TestJob);
+		tempJob.Status = ApplicationStatus.NotApplied;
+		Job job = await _repository.AddAsync(tempJob);
+
+		Job tempJob2 = CopyJob(TestJob);
+		tempJob2.Source = "AnotherSource";
+		tempJob2.Status = ApplicationStatus.Applied;
+		Job job2 = await _repository.AddAsync(tempJob2);
+
+		Job tempJob3 = CopyJob(TestJob);
+		tempJob3.Source = "AnotherSourceAgain";
+		tempJob3.Status = ApplicationStatus.Applied;
+		Job job3 = await _repository.AddAsync(tempJob3);
 
         // Act
         var appliedJobs = await _repository.GetByStatusAsync(ApplicationStatus.Applied);
@@ -160,10 +163,19 @@ public class JobRepositoryTests
     [Test]
     public async Task GetActiveJobsAsync_ExcludesArchived_ReturnsOnlyActive()
     {
-        // Arrange
-        await _repository.AddAsync(CreateTestJob(isArchived: false));
-        await _repository.AddAsync(CreateTestJob(isArchived: false));
-        await _repository.AddAsync(CreateTestJob(isArchived: true));
+		Job tempJob = CopyJob(TestJob);
+		tempJob.IsArchived = false;
+		Job job = await _repository.AddAsync(tempJob);
+
+		Job tempJob2 = CopyJob(TestJob);
+		tempJob2.IsArchived = false;
+		tempJob2.Source = "AnotherSource";
+		Job job2 = await _repository.AddAsync(tempJob2);
+
+		Job tempJob3 = CopyJob(TestJob);
+		tempJob3.IsArchived = true;
+		tempJob3.Source = "AnotherSourceAgain";
+		Job job3 = await _repository.AddAsync(tempJob3);
 
         // Act
         var activeJobs = await _repository.GetActiveJobsAsync();
@@ -176,10 +188,19 @@ public class JobRepositoryTests
     [Test]
     public async Task SearchAsync_ByTitle_ReturnsMatchingJobs()
     {
-        // Arrange
-        await _repository.AddAsync(CreateTestJob(title: "Senior Software Engineer"));
-        await _repository.AddAsync(CreateTestJob(title: "Junior Developer"));
-        await _repository.AddAsync(CreateTestJob(title: "Senior DevOps Engineer"));
+		Job tempJob = CopyJob(TestJob);
+		tempJob.Title = "Senior Software Engineer";
+		Job job = await _repository.AddAsync(tempJob);
+
+		Job tempJob2 = CopyJob(TestJob);
+		tempJob2.Title = "Junior Developer";
+		tempJob2.Source = "AnotherSource";
+		Job job2 = await _repository.AddAsync(tempJob2);
+
+		Job tempJob3 = CopyJob(TestJob);
+		tempJob3.Title = "Senior DevOps Engineer";
+		tempJob3.Source = "AnotherSourceAgain";
+		Job job3 = await _repository.AddAsync(tempJob3);
 
         // Act
         var results = await _repository.SearchAsync("Senior");
@@ -192,10 +213,19 @@ public class JobRepositoryTests
     [Test]
     public async Task SearchAsync_ByCompany_ReturnsMatchingJobs()
     {
-        // Arrange
-        await _repository.AddAsync(CreateTestJob(company: "Google"));
-        await _repository.AddAsync(CreateTestJob(company: "Microsoft"));
-        await _repository.AddAsync(CreateTestJob(company: "Amazon"));
+		Job tempJob = CopyJob(TestJob);
+		tempJob.Company = "Google";
+		Job job = await _repository.AddAsync(tempJob);
+
+		Job tempJob2 = CopyJob(TestJob);
+		tempJob2.Company = "Microsoft";
+		tempJob2.Source = "AnotherSource";
+		Job job2 = await _repository.AddAsync(tempJob2);
+
+		Job tempJob3 = CopyJob(TestJob);
+		tempJob3.Company = "Amazon";
+		tempJob3.Source = "AnotherSourceAgain";
+		Job job3 = await _repository.AddAsync(tempJob3);
 
         // Act
         var results = await _repository.SearchAsync("Microsoft");
@@ -208,8 +238,8 @@ public class JobRepositoryTests
     [Test]
     public async Task ExistsAsync_ExistingJob_ReturnsTrue()
     {
-        // Arrange
-        var job = await _repository.AddAsync(CreateTestJob());
+		Job tempJob = CopyJob(TestJob);
+		Job job = await _repository.AddAsync(tempJob);
 
         // Act
         var exists = await _repository.ExistsAsync(job.Source, job.SourceJobId);
