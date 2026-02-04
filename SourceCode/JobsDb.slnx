@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="CodeAnalysis.ruleset" />
+    <File Path="stylecop.json" />
+  </Folder>
+  <Project Path="Database.ToolKit/DatabaseLibraryNet/DigitalZenWorks.Database.ToolKit.csproj" />
+  <Project Path="Database.ToolKit/DatabaseLibraryNetTests/DigitalZenWorks.Database.ToolKit.Tests.csproj" />
+  <Project Path="HttpTool/SourceCode/HttpTool/HttpTool.csproj" />
+  <Project Path="HttpTool/SourceCode/WebTools.Test/WebTools.Test.csproj" />
+  <Project Path="HttpTool/SourceCode/WebTools/WebTools.csproj" />
+  <Project Path="JobsDbApplication/JobsDbApplication.csproj" />
+  <Project Path="JobsDbConsole/JobsDbConsole.csproj" />
+  <Project Path="JobsDbLibrary/JobsDbLibrary.csproj" />
+  <Project Path="JobsDbTests/JobsDbTests.csproj" />
+  <Project Path="UtilitiesNet/UtilitiesNetLibrary/DigitalZenWorks.Common.Utilities.csproj" />
+  <Project Path="UtilitiesNet/UtilitiesNetTests/DigitalZenWorks.Common.Utilities.Tests.csproj" />
+</Solution>
