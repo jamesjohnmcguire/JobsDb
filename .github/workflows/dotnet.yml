@@ -21,9 +21,7 @@ jobs:
         dotnet-version: 10.x
 
     - name: Install Microsoft Access Database Engine
-      run: |
-        curl -L -o AccessDatabaseEngine_X64.exe https://download.microsoft.com/download/3/5/C/35C84C36-661A-44E6-9324-8786B8DBE231/AccessDatabaseEngine_X64.exe
-        Start-Process -FilePath "AccessDatabaseEngine_X64.exe" -ArgumentList "/quiet" -Wait
+      run: choco install access-database-engine -y
       shell: powershell
 
     - name: Restore dependencies
