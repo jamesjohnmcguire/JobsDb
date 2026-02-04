@@ -14,11 +14,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: 'recursive'  # This fetches all submodules
+        submodules: 'recursive'
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 10.x
+
+    - name: Install Microsoft Access Database Engine
+      run: |
+        curl -L -o AccessDatabaseEngine_X64.exe https://download.microsoft.com/download/3/5/C/35C84C36-661A-44E6-9324-8786B8DBE231/AccessDatabaseEngine_X64.exe
+        Start-Process -FilePath "AccessDatabaseEngine_X64.exe" -ArgumentList "/quiet" -Wait
+      shell: powershell
+
     - name: Restore dependencies
       working-directory: SourceCode
       run: dotnet restore
