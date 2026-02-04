@@ -5,20 +5,12 @@
 /////////////////////////////////////////////////////////////////////////////
 
 namespace JobsDb.Core.Scrapers;
-//namespace JobsDb.Core.Services
 
-using HtmlAgilityPack;
+using System;
+using System.Threading.Tasks;
 using JobsDb.Core.Models;
 using JobsDb.Core.Repositories;
-using JobsDb.Core.Scrapers;
 using JobsDbLibrary.Scrapers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 /// <summary>
 /// Base class for all job scrapers providing common functionality
@@ -47,7 +39,7 @@ public abstract class JobScraperBase
 	/// <summary>
 	/// Scrape jobs from the source. Must be implemented by derived classes.
 	/// </summary>
-//		public abstract Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null);
+	// public abstract Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null);
 
 	public ICredentialRepository CredentialRepository
 	{

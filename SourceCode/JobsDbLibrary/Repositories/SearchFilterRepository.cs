@@ -6,13 +6,13 @@
 
 namespace JobsDb.Core.Repositories;
 
-using JobsDb.Core.Scrapers;
-using JobsDb.Core.Data;
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using JobsDb.Core.Data;
+using JobsDb.Core.Scrapers;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 public class SearchFilterRepository : ISearchFilterRepository
 {

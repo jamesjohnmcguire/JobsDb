@@ -6,12 +6,12 @@
 
 namespace JobsDbLibrary.Scrapers;
 
-using HtmlAgilityPack;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 /// <summary>
 /// Utility class to help debug and test scrapers by analyzing HTML structure
@@ -24,7 +24,8 @@ public class ScraperTester
 	public ScraperTester()
 	{
 		_httpClient = new HttpClient();
-		_httpClient.DefaultRequestHeaders.Add("User-Agent", 
+		_httpClient.DefaultRequestHeaders.Add(
+			"User-Agent",
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 	}
 
@@ -35,9 +36,9 @@ public class ScraperTester
 	public async Task AnalyzePageStructure(string url, string outputFile = "page_analysis.html")
 	{
 		Console.WriteLine($"Fetching: {url}");
-            
+
 		var html = await _httpClient.GetStringAsync(url);
-            
+
 		// Save HTML for manual inspection
 		File.WriteAllText(outputFile, html);
 		Console.WriteLine($"✓ HTML saved to: {outputFile}");
@@ -53,10 +54,10 @@ public class ScraperTester
 
 		// Look for common job listing patterns
 		AnalyzeJobListings(doc);
-            
+
 		// Look for pagination
 		AnalyzePagination(doc);
-            
+
 		// Look for job details
 		AnalyzeJobDetails(doc);
 
@@ -90,7 +91,7 @@ public class ScraperTester
 			{
 				Console.WriteLine($"✓ Found {nodes.Count} nodes: {description}");
 				Console.WriteLine($"  XPath: {xpath}");
-                    
+
 				// Show a sample
 				if (nodes.Count > 0)
 				{
@@ -99,6 +100,7 @@ public class ScraperTester
 						sample = sample.Substring(0, 300) + "...";
 					Console.WriteLine($"  Sample: {sample}");
 				}
+
 				Console.WriteLine();
 			}
 		}
@@ -125,6 +127,7 @@ public class ScraperTester
 				Console.WriteLine($"  Count: {nodes.Count}");
 			}
 		}
+
 		Console.WriteLine();
 	}
 
@@ -151,6 +154,7 @@ public class ScraperTester
 				Console.WriteLine($"  {nodes.Count} × {description}");
 			}
 		}
+
 		Console.WriteLine();
 	}
 
@@ -164,7 +168,7 @@ public class ScraperTester
 		doc.LoadHtml(html);
 
 		var nodes = doc.DocumentNode.SelectNodes(xpath);
-            
+
 		if (nodes == null || !nodes.Any())
 		{
 			Console.WriteLine($"❌ No nodes found for: {xpath}");
@@ -181,7 +185,7 @@ public class ScraperTester
 			Console.WriteLine($"--- Result {count} ---");
 			Console.WriteLine($"Tag: {node.Name}");
 			Console.WriteLine($"Text: {node.InnerText.Trim().Substring(0, Math.Min(100, node.InnerText.Trim().Length))}");
-                
+
 			if (node.Attributes.Any())
 			{
 				Console.WriteLine("Attributes:");
@@ -195,15 +199,15 @@ public class ScraperTester
 	}
 
 	/// <summary>
-	/// Quick test specifically for TokyoDev
+	/// Quick test specifically for TokyoDev.
 	/// </summary>
 	public async Task TestTokyoDev()
 	{
 		Console.WriteLine("=== TOKYODEV STRUCTURE TEST ===");
 		Console.WriteLine();
-            
+
 		await AnalyzePageStructure("https://www.tokyodev.com/jobs", "tokyodev_jobs.html");
-            
+
 		Console.WriteLine();
 		Console.WriteLine("=== NEXT STEPS ===");
 		Console.WriteLine("1. Open tokyodev_jobs.html in your browser");
@@ -213,4 +217,3 @@ public class ScraperTester
 		Console.WriteLine("5. Run this test again to verify");
 	}
 }
-

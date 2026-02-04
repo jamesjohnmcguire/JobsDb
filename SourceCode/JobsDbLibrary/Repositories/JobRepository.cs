@@ -6,15 +6,13 @@
 
 namespace JobsDb.Core.Repositories;
 
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using JobsDb.Core.Data;
+using JobsDb.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 public class JobRepository : IJobRepository
 {
@@ -101,10 +99,8 @@ public class JobRepository : IJobRepository
 				j.Title.ToLower().Contains(term) ||
 				j.Company.ToLower().Contains(term) ||
 				j.Description.ToLower().Contains(term) ||
-				j.Location.ToLower().Contains(term)
-			))
+				j.Location.ToLower().Contains(term)))
 			.OrderByDescending(j => j.DatePosted)
 			.ToListAsync();
 	}
 }
-

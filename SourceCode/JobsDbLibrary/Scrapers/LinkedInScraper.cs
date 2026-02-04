@@ -6,21 +6,19 @@
 
 namespace JobsDbLibrary.Scrapers;
 
-using HtmlAgilityPack;
-using JobsDb.Core;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Scrapers;
-using JobsDb.Core.Services;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
+using JobsDb.Core;
+using JobsDb.Core.Models;
+using JobsDb.Core.Repositories;
+using JobsDb.Core.Scrapers;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 /// <summary>
 /// LinkedIn scraper using Selenium WebDriver for browser automation
@@ -36,7 +34,7 @@ public class LinkedInScraper : JobScraperBase
 
 	public LinkedInScraper(
 		IJobRepository jobRepository,
-		ICredentialRepository credentialRepository) 
+		ICredentialRepository credentialRepository)
 		: base(jobRepository, credentialRepository, "LinkedIn")
 	{
 	}
@@ -51,7 +49,7 @@ public class LinkedInScraper : JobScraperBase
 			InitializeDriver();
 
 			var credential = await GetCredentialsAsync();
-                
+
 			if (credential == null || !credential.IsActive)
 			{
 				result.Success = false;
@@ -63,7 +61,7 @@ public class LinkedInScraper : JobScraperBase
 			// Login to LinkedIn
 			Console.WriteLine("Logging into LinkedIn...");
 			var loginSuccess = await LoginAsync(credential);
-                
+
 			if (!loginSuccess)
 			{
 				result.Success = false;
@@ -78,7 +76,7 @@ public class LinkedInScraper : JobScraperBase
 			var searchUrl = BuildSearchUrl(filter);
 			Console.WriteLine($"Navigating to: {searchUrl}");
 			_driver.Navigate().GoToUrl(searchUrl);
-                
+
 			// Wait for jobs to load
 			Thread.Sleep(4000);
 
@@ -116,11 +114,11 @@ public class LinkedInScraper : JobScraperBase
 				try
 				{
 					var job = ParseJobCard(card);
-                        
+
 					if (job != null && !string.IsNullOrEmpty(job.Title))
 					{
 						Console.WriteLine($"  - {job.Title} at {job.Company}");
-                            
+
 						// Try to get full details by clicking on the job
 						try
 						{
@@ -132,7 +130,7 @@ public class LinkedInScraper : JobScraperBase
 						}
 
 						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
-                            
+
 						if (existing == null)
 						{
 							await AddOrUpdateJobAsync(job);
@@ -143,7 +141,7 @@ public class LinkedInScraper : JobScraperBase
 							await AddOrUpdateJobAsync(job);
 							result.JobsUpdated++;
 						}
-                            
+
 						result.Jobs.Add(job);
 					}
 				}
@@ -176,7 +174,7 @@ public class LinkedInScraper : JobScraperBase
 	private void InitializeDriver()
 	{
 		var options = new ChromeOptions();
-            
+
 		// Anti-detection settings
 		options.AddArgument("--disable-blink-features=AutomationControlled");
 		options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
@@ -184,17 +182,16 @@ public class LinkedInScraper : JobScraperBase
 		options.AddArgument("--no-sandbox");
 		options.AddArgument("--disable-dev-shm-usage");
 		options.AddArgument("--window-size=1920,1080");
-            
+
 		// Optional: Run headless (comment out to see the browser)
 		// options.AddArgument("--headless=new");
-            
 		options.AddExcludedArgument("enable-automation");
 		options.AddAdditionalOption("useAutomationExtension", false);
-            
+
 		_driver = new ChromeDriver(options);
 		_driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 		_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
-            
+
 		// Remove webdriver property
 		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)_driver;
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
@@ -207,7 +204,9 @@ public class LinkedInScraper : JobScraperBase
 			_driver?.Quit();
 			_driver?.Dispose();
 		}
-		catch { }
+		catch
+		{
+		}
 	}
 
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
@@ -220,7 +219,7 @@ public class LinkedInScraper : JobScraperBase
 			// Find and fill username
 			var usernameField = _driver.FindElement(By.Id("username"));
 			usernameField.Clear();
-                
+
 			// Type slowly to appear more human
 			foreach (char c in credential.Username)
 			{
@@ -231,11 +230,11 @@ public class LinkedInScraper : JobScraperBase
 			// Find and fill password
 			var passwordField = _driver.FindElement(By.Id("password"));
 			passwordField.Clear();
-                
+
 			var decryptedPassword = CredentialEncryption.Decrypt(
-				credential.EncryptedPassword, 
+				credential.EncryptedPassword,
 				MasterPassword);
-                
+
 			foreach (char c in decryptedPassword)
 			{
 				passwordField.SendKeys(c.ToString());
@@ -258,8 +257,8 @@ public class LinkedInScraper : JobScraperBase
 			}
 
 			// Check if login was successful
-			_isLoggedIn = _driver.Url.Contains("feed") || 
-							_driver.Url.Contains("jobs") || 
+			_isLoggedIn = _driver.Url.Contains("feed") ||
+							_driver.Url.Contains("jobs") ||
 							_driver.Url.Contains("mynetwork") ||
 							!_driver.Url.Contains("login");
 
@@ -292,7 +291,7 @@ public class LinkedInScraper : JobScraperBase
 		{
 			if (!string.IsNullOrEmpty(filter.Keywords))
 				parameters.Add($"keywords={Uri.EscapeDataString(filter.Keywords)}");
-                
+
 			if (!string.IsNullOrEmpty(filter.Location))
 				parameters.Add($"location={Uri.EscapeDataString(filter.Location)}");
 		}
@@ -333,7 +332,9 @@ public class LinkedInScraper : JobScraperBase
 					return nodes;
 				}
 			}
-			catch { }
+			catch
+			{
+			}
 		}
 
 		return null;
@@ -353,7 +354,7 @@ public class LinkedInScraper : JobScraperBase
 			?? card.SelectSingleNode(".//a[contains(@class, 'job-card-container__link')]")
 			?? card.SelectSingleNode(".//span[contains(@class, 'job-card-container__title')]")
 			?? card.SelectSingleNode(".//h3");
-            
+
 		if (titleNode != null)
 		{
 			job.Title = CleanText(titleNode.InnerText);
@@ -364,7 +365,7 @@ public class LinkedInScraper : JobScraperBase
 			?? card.SelectSingleNode(".//a[contains(@class, 'job-card-container__company-name')]")
 			?? card.SelectSingleNode(".//span[contains(@class, 'job-card-container__company-name')]")
 			?? card.SelectSingleNode(".//h4");
-            
+
 		if (companyNode != null)
 		{
 			job.Company = CleanText(companyNode.InnerText);
@@ -373,7 +374,7 @@ public class LinkedInScraper : JobScraperBase
 		// Extract location
 		var locationNode = card.SelectSingleNode(".//span[contains(@class, 'job-card-container__metadata-item')]")
 			?? card.SelectSingleNode(".//*[contains(@class, 'location')]");
-            
+
 		if (locationNode != null)
 		{
 			job.Location = CleanText(locationNode.InnerText);
@@ -385,7 +386,7 @@ public class LinkedInScraper : JobScraperBase
 		{
 			var href = linkNode.GetAttributeValue("href", string.Empty);
 			job.SourceUrl = href;
-                
+
 			// Extract job ID from URL (pattern: /jobs/view/1234567890)
 			var jobIdMatch = System.Text.RegularExpressions.Regex.Match(href, @"/jobs/view/(\d+)");
 			if (jobIdMatch.Success)
@@ -409,9 +410,9 @@ public class LinkedInScraper : JobScraperBase
 		}
 
 		// Extract posted date
-		var dateNode = card.SelectSingleNode(".//time") 
+		var dateNode = card.SelectSingleNode(".//time")
 			?? card.SelectSingleNode(".//*[contains(@class, 'time')]");
-            
+
 		if (dateNode != null)
 		{
 			var dateText = dateNode.InnerText.Trim();
@@ -447,7 +448,7 @@ public class LinkedInScraper : JobScraperBase
 			var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'jobs-description__content')]")
 				?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description__text')]")
 				?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'description')]");
-                
+
 			if (descNode != null)
 			{
 				job.Description = CleanText(descNode.InnerText);
@@ -460,7 +461,7 @@ public class LinkedInScraper : JobScraperBase
 				foreach (var node in criteriaNodes)
 				{
 					var text = node.InnerText.ToLower();
-                        
+
 					if (text.Contains("employment type"))
 					{
 						var valueNode = node.SelectSingleNode(".//span[contains(@class, 'job-criteria__text')]");
@@ -488,12 +489,12 @@ public class LinkedInScraper : JobScraperBase
 	private void ParseSalary(string salaryText, Job job)
 	{
 		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
-            
+
 		if (numbers.Count >= 2)
 		{
 			if (decimal.TryParse(numbers[0].Value.Replace(",", ""), out var min))
 				job.SalaryMin = min;
-                
+
 			if (decimal.TryParse(numbers[1].Value.Replace(",", ""), out var max))
 				job.SalaryMax = max;
 		}
@@ -537,7 +538,7 @@ public class LinkedInScraper : JobScraperBase
 	{
 		if (string.IsNullOrWhiteSpace(text))
 			return string.Empty;
-            
+
 		return HtmlEntity.DeEntitize(text)
 			.Trim()
 			.Replace("\n", " ")

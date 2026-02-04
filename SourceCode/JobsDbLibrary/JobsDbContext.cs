@@ -6,12 +6,12 @@
 
 namespace JobsDb.Core.Data;
 
+using System;
+using System.IO;
 using JobsDb.Core.Models;
 using JobsDb.Core.Scrapers;
 using JobsDbLibrary.Scrapers;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
 
 /// <summary>
 /// Entity Framework Core DbContext for JobsDb application
@@ -20,14 +20,17 @@ using System.IO;
 public class JobsDbContext : DbContext
 {
 	public DbSet<Job> Jobs { get; set; }
+
 	public DbSet<ScraperCredential> Credentials { get; set; }
+
 	public DbSet<ScraperLog> ScraperLogs { get; set; }
+
 	public DbSet<SearchFilter> SearchFilters { get; set; }
 
 	private readonly string _dbPath;
 
 	/// <summary>
-	/// Default constructor - creates database in LocalApplicationData folder
+	/// Default constructor - creates database in LocalApplicationData folder.
 	/// </summary>
 	public JobsDbContext()
 	{
@@ -38,7 +41,7 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <summary>
-	/// Constructor with custom database path
+	/// Constructor with custom database path.
 	/// </summary>
 	public JobsDbContext(string dbPath)
 	{
@@ -51,7 +54,7 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <summary>
-	/// Constructor for dependency injection
+	/// Constructor for dependency injection.
 	/// </summary>
 	public JobsDbContext(DbContextOptions<JobsDbContext> options) : base(options)
 	{
@@ -185,7 +188,7 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <summary>
-	/// Initialize the database (create if doesn't exist)
+	/// Initialize the database (create if doesn't exist).
 	/// </summary>
 	public void Initialize()
 	{
@@ -194,7 +197,7 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <summary>
-	/// Get the database file path
+	/// Get the database file path.
 	/// </summary>
 	public string GetDatabasePath()
 	{

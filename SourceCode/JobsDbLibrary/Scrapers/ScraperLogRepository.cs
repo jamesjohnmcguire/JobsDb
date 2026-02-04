@@ -6,14 +6,12 @@
 
 namespace JobsDbLibrary.Scrapers;
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using JobsDb.Core.Data;
 using JobsDb.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public class ScraperLogRepository : IScraperLogRepository
 {

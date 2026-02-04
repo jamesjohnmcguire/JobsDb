@@ -6,12 +6,12 @@
 
 namespace JobsDb.Core.Services;
 
-using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using OpenQA.Selenium;
 
 /// <summary>
 /// Manages browser cookies to persist login sessions
@@ -121,8 +121,7 @@ public class CookieManager
 						cookieData.Expiry,
 						cookieData.IsSecure,
 						cookieData.IsHttpOnly,
-						cookieData.SameSite
-					);
+						cookieData.SameSite);
 
 					driver.Manage().Cookies.AddCookie(cookie);
 					loadedCount++;
@@ -187,13 +186,19 @@ public class CookieManager
 	private class CookieData
 	{
 		public string Name { get; set; }
+
 		public string Value { get; set; }
+
 		public string Domain { get; set; }
+
 		public string Path { get; set; }
+
 		public DateTime? Expiry { get; set; }
+
 		public bool IsSecure { get; set; }
+
 		public bool IsHttpOnly { get; set; }
+
 		public string SameSite { get; set; }
 	}
 }
-

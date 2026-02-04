@@ -33,4 +33,3 @@ public class SearchFilter
 
 	public DateTime? LastRunDate { get; set; }
 }
-

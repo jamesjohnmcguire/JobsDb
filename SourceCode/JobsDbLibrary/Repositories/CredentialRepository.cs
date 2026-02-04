@@ -6,14 +6,14 @@
 
 namespace JobsDb.Core.Repositories;
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using JobsDb.Core.Data;
 using JobsDb.Core.Models;
 using JobsDb.Core.Scrapers;
 using JobsDbLibrary.Scrapers;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class CredentialRepository : ICredentialRepository
 {
@@ -64,7 +64,10 @@ public class CredentialRepository : ICredentialRepository
 		var credential = await _context.Credentials
 			.FirstOrDefaultAsync(c => c.Source == source);
 
-		if (credential == null) return false;
+		if (credential == null)
+		{
+			return false;
+		}
 
 		_context.Credentials.Remove(credential);
 		await _context.SaveChangesAsync();

@@ -6,22 +6,20 @@
 
 namespace JobsDb.Tests.Data;
 
+using System;
+using System.IO;
+using System.Linq;
 using JobsDb.Core.Data;
 using JobsDb.Core.Models;
 using JobsDb.Core.Scrapers;
 using JobsDbLibrary.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using System;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
 
 [TestFixture]
 internal sealed class JobsDbContextTests : BaseTestsSupport
 {
-    private JobsDbContext _context;
+	private JobsDbContext _context;
 	private Job testJobAppied;
 
 	/// <summary>
@@ -56,65 +54,65 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	}
 
 	[Test]
-    public void Initialize_CreatesDatabase()
-    {
-        // Act
-        _context.Initialize();
+	public void Initialize_CreatesDatabase()
+	{
+		// Act
+		_context.Initialize();
 
-        // Assert
-        Assert.That(File.Exists(TestDbPath), Is.True);
-        Assert.That(_context.Database.CanConnect(), Is.True);
-    }
+		// Assert
+		Assert.That(File.Exists(TestDbPath), Is.True);
+		Assert.That(_context.Database.CanConnect(), Is.True);
+	}
 
-    [Test]
-    public void GetDatabasePath_ReturnsCorrectPath()
-    {
-        // Act
-        var path = _context.GetDatabasePath();
+	[Test]
+	public void GetDatabasePath_ReturnsCorrectPath()
+	{
+		// Act
+		var path = _context.GetDatabasePath();
 
-        // Assert
-        Assert.That(path, Is.EqualTo(TestDbPath));
-    }
+		// Assert
+		Assert.That(path, Is.EqualTo(TestDbPath));
+	}
 
-    [Test]
-    public void Jobs_DbSet_IsNotNull()
-    {
-        // Act
-        _context.Initialize();
+	[Test]
+	public void Jobs_DbSet_IsNotNull()
+	{
+		// Act
+		_context.Initialize();
 
-        // Assert
-        Assert.That(_context.Jobs, Is.Not.Null);
-    }
+		// Assert
+		Assert.That(_context.Jobs, Is.Not.Null);
+	}
 
-    [Test]
-    public void Credentials_DbSet_IsNotNull()
-    {
-        // Act
-        _context.Initialize();
+	[Test]
+	public void Credentials_DbSet_IsNotNull()
+	{
+		// Act
+		_context.Initialize();
 
-        // Assert
-        Assert.That(_context.Credentials, Is.Not.Null);
-    }
+		// Assert
+		Assert.That(_context.Credentials, Is.Not.Null);
+	}
 
-    [Test]
-    public void ScraperLogs_DbSet_IsNotNull()
-    {
-        // Act
-        _context.Initialize();
+	[Test]
+	public void ScraperLogs_DbSet_IsNotNull()
+	{
+		// Act
+		_context.Initialize();
 
-        // Assert
-        Assert.That(_context.ScraperLogs, Is.Not.Null);
-    }
+		// Assert
+		Assert.That(_context.ScraperLogs, Is.Not.Null);
+	}
 
-    [Test]
-    public void SearchFilters_DbSet_IsNotNull()
-    {
-        // Act
-        _context.Initialize();
+	[Test]
+	public void SearchFilters_DbSet_IsNotNull()
+	{
+		// Act
+		_context.Initialize();
 
-        // Assert
-        Assert.That(_context.SearchFilters, Is.Not.Null);
-    }
+		// Assert
+		Assert.That(_context.SearchFilters, Is.Not.Null);
+	}
 
 	[Test]
 	public void Job_UniqueConstraint_EnforcesSourceAndSourceJobId()
@@ -135,38 +133,38 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
 	}
 
-    [Test]
-    public void ScraperCredential_UniqueSource_EnforcesConstraint()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var cred1 = new ScraperCredential
-        {
+	[Test]
+	public void ScraperCredential_UniqueSource_EnforcesConstraint()
+	{
+		// Arrange
+		_context.Initialize();
+
+		var cred1 = new ScraperCredential
+		{
 			CookieData = "cookie",
 			Source = "LinkedIn",
-            Username = "user1@example.com",
-            EncryptedPassword = "encrypted1",
-            IsActive = true
-        };
+			Username = "user1@example.com",
+			EncryptedPassword = "encrypted1",
+			IsActive = true
+		};
 
-        var cred2 = new ScraperCredential
-        {
-            Source = "LinkedIn", // Same source
-            Username = "user2@example.com",
-            EncryptedPassword = "encrypted2",
-            IsActive = true
-        };
+		var cred2 = new ScraperCredential
+		{
+			Source = "LinkedIn", // Same source
+			Username = "user2@example.com",
+			EncryptedPassword = "encrypted2",
+			IsActive = true
+		};
 
-        // Act
-        _context.Credentials.Add(cred1);
-        _context.SaveChanges();
+		// Act
+		_context.Credentials.Add(cred1);
+		_context.SaveChanges();
 
-        _context.Credentials.Add(cred2);
+		_context.Credentials.Add(cred2);
 
-        // Assert
-        Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
-    }
+		// Assert
+		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+	}
 
 	[Test]
 	public void Job_StatusEnum_SavesAsString()
@@ -196,114 +194,114 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.DateScraped, Is.Not.EqualTo(default(DateTime)));
 	}
 
-    [Test]
-    public void SearchFilter_CreatedDate_HasDefaultValue()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var filter = new SearchFilter
-        {
-            Name = "Test Filter",
-            Keywords = "developer",
-            IsActive = true,
+	[Test]
+	public void SearchFilter_CreatedDate_HasDefaultValue()
+	{
+		// Arrange
+		_context.Initialize();
+
+		var filter = new SearchFilter
+		{
+			Name = "Test Filter",
+			Keywords = "developer",
+			IsActive = true,
 			Location = "Remote",
 			Source = "TestSource"
 		};
 
-        // Act
-        _context.SearchFilters.Add(filter);
-        _context.SaveChanges();
+		// Act
+		_context.SearchFilters.Add(filter);
+		_context.SaveChanges();
 
-        var saved = _context.SearchFilters.First();
+		var saved = _context.SearchFilters.First();
 
-        // Assert
-        Assert.That(saved.CreatedDate, Is.Not.EqualTo(default(DateTime)));
-    }
+		// Assert
+		Assert.That(saved.CreatedDate, Is.Not.EqualTo(default(DateTime)));
+	}
 
-    [Test]
-    public void ScraperCredential_IsActive_HasDefaultValue()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var cred = new ScraperCredential
-        {
+	[Test]
+	public void ScraperCredential_IsActive_HasDefaultValue()
+	{
+		// Arrange
+		_context.Initialize();
+
+		var cred = new ScraperCredential
+		{
 			CookieData = "cookie",
 			IsActive = true,
 			Source = "TestSource",
-            Username = "test@example.com",
-            EncryptedPassword = "encrypted"
-        };
+			Username = "test@example.com",
+			EncryptedPassword = "encrypted"
+		};
 
-        // Act
-        _context.Credentials.Add(cred);
-        _context.SaveChanges();
+		// Act
+		_context.Credentials.Add(cred);
+		_context.SaveChanges();
 
-        var saved = _context.Credentials.First();
+		var saved = _context.Credentials.First();
 
-        // Assert
-        Assert.That(saved.IsActive, Is.True);
-    }
+		// Assert
+		Assert.That(saved.IsActive, Is.True);
+	}
 
-    [Test]
-    public void Job_Indexes_AreCreated()
-    {
-        // Arrange
-        _context.Initialize();
+	[Test]
+	public void Job_Indexes_AreCreated()
+	{
+		// Arrange
+		_context.Initialize();
 
-        _context.Jobs.Add(testJobAppied);
-        _context.SaveChanges();
+		_context.Jobs.Add(testJobAppied);
+		_context.SaveChanges();
 
-        // These queries use indexes
-        var byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
-        var byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
-        var byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
-        var byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
+		// These queries use indexes
+		var byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
+		var byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
+		var byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
+		var byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
 
-        // Assert
-        Assert.That(byStatus.Count, Is.EqualTo(1));
-        Assert.That(byCompany.Count, Is.EqualTo(1));
-        Assert.That(byLocation.Count, Is.EqualTo(1));
-        Assert.That(byArchived.Count, Is.EqualTo(1));
-    }
+		// Assert
+		Assert.That(byStatus.Count, Is.EqualTo(1));
+		Assert.That(byCompany.Count, Is.EqualTo(1));
+		Assert.That(byLocation.Count, Is.EqualTo(1));
+		Assert.That(byArchived.Count, Is.EqualTo(1));
+	}
 
-    [Test]
-    public void Context_MultipleInstances_UseSameDatabase()
-    {
-        _context.Initialize();
+	[Test]
+	public void Context_MultipleInstances_UseSameDatabase()
+	{
+		_context.Initialize();
 
-        _context.Jobs.Add(TestJob);
-        _context.SaveChanges();
+		_context.Jobs.Add(TestJob);
+		_context.SaveChanges();
 
-        // Act - Create new context with same path
-        using (var context2 = new JobsDbContext(TestDbPath))
-        {
-            var jobs = context2.Jobs.ToList();
+		// Act - Create new context with same path
+		using (var context2 = new JobsDbContext(TestDbPath))
+		{
+			var jobs = context2.Jobs.ToList();
 
-            // Assert
-            Assert.That(jobs.Count, Is.EqualTo(1));
-            Assert.That(jobs[0].Title, Is.EqualTo("Test"));
-        }
-    }
+			// Assert
+			Assert.That(jobs.Count, Is.EqualTo(1));
+			Assert.That(jobs[0].Title, Is.EqualTo("Test"));
+		}
+	}
 
-    [Test]
-    public void Job_RequiredFields_EnforcedByDatabase()
-    {
-        // Arrange
-        _context.Initialize();
-            
-        var job = new Job
-        {
-            // Missing Title (required)
-            Company = "Test Co",
-            Source = "Test",
-            SourceUrl = "https://test.com",
-            DatePosted = DateTime.UtcNow
-        };
+	[Test]
+	public void Job_RequiredFields_EnforcedByDatabase()
+	{
+		// Arrange
+		_context.Initialize();
 
-        // Act & Assert
-        _context.Jobs.Add(job);
-        Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
-    }
+		var job = new Job
+		{
+			// Missing Title (required)
+			Company = "Test Co",
+			Source = "Test",
+			SourceUrl = "https://test.com",
+			DatePosted = DateTime.UtcNow
+		};
+
+		// Act & Assert
+		_context.Jobs.Add(job);
+		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+	}
 }

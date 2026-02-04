@@ -6,9 +6,9 @@
 
 namespace JobsDbConsole;
 
-using JobsDbLibrary.Scrapers;
 using System;
 using System.Threading.Tasks;
+using JobsDbLibrary.Scrapers;
 
 internal class Program
 {
@@ -22,7 +22,7 @@ internal class Program
 
 		// Or test a specific selector
 		// await tester.TestSelector(
-		//     "https://www.tokyodev.com/jobs", 
+		//     "https://www.tokyodev.com/jobs",
 		//     "//div[contains(@class, 'job-card')]"
 		// );
 	}
