@@ -58,7 +58,7 @@
 		public async Task RunScraperAsync_UnregisteredSource_ReturnsErrorResult()
 		{
 			// Act
-			var result = await _service.RunScraperAsync("NonExistentSource");
+			var result = await _service.RunScraperAsync("NonExistentSource").ConfigureAwait(false);
 
 			// Assert
 			Assert.That(result.Success, Is.False);
@@ -76,7 +76,7 @@
 			_service.RegisterScraper("TestSource", mockScraper);
 
 			// Act
-			var result = await _service.RunScraperAsync("TestSource");
+			var result = await _service.RunScraperAsync("TestSource").ConfigureAwait(false);
 
 			// Assert
 			Assert.That(result.Success, Is.True);
@@ -104,7 +104,7 @@
 			_service.RegisterScraper("Source2", scraper2);
 
 			// Act
-			var results = await _service.RunAllScrapersAsync();
+			var results = await _service.RunAllScrapersAsync().ConfigureAwait(false);
 
 			// Assert
 			Assert.That(results.Count, Is.EqualTo(2));

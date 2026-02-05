@@ -27,7 +27,7 @@ public class ScraperLogRepository : IScraperLogRepository
 		return await _context.ScraperLogs
 			.OrderByDescending(l => l.Timestamp)
 			.Take(count)
-			.ToListAsync();
+			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<List<ScraperLog>> GetLogsBySourceAsync(string source, int count = 50)
@@ -36,13 +36,13 @@ public class ScraperLogRepository : IScraperLogRepository
 			.Where(l => l.Source == source)
 			.OrderByDescending(l => l.Timestamp)
 			.Take(count)
-			.ToListAsync();
+			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<ScraperLog> AddAsync(ScraperLog log)
 	{
 		_context.ScraperLogs.Add(log);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return log;
 	}
 }

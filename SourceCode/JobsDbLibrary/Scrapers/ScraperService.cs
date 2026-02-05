@@ -51,7 +51,7 @@ public class ScraperService
 
 		var startTime = DateTime.UtcNow;
 		var scraper = _scrapers[source];
-		var result = await scraper.ScrapeJobsAsync(filter);
+		var result = await scraper.ScrapeJobsAsync(filter).ConfigureAwait(false);
 
 		// Log the scraping activity
 		var log = new ScraperLog
@@ -67,7 +67,7 @@ public class ScraperService
 		};
 
 		_context.ScraperLogs.Add(log);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 
 		return result;
 	}
@@ -81,7 +81,7 @@ public class ScraperService
 
 		foreach (var source in _scrapers.Keys)
 		{
-			var result = await RunScraperAsync(source);
+			var result = await RunScraperAsync(source).ConfigureAwait(false);
 			results.Add(result);
 		}
 

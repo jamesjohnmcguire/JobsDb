@@ -46,12 +46,12 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	[Test]
 	public async Task AddAsync_ValidJob_AddsToDatabase()
 	{
-		var result = await _repository.AddAsync(TestJob);
+		var result = await _repository.AddAsync(TestJob).ConfigureAwait(false);
 
 		Assert.That(result.Id, Is.GreaterThan(0));
 		Assert.That(result.DateScraped, Is.Not.EqualTo(default(DateTime)));
 
-		var jobs = await _repository.GetAllAsync();
+		var jobs = await _repository.GetAllAsync().ConfigureAwait(false);
 		Assert.That(jobs.Count, Is.EqualTo(1));
 	}
 
@@ -59,10 +59,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task GetByIdAsync_ExistingJob_ReturnsJob()
 	{
 		Job tempJob = CopyJob(TestJob);
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		// Act
-		var result = await _repository.GetByIdAsync(job.Id);
+		var result = await _repository.GetByIdAsync(job.Id).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -74,7 +74,7 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task GetByIdAsync_NonExistingJob_ReturnsNull()
 	{
 		// Act
-		var result = await _repository.GetByIdAsync(999);
+		var result = await _repository.GetByIdAsync(999).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Null);
@@ -84,10 +84,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task GetBySourceIdAsync_ExistingJob_ReturnsJob()
 	{
 		Job tempJob = CopyJob(TestJob);
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		// Act
-		var result = await _repository.GetBySourceIdAsync(job.Source, job.SourceJobId);
+		var result = await _repository.GetBySourceIdAsync(job.Source, job.SourceJobId).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -98,16 +98,16 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task UpdateAsync_ExistingJob_UpdatesDatabase()
 	{
 		Job tempJob = CopyJob(TestJob);
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		job.Title = "Updated Title";
 		job.Status = ApplicationStatus.Applied;
 
 		// Act
-		var result = await _repository.UpdateAsync(job);
+		var result = await _repository.UpdateAsync(job).ConfigureAwait(false);
 
 		// Assert
-		var updated = await _repository.GetByIdAsync(job.Id);
+		var updated = await _repository.GetByIdAsync(job.Id).ConfigureAwait(false);
 		Assert.That(updated.Title, Is.EqualTo("Updated Title"));
 		Assert.That(updated.Status, Is.EqualTo(ApplicationStatus.Applied));
 	}
@@ -116,12 +116,12 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task DeleteAsync_ExistingJob_RemovesFromDatabase()
 	{
 		Job tempJob = CopyJob(TestJob);
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
-		var result = await _repository.DeleteAsync(job.Id);
+		var result = await _repository.DeleteAsync(job.Id).ConfigureAwait(false);
 
 		Assert.That(result, Is.True);
-		var deleted = await _repository.GetByIdAsync(job.Id);
+		var deleted = await _repository.GetByIdAsync(job.Id).ConfigureAwait(false);
 		Assert.That(deleted, Is.Null);
 	}
 
@@ -129,7 +129,7 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task DeleteAsync_NonExistingJob_ReturnsFalse()
 	{
 		// Act
-		var result = await _repository.DeleteAsync(999);
+		var result = await _repository.DeleteAsync(999).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.False);
@@ -140,20 +140,20 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	{
 		Job tempJob = CopyJob(TestJob);
 		tempJob.Status = ApplicationStatus.NotApplied;
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		Job tempJob2 = CopyJob(TestJob);
 		tempJob2.Source = "AnotherSource";
 		tempJob2.Status = ApplicationStatus.Applied;
-		Job job2 = await _repository.AddAsync(tempJob2);
+		Job job2 = await _repository.AddAsync(tempJob2).ConfigureAwait(false);
 
 		Job tempJob3 = CopyJob(TestJob);
 		tempJob3.Source = "AnotherSourceAgain";
 		tempJob3.Status = ApplicationStatus.Applied;
-		Job job3 = await _repository.AddAsync(tempJob3);
+		Job job3 = await _repository.AddAsync(tempJob3).ConfigureAwait(false);
 
 		// Act
-		var appliedJobs = await _repository.GetByStatusAsync(ApplicationStatus.Applied);
+		var appliedJobs = await _repository.GetByStatusAsync(ApplicationStatus.Applied).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(appliedJobs.Count, Is.EqualTo(2));
@@ -165,20 +165,20 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	{
 		Job tempJob = CopyJob(TestJob);
 		tempJob.IsArchived = false;
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		Job tempJob2 = CopyJob(TestJob);
 		tempJob2.IsArchived = false;
 		tempJob2.Source = "AnotherSource";
-		Job job2 = await _repository.AddAsync(tempJob2);
+		Job job2 = await _repository.AddAsync(tempJob2).ConfigureAwait(false);
 
 		Job tempJob3 = CopyJob(TestJob);
 		tempJob3.IsArchived = true;
 		tempJob3.Source = "AnotherSourceAgain";
-		Job job3 = await _repository.AddAsync(tempJob3);
+		Job job3 = await _repository.AddAsync(tempJob3).ConfigureAwait(false);
 
 		// Act
-		var activeJobs = await _repository.GetActiveJobsAsync();
+		var activeJobs = await _repository.GetActiveJobsAsync().ConfigureAwait(false);
 
 		// Assert
 		Assert.That(activeJobs.Count, Is.EqualTo(2));
@@ -190,20 +190,20 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	{
 		Job tempJob = CopyJob(TestJob);
 		tempJob.Title = "Senior Software Engineer";
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		Job tempJob2 = CopyJob(TestJob);
 		tempJob2.Title = "Junior Developer";
 		tempJob2.Source = "AnotherSource";
-		Job job2 = await _repository.AddAsync(tempJob2);
+		Job job2 = await _repository.AddAsync(tempJob2).ConfigureAwait(false);
 
 		Job tempJob3 = CopyJob(TestJob);
 		tempJob3.Title = "Senior DevOps Engineer";
 		tempJob3.Source = "AnotherSourceAgain";
-		Job job3 = await _repository.AddAsync(tempJob3);
+		Job job3 = await _repository.AddAsync(tempJob3).ConfigureAwait(false);
 
 		// Act
-		var results = await _repository.SearchAsync("Senior");
+		var results = await _repository.SearchAsync("Senior").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(results.Count, Is.EqualTo(2));
@@ -215,20 +215,20 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	{
 		Job tempJob = CopyJob(TestJob);
 		tempJob.Company = "Google";
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		Job tempJob2 = CopyJob(TestJob);
 		tempJob2.Company = "Microsoft";
 		tempJob2.Source = "AnotherSource";
-		Job job2 = await _repository.AddAsync(tempJob2);
+		Job job2 = await _repository.AddAsync(tempJob2).ConfigureAwait(false);
 
 		Job tempJob3 = CopyJob(TestJob);
 		tempJob3.Company = "Amazon";
 		tempJob3.Source = "AnotherSourceAgain";
-		Job job3 = await _repository.AddAsync(tempJob3);
+		Job job3 = await _repository.AddAsync(tempJob3).ConfigureAwait(false);
 
 		// Act
-		var results = await _repository.SearchAsync("Microsoft");
+		var results = await _repository.SearchAsync("Microsoft").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(results.Count, Is.EqualTo(1));
@@ -239,10 +239,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task ExistsAsync_ExistingJob_ReturnsTrue()
 	{
 		Job tempJob = CopyJob(TestJob);
-		Job job = await _repository.AddAsync(tempJob);
+		Job job = await _repository.AddAsync(tempJob).ConfigureAwait(false);
 
 		// Act
-		var exists = await _repository.ExistsAsync(job.Source, job.SourceJobId);
+		var exists = await _repository.ExistsAsync(job.Source, job.SourceJobId).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(exists, Is.True);
@@ -252,7 +252,7 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task ExistsAsync_NonExistingJob_ReturnsFalse()
 	{
 		// Act
-		var exists = await _repository.ExistsAsync("LinkedIn", "nonexistent");
+		var exists = await _repository.ExistsAsync("LinkedIn", "nonexistent").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(exists, Is.False);
@@ -321,11 +321,11 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		};
 
 		// Act
-		var result = await _repository.AddOrUpdateAsync(credential);
+		var result = await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result.Id, Is.GreaterThan(0));
-		var retrieved = await _repository.GetBySourceAsync("LinkedIn");
+		var retrieved = await _repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
 		Assert.That(retrieved, Is.Not.Null);
 	}
 
@@ -341,15 +341,15 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 			EncryptedPassword = "encrypted",
 			IsActive = true
 		};
-		await _repository.AddOrUpdateAsync(credential);
+		await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		credential.Username = "new@example.com";
 
 		// Act
-		var result = await _repository.AddOrUpdateAsync(credential);
+		var result = await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Assert
-		var retrieved = await _repository.GetBySourceAsync("LinkedIn");
+		var retrieved = await _repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
 		Assert.That(retrieved.Username, Is.EqualTo("new@example.com"));
 	}
 
@@ -365,10 +365,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 			EncryptedPassword = "encrypted",
 			IsActive = true
 		};
-		await _repository.AddOrUpdateAsync(credential);
+		await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Act
-		var result = await _repository.GetBySourceAsync("TokyoDev");
+		var result = await _repository.GetBySourceAsync("TokyoDev").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -379,7 +379,7 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public async Task GetBySourceAsync_NonExistingSource_ReturnsNull()
 	{
 		// Act
-		var result = await _repository.GetBySourceAsync("NonExistent");
+		var result = await _repository.GetBySourceAsync("NonExistent").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Null);
@@ -396,7 +396,7 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 			Username = "test1@example.com",
 			EncryptedPassword = "encrypted",
 			IsActive = true
-		});
+		}).ConfigureAwait(false);
 		await _repository.AddOrUpdateAsync(new ScraperCredential
 		{
 			CookieData = "cookie",
@@ -404,10 +404,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 			Username = "test2@example.com",
 			EncryptedPassword = "encrypted",
 			IsActive = false
-		});
+		}).ConfigureAwait(false);
 
 		// Act
-		var active = await _repository.GetAllActiveAsync();
+		var active = await _repository.GetAllActiveAsync().ConfigureAwait(false);
 
 		// Assert
 		Assert.That(active.Count, Is.EqualTo(1));

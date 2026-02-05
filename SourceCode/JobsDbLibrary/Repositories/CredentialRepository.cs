@@ -27,13 +27,13 @@ public class CredentialRepository : ICredentialRepository
 	public async Task<ScraperCredential> GetBySourceAsync(string source)
 	{
 		return await _context.Credentials
-			.FirstOrDefaultAsync(c => c.Source == source && c.IsActive);
+			.FirstOrDefaultAsync(c => c.Source == source && c.IsActive).ConfigureAwait(false);
 	}
 
 	public async Task<ScraperCredential> AddOrUpdateAsync(ScraperCredential credential)
 	{
 		var existing = await _context.Credentials
-			.FirstOrDefaultAsync(c => c.Source == credential.Source);
+			.FirstOrDefaultAsync(c => c.Source == credential.Source).ConfigureAwait(false);
 
 		if (existing != null)
 		{
@@ -48,7 +48,7 @@ public class CredentialRepository : ICredentialRepository
 			_context.Credentials.Add(credential);
 		}
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return existing ?? credential;
 	}
 
@@ -56,13 +56,13 @@ public class CredentialRepository : ICredentialRepository
 	{
 		return await _context.Credentials
 			.Where(c => c.IsActive)
-			.ToListAsync();
+			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<bool> DeleteBySourceAsync(string source)
 	{
 		var credential = await _context.Credentials
-			.FirstOrDefaultAsync(c => c.Source == source);
+			.FirstOrDefaultAsync(c => c.Source == source).ConfigureAwait(false);
 
 		if (credential == null)
 		{
@@ -70,7 +70,7 @@ public class CredentialRepository : ICredentialRepository
 		}
 
 		_context.Credentials.Remove(credential);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return true;
 	}
 }

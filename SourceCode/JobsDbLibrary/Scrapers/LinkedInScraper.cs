@@ -48,7 +48,7 @@ public class LinkedInScraper : JobScraperBase
 		{
 			InitializeDriver();
 
-			var credential = await GetCredentialsAsync();
+			var credential = await GetCredentialsAsync().ConfigureAwait(false);
 
 			if (credential == null || !credential.IsActive)
 			{
@@ -60,7 +60,7 @@ public class LinkedInScraper : JobScraperBase
 
 			// Login to LinkedIn
 			Console.WriteLine("Logging into LinkedIn...");
-			var loginSuccess = await LoginAsync(credential);
+			var loginSuccess = await LoginAsync(credential).ConfigureAwait(false);
 
 			if (!loginSuccess)
 			{
@@ -122,23 +122,23 @@ public class LinkedInScraper : JobScraperBase
 						// Try to get full details by clicking on the job
 						try
 						{
-							await FetchJobDetailsAsync(job);
+							await FetchJobDetailsAsync(job).ConfigureAwait(false);
 						}
 						catch (Exception ex)
 						{
 							Console.WriteLine($"    Warning: Could not fetch details - {ex.Message}");
 						}
 
-						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
+						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId).ConfigureAwait(false);
 
 						if (existing == null)
 						{
-							await AddOrUpdateJobAsync(job);
+							await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 							result.JobsAdded++;
 						}
 						else
 						{
-							await AddOrUpdateJobAsync(job);
+							await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 							result.JobsUpdated++;
 						}
 
@@ -266,7 +266,7 @@ public class LinkedInScraper : JobScraperBase
 			{
 				Console.WriteLine("✓ Successfully logged in");
 				credential.LastUsed = DateTime.UtcNow;
-				await credentialRepository.AddOrUpdateAsync(credential);
+				await credentialRepository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 			}
 			else
 			{
@@ -483,7 +483,7 @@ public class LinkedInScraper : JobScraperBase
 			Console.WriteLine($"Error fetching job details: {ex.Message}");
 		}
 
-		await Task.CompletedTask;
+		await Task.CompletedTask.ConfigureAwait(false);
 	}
 
 	private void ParseSalary(string salaryText, Job job)

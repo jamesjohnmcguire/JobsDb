@@ -105,7 +105,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 						{
 							try
 							{
-								await FetchJobDetailsAsync(job);
+								await FetchJobDetailsAsync(job).ConfigureAwait(false);
 							}
 							catch (Exception ex)
 							{
@@ -113,16 +113,16 @@ public class TokyoDevScraperSelenium : JobScraperBase
 							}
 						}
 
-						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
+						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId).ConfigureAwait(false);
 
 						if (existing == null)
 						{
-							await AddOrUpdateJobAsync(job);
+							await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 							result.JobsAdded++;
 						}
 						else
 						{
-							await AddOrUpdateJobAsync(job);
+							await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 							result.JobsUpdated++;
 						}
 
@@ -339,7 +339,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			ParseSalary(salaryNode.InnerText, job);
 		}
 
-		await Task.CompletedTask;
+		await Task.CompletedTask.ConfigureAwait(false);
 	}
 
 	private void ParseSalary(string salaryText, Job job)
@@ -373,6 +373,6 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
 	{
 		// TokyoDev doesn't require login for public job listings
-		return await Task.FromResult(true);
+		return await Task.FromResult(true).ConfigureAwait(false);
 	}
 }

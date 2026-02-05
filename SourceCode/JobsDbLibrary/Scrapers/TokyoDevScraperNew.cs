@@ -42,15 +42,15 @@ public class TokyoDevScraper : JobScraperBase
 		{
 			// TokyoDev typically doesn't require login for basic job listings
 			// But we can use credentials if they implement a login system later
-			var credential = await GetCredentialsAsync();
+			var credential = await GetCredentialsAsync().ConfigureAwait(false);
 
 			if (credential != null && credential.IsActive)
 			{
-				await LoginAsync(credential);
+				await LoginAsync(credential).ConfigureAwait(false);
 			}
 
 			// Fetch the jobs page
-			var jobsHtml = await _httpClient.GetStringAsync(JobsUrl);
+			var jobsHtml = await _httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
 			var doc = new HtmlDocument();
 			doc.LoadHtml(jobsHtml);
 
@@ -89,20 +89,20 @@ public class TokyoDevScraper : JobScraperBase
 				{
 					try
 					{
-						var job = await ParseJobNodeAsync(jobNode);
+						var job = await ParseJobNodeAsync(jobNode).ConfigureAwait(false);
 
 						if (job != null && !string.IsNullOrEmpty(job.Title))
 						{
-							var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId);
+							var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId).ConfigureAwait(false);
 
 							if (existing == null)
 							{
-								await AddOrUpdateJobAsync(job);
+								await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 								result.JobsAdded++;
 							}
 							else
 							{
-								await AddOrUpdateJobAsync(job);
+								await AddOrUpdateJobAsync(job).ConfigureAwait(false);
 								result.JobsUpdated++;
 							}
 
@@ -185,7 +185,7 @@ public class TokyoDevScraper : JobScraperBase
 		{
 			try
 			{
-				await FetchJobDetailsAsync(job);
+				await FetchJobDetailsAsync(job).ConfigureAwait(false);
 			}
 			catch
 			{
@@ -201,7 +201,7 @@ public class TokyoDevScraper : JobScraperBase
 
 	private async Task FetchJobDetailsAsync(Job job)
 	{
-		var detailsHtml = await _httpClient.GetStringAsync(job.SourceUrl);
+		var detailsHtml = await _httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(detailsHtml);
 
@@ -274,6 +274,6 @@ public class TokyoDevScraper : JobScraperBase
 	{
 		// TokyoDev typically doesn't require login for job listings
 		// Implement if they add authentication in the future
-		return await Task.FromResult(true);
+		return await Task.FromResult(true).ConfigureAwait(false);
 	}
 }

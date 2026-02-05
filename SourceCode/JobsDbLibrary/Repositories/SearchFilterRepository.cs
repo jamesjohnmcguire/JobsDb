@@ -27,7 +27,7 @@ public class SearchFilterRepository : ISearchFilterRepository
 	{
 		return await _context.SearchFilters
 			.OrderBy(f => f.Name)
-			.ToListAsync();
+			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<List<SearchFilter>> GetActiveAsync()
@@ -35,36 +35,36 @@ public class SearchFilterRepository : ISearchFilterRepository
 		return await _context.SearchFilters
 			.Where(f => f.IsActive)
 			.OrderBy(f => f.Name)
-			.ToListAsync();
+			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<SearchFilter> GetByIdAsync(int id)
 	{
-		return await _context.SearchFilters.FindAsync(id);
+		return await _context.SearchFilters.FindAsync(id).ConfigureAwait(false);
 	}
 
 	public async Task<SearchFilter> AddAsync(SearchFilter filter)
 	{
 		filter.CreatedDate = DateTime.UtcNow;
 		_context.SearchFilters.Add(filter);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return filter;
 	}
 
 	public async Task<SearchFilter> UpdateAsync(SearchFilter filter)
 	{
 		_context.SearchFilters.Update(filter);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return filter;
 	}
 
 	public async Task<bool> DeleteAsync(int id)
 	{
-		var filter = await GetByIdAsync(id);
+		var filter = await GetByIdAsync(id).ConfigureAwait(false);
 		if (filter == null) return false;
 
 		_context.SearchFilters.Remove(filter);
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync().ConfigureAwait(false);
 		return true;
 	}
 }

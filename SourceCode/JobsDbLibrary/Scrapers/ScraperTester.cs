@@ -37,7 +37,7 @@ public class ScraperTester
 	{
 		Console.WriteLine($"Fetching: {url}");
 
-		var html = await _httpClient.GetStringAsync(url);
+		var html = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
 
 		// Save HTML for manual inspection
 		File.WriteAllText(outputFile, html);
@@ -163,7 +163,7 @@ public class ScraperTester
 	/// </summary>
 	public async Task TestSelector(string url, string xpath, int maxResults = 5)
 	{
-		var html = await _httpClient.GetStringAsync(url);
+		var html = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(html);
 
@@ -206,7 +206,7 @@ public class ScraperTester
 		Console.WriteLine("=== TOKYODEV STRUCTURE TEST ===");
 		Console.WriteLine();
 
-		await AnalyzePageStructure("https://www.tokyodev.com/jobs", "tokyodev_jobs.html");
+		await AnalyzePageStructure("https://www.tokyodev.com/jobs", "tokyodev_jobs.html").ConfigureAwait(false);
 
 		Console.WriteLine();
 		Console.WriteLine("=== NEXT STEPS ===");

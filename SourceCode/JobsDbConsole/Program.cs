@@ -18,7 +18,7 @@ internal class Program
 		var tester = new ScraperTester();
 
 		// Analyze TokyoDev structure
-		await tester.TestTokyoDev();
+		await tester.TestTokyoDev().ConfigureAwait(false);
 
 		// Or test a specific selector
 		// await tester.TestSelector(

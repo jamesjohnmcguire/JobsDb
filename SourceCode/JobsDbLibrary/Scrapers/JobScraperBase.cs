@@ -62,7 +62,7 @@ public abstract class JobScraperBase
 	protected async Task<ScraperCredential> GetCredentialsAsync()
 	{
 		ScraperCredential credential =
-			await credentialRepository.GetBySourceAsync(sourceName);
+			await credentialRepository.GetBySourceAsync(sourceName).ConfigureAwait(false);
 
 		return credential;
 	}
@@ -72,7 +72,7 @@ public abstract class JobScraperBase
 	/// </summary>
 	protected async Task<Job> AddOrUpdateJobAsync(Job job)
 	{
-		var existing = await jobRepository.GetBySourceIdAsync(job.Source, job.SourceJobId);
+		var existing = await jobRepository.GetBySourceIdAsync(job.Source, job.SourceJobId).ConfigureAwait(false);
 
 		if (existing != null)
 		{
@@ -89,14 +89,14 @@ public abstract class JobScraperBase
 			existing.RemoteType = job.RemoteType;
 			existing.DateScraped = DateTime.UtcNow;
 
-			return await jobRepository.UpdateAsync(existing);
+			return await jobRepository.UpdateAsync(existing).ConfigureAwait(false);
 		}
 		else
 		{
 			job.Source = sourceName;
 			job.DateScraped = DateTime.UtcNow;
 			job.Status = ApplicationStatus.NotApplied;
-			return await jobRepository.AddAsync(job);
+			return await jobRepository.AddAsync(job).ConfigureAwait(false);
 		}
 	}
 
