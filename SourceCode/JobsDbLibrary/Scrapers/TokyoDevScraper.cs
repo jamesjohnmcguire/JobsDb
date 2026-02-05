@@ -8,6 +8,7 @@ namespace JobsDb.Core.Scrapers;
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -152,7 +153,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 		if (!string.IsNullOrEmpty(href))
 		{
-			job.SourceUrl = href.StartsWith("http") ? href : $"{BaseUrl}{href}";
+			job.SourceUrl = href.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ? href : $"{BaseUrl}{href}";
 
 			// Extract job ID from URL
 			var urlParts = href.Split('/');
@@ -232,24 +233,26 @@ public class TokyoDevScraperPrevious : JobScraperBase
 		}
 	}
 
-	private void ParseSalary(string salaryText, Job job)
+	private static void ParseSalary(string salaryText, Job job)
 	{
 		// Parse salary strings like "¥5,000,000 - ¥8,000,000" or "$50,000 - $80,000"
 		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
 
 		if (numbers.Count >= 2)
 		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", ""), out var min))
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
 				job.SalaryMin = min;
 
-			if (decimal.TryParse(numbers[1].Value.Replace(",", ""), out var max))
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
 				job.SalaryMax = max;
 		}
 
 		// Determine currency
-		if (salaryText.Contains("¥") || salaryText.ToLower().Contains("jpy"))
+		if (salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase))
 			job.SalaryCurrency = "JPY";
-		else if (salaryText.Contains("$") || salaryText.ToLower().Contains("usd"))
+		else if (salaryText.Contains("$", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("usd", StringComparison.InvariantCultureIgnoreCase))
 			job.SalaryCurrency = "USD";
 	}
 

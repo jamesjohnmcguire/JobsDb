@@ -69,7 +69,7 @@ public class ScraperTester
 		Console.WriteLine("4. Test with a small sample first before full scraping");
 	}
 
-	private void AnalyzeJobListings(HtmlDocument doc)
+	private static void AnalyzeJobListings(HtmlDocument doc)
 	{
 		Console.WriteLine("--- Job Listing Candidates ---");
 
@@ -106,7 +106,7 @@ public class ScraperTester
 		}
 	}
 
-	private void AnalyzePagination(HtmlDocument doc)
+	private static void AnalyzePagination(HtmlDocument doc)
 	{
 		Console.WriteLine("--- Pagination Detection ---");
 
@@ -131,7 +131,7 @@ public class ScraperTester
 		Console.WriteLine();
 	}
 
-	private void AnalyzeJobDetails(HtmlDocument doc)
+	private static void AnalyzeJobDetails(HtmlDocument doc)
 	{
 		Console.WriteLine("--- Job Detail Elements ---");
 
@@ -194,6 +194,7 @@ public class ScraperTester
 					Console.WriteLine($"  {attr.Name} = {attr.Value}");
 				}
 			}
+
 			Console.WriteLine();
 		}
 	}

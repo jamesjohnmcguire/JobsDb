@@ -9,6 +9,7 @@ namespace JobsDbLibrary.Scrapers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -249,7 +250,8 @@ public class LinkedInScraper : JobScraperBase
 			Thread.Sleep(5000);
 
 			// Check if we need to handle 2FA or verification
-			if (_driver.Url.Contains("checkpoint") || _driver.Url.Contains("challenge"))
+			if (_driver.Url.Contains("checkpoint", StringComparison.InvariantCultureIgnoreCase) ||
+				_driver.Url.Contains("challenge", StringComparison.InvariantCultureIgnoreCase))
 			{
 				Console.WriteLine("⚠ LinkedIn verification required. Please complete manually...");
 				Console.WriteLine("Waiting 60 seconds for manual verification...");
@@ -257,10 +259,10 @@ public class LinkedInScraper : JobScraperBase
 			}
 
 			// Check if login was successful
-			_isLoggedIn = _driver.Url.Contains("feed") ||
-							_driver.Url.Contains("jobs") ||
-							_driver.Url.Contains("mynetwork") ||
-							!_driver.Url.Contains("login");
+			_isLoggedIn = _driver.Url.Contains("feed", StringComparison.InvariantCultureIgnoreCase) ||
+							_driver.Url.Contains("jobs", StringComparison.InvariantCultureIgnoreCase) ||
+							_driver.Url.Contains("mynetwork", StringComparison.InvariantCultureIgnoreCase) ||
+							!_driver.Url.Contains("login", StringComparison.InvariantCultureIgnoreCase);
 
 			if (_isLoggedIn)
 			{
@@ -282,7 +284,7 @@ public class LinkedInScraper : JobScraperBase
 		}
 	}
 
-	private string BuildSearchUrl(SearchFilter filter)
+	private static string BuildSearchUrl(SearchFilter filter)
 	{
 		var url = LinkedInJobsUrl + "?";
 		var parameters = new List<string>();
@@ -309,7 +311,7 @@ public class LinkedInScraper : JobScraperBase
 		return url + string.Join("&", parameters);
 	}
 
-	private List<HtmlNode> FindJobCards(HtmlDocument doc)
+	private static List<HtmlNode> FindJobCards(HtmlDocument doc)
 	{
 		// Try multiple selector strategies (LinkedIn changes these frequently)
 		var strategies = new Func<List<HtmlNode>>[]
@@ -460,9 +462,9 @@ public class LinkedInScraper : JobScraperBase
 			{
 				foreach (var node in criteriaNodes)
 				{
-					var text = node.InnerText.ToLower();
+					var text = node.InnerText.ToLower(CultureInfo.InvariantCulture);
 
-					if (text.Contains("employment type"))
+					if (text.Contains("employment type", StringComparison.InvariantCultureIgnoreCase))
 					{
 						var valueNode = node.SelectSingleNode(".//span[contains(@class, 'job-criteria__text')]");
 						if (valueNode != null)
@@ -486,46 +488,48 @@ public class LinkedInScraper : JobScraperBase
 		await Task.CompletedTask.ConfigureAwait(false);
 	}
 
-	private void ParseSalary(string salaryText, Job job)
+	private static void ParseSalary(string salaryText, Job job)
 	{
 		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
 
 		if (numbers.Count >= 2)
 		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", ""), out var min))
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
 				job.SalaryMin = min;
 
-			if (decimal.TryParse(numbers[1].Value.Replace(",", ""), out var max))
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
 				job.SalaryMax = max;
 		}
 
-		if (salaryText.Contains("¥") || salaryText.ToLower().Contains("jpy"))
+		if (salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase))
 			job.SalaryCurrency = "JPY";
-		else if (salaryText.Contains("$") || salaryText.ToLower().Contains("usd"))
+		else if (salaryText.Contains("$", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("usd", StringComparison.InvariantCultureIgnoreCase))
 			job.SalaryCurrency = "USD";
 	}
 
-	private DateTime ParseLinkedInDate(string dateText)
+	private static DateTime ParseLinkedInDate(string dateText)
 	{
 		var now = DateTime.UtcNow;
-		dateText = dateText.ToLower().Trim();
+		dateText = dateText.ToLower(CultureInfo.InvariantCulture).Trim();
 
-		if (dateText.Contains("hour"))
+		if (dateText.Contains("hour", StringComparison.InvariantCultureIgnoreCase))
 		{
 			var hours = int.TryParse(System.Text.RegularExpressions.Regex.Match(dateText, @"\d+").Value, out var h) ? h : 1;
 			return now.AddHours(-hours);
 		}
-		else if (dateText.Contains("day"))
+		else if (dateText.Contains("day", StringComparison.InvariantCultureIgnoreCase))
 		{
 			var days = int.TryParse(System.Text.RegularExpressions.Regex.Match(dateText, @"\d+").Value, out var d) ? d : 1;
 			return now.AddDays(-days);
 		}
-		else if (dateText.Contains("week"))
+		else if (dateText.Contains("week", StringComparison.InvariantCultureIgnoreCase))
 		{
 			var weeks = int.TryParse(System.Text.RegularExpressions.Regex.Match(dateText, @"\d+").Value, out var w) ? w : 1;
 			return now.AddDays(-weeks * 7);
 		}
-		else if (dateText.Contains("month"))
+		else if (dateText.Contains("month", StringComparison.InvariantCultureIgnoreCase))
 		{
 			var months = int.TryParse(System.Text.RegularExpressions.Regex.Match(dateText, @"\d+").Value, out var m) ? m : 1;
 			return now.AddMonths(-months);
@@ -534,16 +538,16 @@ public class LinkedInScraper : JobScraperBase
 		return now;
 	}
 
-	private string CleanText(string text)
+	private static string CleanText(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))
 			return string.Empty;
 
 		return HtmlEntity.DeEntitize(text)
 			.Trim()
-			.Replace("\n", " ")
-			.Replace("\r", "")
-			.Replace("\t", " ")
-			.Replace("  ", " ");
+			.Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\r", string.Empty, StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+			.Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase);
 	}
 }

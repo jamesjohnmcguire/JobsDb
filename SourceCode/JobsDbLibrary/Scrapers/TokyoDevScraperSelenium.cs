@@ -9,6 +9,7 @@ namespace JobsDb.Core.Scrapers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -209,7 +210,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		Thread.Sleep(500);
 	}
 
-	private List<HtmlNode> FindJobNodes(HtmlDocument doc)
+	private static List<HtmlNode> FindJobNodes(HtmlDocument doc)
 	{
 		// Try multiple selector strategies in order of likelihood
 		var strategies = new Func<List<HtmlNode>>[]
@@ -283,7 +284,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 		if (companyNode != null)
 		{
-			job.Company = CleanText(companyNode.InnerText).Replace("at ", "");
+			job.Company = CleanText(companyNode.InnerText).Replace("at ", string.Empty, StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		// Extract location
@@ -298,7 +299,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		if (linkNode != null)
 		{
 			var href = linkNode.GetAttributeValue("href", string.Empty);
-			job.SourceUrl = href.StartsWith("http") ? href : $"{BaseUrl}{href}";
+			job.SourceUrl = href.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ? href : $"{BaseUrl}{href}";
 
 			// Extract job ID from URL
 			var urlParts = href.Trim('/').Split('/');
@@ -342,32 +343,33 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		await Task.CompletedTask.ConfigureAwait(false);
 	}
 
-	private void ParseSalary(string salaryText, Job job)
+	private static void ParseSalary(string salaryText, Job job)
 	{
 		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
 
 		if (numbers.Count >= 2)
 		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", ""), out var min))
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
 				job.SalaryMin = min;
 
-			if (decimal.TryParse(numbers[1].Value.Replace(",", ""), out var max))
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
 				job.SalaryMax = max;
 		}
 
-		job.SalaryCurrency = salaryText.Contains("¥") || salaryText.ToLower().Contains("jpy") ? "JPY" : "USD";
+		job.SalaryCurrency = salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase) ? "JPY" : "USD";
 	}
 
-	private string CleanText(string text)
+	private static string CleanText(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))
 			return string.Empty;
 
 		return HtmlEntity.DeEntitize(text)
 			.Trim()
-			.Replace("\n", " ")
-			.Replace("\r", "")
-			.Replace("\t", " ");
+			.Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\r", string.Empty, StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase);
 	}
 
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)

@@ -8,6 +8,7 @@ namespace JobsDb.Core.Repositories;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using JobsDb.Core.Data;
@@ -93,14 +94,17 @@ public class JobRepository : IJobRepository
 		if (string.IsNullOrWhiteSpace(searchTerm))
 			return await GetActiveJobsAsync().ConfigureAwait(false);
 
-		var term = searchTerm.ToLower();
-		return await _context.Jobs
-			.Where(j => !j.IsArchived && (
-				j.Title.ToLower().Contains(term) ||
-				j.Company.ToLower().Contains(term) ||
-				j.Description.ToLower().Contains(term) ||
-				j.Location.ToLower().Contains(term)))
+		var term = searchTerm.ToLower(CultureInfo.InvariantCulture);
+
+		var results = await _context.Jobs
+			.Where(j => !j.IsArchived &&
+				(EF.Functions.Like(j.Title, $"%{term}%") ||
+				 EF.Functions.Like(j.Company, $"%{term}%") ||
+				 EF.Functions.Like(j.Description, $"%{term}%") ||
+				 EF.Functions.Like(j.Location, $"%{term}%")))
 			.OrderByDescending(j => j.DatePosted)
 			.ToListAsync().ConfigureAwait(false);
+
+		return results;
 	}
 }
