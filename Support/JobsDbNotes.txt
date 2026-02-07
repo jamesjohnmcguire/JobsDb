@@ -1,4 +1,6 @@
-JobsDb
+Tasks
+	Replace Console.WriteLines with Logging
+Resources
 	https://app.apijobs.dev/
 	https://app.apijobs.dev/,,AnythingGoesHere12#,Api Key: 89edd855a53820c0c5476191e7413abdd6d0a542768379cdd869f7e282a36794
 
