@@ -13,7 +13,7 @@ using JobsDbLibrary.Scrapers;
 using JobsDb.Core.Scrapers;
 
 [TestFixture]
-public class JobTests
+internal class JobTests
 {
 	[Test]
 	public void Job_NewInstance_HasDefaultValues()

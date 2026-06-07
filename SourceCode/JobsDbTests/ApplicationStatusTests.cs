@@ -13,7 +13,7 @@ using JobsDbLibrary.Scrapers;
 using JobsDb.Core.Scrapers;
 
 [TestFixture]
-public class ApplicationStatusTests
+internal class ApplicationStatusTests
 {
 	[Test]
 	public void ApplicationStatus_AllValuesAreDefined()
@@ -39,7 +39,7 @@ public class ApplicationStatusTests
 }
 
 [TestFixture]
-public class ScraperCredentialTests
+internal class ScraperCredentialTests
 {
 	[Test]
 	public void ScraperCredential_NewInstance_IsActive()
@@ -76,7 +76,7 @@ public class ScraperCredentialTests
 }
 
 [TestFixture]
-public class SearchFilterTests
+internal class SearchFilterTests
 {
 	[Test]
 	public void SearchFilter_NewInstance_HasDefaultValues()

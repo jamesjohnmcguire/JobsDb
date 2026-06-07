@@ -21,7 +21,7 @@ using Moq;
 using NUnit.Framework;
 
 [TestFixture]
-public class CredentialEncryptionTests
+internal class CredentialEncryptionTests
 {
 	private const string MasterPassword = "TestPassword123!";
 

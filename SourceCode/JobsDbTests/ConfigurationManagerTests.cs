@@ -14,7 +14,7 @@ using JobsDb.Core.Configuration;
 using NUnit.Framework;
 
 [TestFixture]
-public class ConfigurationManagerTests
+internal class ConfigurationManagerTests
 {
 	private string _testConfigPath;
 

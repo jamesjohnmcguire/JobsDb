@@ -8,7 +8,7 @@ namespace JobsDbTests;
 
 using NUnit.Framework;
 
-public class Tests
+internal class Tests
 {
 	[SetUp]
 	public void Setup()
