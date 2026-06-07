@@ -1,4 +1,4 @@
-﻿namespace JobsDbTests
+namespace JobsDbTests
 {
 	using System;
 	using System.Collections.Generic;

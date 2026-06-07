@@ -1,4 +1,4 @@
-﻿namespace JobsDbTests;
+namespace JobsDbTests;
 
 using JobsDb.Core.Configuration;
 using NUnit.Framework;
