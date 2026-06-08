@@ -16,7 +16,7 @@ internal class SearchDefaultsConfigTests
 	public void SearchDefaultsConfig_SetProperties_ValuesAreSet()
 	{
 		// Arrange & Act
-		var config = new SearchDefaultsConfig
+		SearchDefaultsConfig config = new SearchDefaultsConfig
 		{
 			Keywords = "software engineer",
 			Location = "Tokyo, Japan",

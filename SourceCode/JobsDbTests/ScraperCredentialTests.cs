@@ -19,7 +19,7 @@ public class ScraperCredentialTests
 	public void ScraperCredential_NewInstance_IsActive()
 	{
 		// Arrange & Act
-		var credential = new ScraperCredential
+		ScraperCredential credential = new ScraperCredential
 		{
 			Source = "LinkedIn",
 			Username = "test@example.com",
@@ -37,7 +37,7 @@ public class ScraperCredentialTests
 	public void ScraperCredential_SetLastUsed_DateIsSet()
 	{
 		// Arrange
-		var credential = new ScraperCredential();
+		ScraperCredential credential = new ScraperCredential();
 		var lastUsed = DateTime.UtcNow;
 
 		// Act

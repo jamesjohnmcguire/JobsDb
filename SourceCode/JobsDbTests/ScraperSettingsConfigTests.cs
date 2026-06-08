@@ -10,7 +10,7 @@ internal class ScraperSettingsConfigTests
 	public void ScraperSettingsConfig_SetProperties_ValuesAreSet()
 	{
 		// Arrange & Act
-		var config = new ScraperSettingsConfig
+		ScraperSettingsConfig config = new ScraperSettingsConfig
 		{
 			RunHeadless = true,
 			PageLoadTimeoutSeconds = 60,
@@ -33,7 +33,7 @@ internal class ScraperSettingsConfigTests
 	public void ScraperSettingsConfig_DefaultValues_AreReasonable()
 	{
 		// Arrange & Act
-		var config = new ScraperSettingsConfig
+		ScraperSettingsConfig config = new ScraperSettingsConfig
 		{
 			RunHeadless = false,
 			PageLoadTimeoutSeconds = 30,

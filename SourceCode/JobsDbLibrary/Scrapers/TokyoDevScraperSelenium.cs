@@ -47,8 +47,8 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
-		var stopwatch = Stopwatch.StartNew();
-		var result = new ScraperResult();
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		ScraperResult result = new ScraperResult();
 
 		try
 		{
@@ -72,7 +72,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			Console.WriteLine("✓ Page source saved to tokyodev_scraped.html");
 
 			// Parse with HtmlAgilityPack
-			var doc = new HtmlDocument();
+			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(pageSource);
 
 			// Try multiple selector strategies
@@ -158,7 +158,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 	private void InitializeDriver()
 	{
-		var options = new ChromeOptions();
+		ChromeOptions options = new ChromeOptions();
 
 		// Make it look more like a real browser
 		options.AddArgument("--disable-blink-features=AutomationControlled");
@@ -213,7 +213,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	private static List<HtmlNode> FindJobNodes(HtmlDocument doc)
 	{
 		// Try multiple selector strategies in order of likelihood
-		var strategies = new Func<List<HtmlNode>>[]
+		Func<List<HtmlNode>>[] strategies = new Func<List<HtmlNode>>[]
 		{
 			// Strategy 1: Look for job-specific classes
 			() => doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-card')]")?.ToList(),
@@ -256,7 +256,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 	private Job ParseJobNode(HtmlNode node)
 	{
-		var job = new Job
+		Job job = new Job
 		{
 			Source = sourceName,
 			DatePosted = DateTime.UtcNow,
@@ -320,7 +320,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		Thread.Sleep(2000);
 
 		var pageSource = _driver.PageSource;
-		var doc = new HtmlDocument();
+		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(pageSource);
 
 		// Extract description

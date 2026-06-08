@@ -7,6 +7,7 @@
 namespace JobsDb.Tests.Data;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JobsDb.Core.Data;
@@ -139,7 +140,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		// Arrange
 		_context.Initialize();
 
-		var cred1 = new ScraperCredential
+		ScraperCredential cred1 = new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "LinkedIn",
@@ -148,7 +149,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 			IsActive = true
 		};
 
-		var cred2 = new ScraperCredential
+		ScraperCredential cred2 = new ScraperCredential
 		{
 			Source = "LinkedIn", // Same source
 			Username = "user2@example.com",
@@ -200,7 +201,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		// Arrange
 		_context.Initialize();
 
-		var filter = new SearchFilter
+		SearchFilter filter = new SearchFilter
 		{
 			Name = "Test Filter",
 			Keywords = "developer",
@@ -225,7 +226,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		// Arrange
 		_context.Initialize();
 
-		var cred = new ScraperCredential
+		ScraperCredential cred = new ScraperCredential
 		{
 			CookieData = "cookie",
 			IsActive = true,
@@ -254,10 +255,10 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		_context.SaveChanges();
 
 		// These queries use indexes
-		var byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
-		var byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
-		var byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
-		var byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
+		List<Job> byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
+		List<Job> byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
+		List<Job> byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
+		List<Job> byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
 
 		// Assert
 		Assert.That(byStatus.Count, Is.EqualTo(1));
@@ -275,9 +276,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		_context.SaveChanges();
 
 		// Act - Create new context with same path
-		using (var context2 = new JobsDbContext(TestDbPath))
+		using (JobsDbContext context2 = new JobsDbContext(TestDbPath))
 		{
-			var jobs = context2.Jobs.ToList();
+			List<Job> jobs = context2.Jobs.ToList();
 
 			// Assert
 			Assert.That(jobs.Count, Is.EqualTo(1));
@@ -291,7 +292,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		// Arrange
 		_context.Initialize();
 
-		var job = new Job
+		Job job = new Job
 		{
 			// Missing Title (required)
 			Company = "Test Co",

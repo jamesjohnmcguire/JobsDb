@@ -42,8 +42,8 @@ public class LinkedInScraper : JobScraperBase
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
-		var stopwatch = Stopwatch.StartNew();
-		var result = new ScraperResult();
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		ScraperResult result = new ScraperResult();
 
 		try
 		{
@@ -94,7 +94,7 @@ public class LinkedInScraper : JobScraperBase
 			System.IO.File.WriteAllText("linkedin_scraped.html", pageSource);
 			Console.WriteLine("✓ Page source saved to linkedin_scraped.html");
 
-			var doc = new HtmlDocument();
+			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(pageSource);
 
 			// Parse job cards - LinkedIn frequently changes class names
@@ -174,7 +174,7 @@ public class LinkedInScraper : JobScraperBase
 
 	private void InitializeDriver()
 	{
-		var options = new ChromeOptions();
+		ChromeOptions options = new ChromeOptions();
 
 		// Anti-detection settings
 		options.AddArgument("--disable-blink-features=AutomationControlled");
@@ -287,7 +287,7 @@ public class LinkedInScraper : JobScraperBase
 	private static string BuildSearchUrl(SearchFilter filter)
 	{
 		var url = LinkedInJobsUrl + "?";
-		var parameters = new List<string>();
+		List<string> parameters = new List<string>();
 
 		if (filter != null)
 		{
@@ -314,7 +314,7 @@ public class LinkedInScraper : JobScraperBase
 	private static List<HtmlNode> FindJobCards(HtmlDocument doc)
 	{
 		// Try multiple selector strategies (LinkedIn changes these frequently)
-		var strategies = new Func<List<HtmlNode>>[]
+		Func<List<HtmlNode>>[] strategies = new Func<List<HtmlNode>>[]
 		{
 			() => doc.DocumentNode.SelectNodes("//li[contains(@class, 'jobs-search-results__list-item')]")?.ToList(),
 			() => doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-card-container')]")?.ToList(),
@@ -344,7 +344,7 @@ public class LinkedInScraper : JobScraperBase
 
 	private Job ParseJobCard(HtmlNode card)
 	{
-		var job = new Job
+		Job job = new Job
 		{
 			Source = sourceName,
 			DateScraped = DateTime.UtcNow,
@@ -443,7 +443,7 @@ public class LinkedInScraper : JobScraperBase
 			Thread.Sleep(1000);
 
 			var pageSource = _driver.PageSource;
-			var doc = new HtmlDocument();
+			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(pageSource);
 
 			// Extract full description

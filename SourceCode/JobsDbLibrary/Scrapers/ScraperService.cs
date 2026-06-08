@@ -54,7 +54,7 @@ public class ScraperService
 		var result = await scraper.ScrapeJobsAsync(filter).ConfigureAwait(false);
 
 		// Log the scraping activity
-		var log = new ScraperLog
+		ScraperLog log = new ScraperLog
 		{
 			Source = source,
 			Timestamp = startTime,
@@ -77,7 +77,7 @@ public class ScraperService
 	/// </summary>
 	public async Task<List<ScraperResult>> RunAllScrapersAsync()
 	{
-		var results = new List<ScraperResult>();
+		List<ScraperResult> results = new List<ScraperResult>();
 
 		foreach (var source in _scrapers.Keys)
 		{

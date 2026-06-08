@@ -102,7 +102,7 @@ public abstract class JobScraperBase
 
 	public virtual async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
-		var result = new ScraperResult();
+		ScraperResult result = new ScraperResult();
 
 		return result;
 	}

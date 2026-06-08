@@ -17,7 +17,7 @@ internal class AppConfigurationTests
 	public void AppConfiguration_NewInstance_CanSetProperties()
 	{
 		// Arrange & Act
-		var config = new AppConfiguration
+		AppConfiguration config = new AppConfiguration
 		{
 			MasterPassword = "TestPassword",
 			Credentials = new System.Collections.Generic.List<CredentialConfig>(),
@@ -36,7 +36,7 @@ internal class AppConfigurationTests
 	public void AppConfiguration_SerializeToJson_ProducesValidJson()
 	{
 		// Arrange
-		var config = new AppConfiguration
+		AppConfiguration config = new AppConfiguration
 		{
 			MasterPassword = "TestPass",
 			Credentials = new System.Collections.Generic.List<CredentialConfig>

@@ -1,6 +1,7 @@
 namespace JobsDbTests
 {
 	using System;
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
 	using System.Threading.Tasks;
@@ -41,7 +42,7 @@ namespace JobsDbTests
 		public void RegisterScraper_ValidScraper_IsRegistered()
 		{
 			// Arrange
-			var mockScraper = new Mock<JobScraperBase>(
+			Mock<JobScraperBase> mockScraper = new Mock<JobScraperBase>(
 				Mock.Of<IJobRepository>(),
 				Mock.Of<ICredentialRepository>(),
 				"TestSource");
@@ -69,7 +70,7 @@ namespace JobsDbTests
 		public async Task RunScraperAsync_RegisteredScraper_ExecutesAndLogsResult()
 		{
 			// Arrange
-			var mockScraper = new MockTestScraper(
+			MockTestScraper mockScraper = new MockTestScraper(
 				Mock.Of<IJobRepository>(),
 				Mock.Of<ICredentialRepository>());
 
@@ -83,7 +84,7 @@ namespace JobsDbTests
 			Assert.That(result.JobsFound, Is.EqualTo(5));
 
 			// Verify log was created
-			var logs = _context.ScraperLogs.ToList();
+			List<ScraperLog> logs = _context.ScraperLogs.ToList();
 			Assert.That(logs.Count, Is.EqualTo(1));
 			Assert.That(logs[0].Source, Is.EqualTo("TestSource"));
 			Assert.That(logs[0].Success, Is.True);
@@ -115,10 +116,10 @@ namespace JobsDbTests
 		public void GetRegisteredSources_MultipleScrapers_ReturnsAllSources()
 		{
 			// Arrange
-			var scraper1 = new MockTestScraper(
+			MockTestScraper scraper1 = new MockTestScraper(
 				Mock.Of<IJobRepository>(),
 				Mock.Of<ICredentialRepository>());
-			var scraper2 = new MockTestScraper(
+			MockTestScraper scraper2 = new MockTestScraper(
 				Mock.Of<IJobRepository>(),
 				Mock.Of<ICredentialRepository>());
 

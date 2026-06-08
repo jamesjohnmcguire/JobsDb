@@ -39,7 +39,7 @@ public class CookieManager
 		try
 		{
 			var cookies = driver.Manage().Cookies.AllCookies;
-			var cookieList = cookies.Select(c => new CookieData
+			List<CookieData> cookieList = cookies.Select(c => new CookieData
 			{
 				Name = c.Name,
 				Value = c.Value,
@@ -113,7 +113,7 @@ public class CookieManager
 					if (cookieData.Expiry.HasValue && cookieData.Expiry.Value < DateTime.UtcNow)
 						continue;
 
-					var cookie = new Cookie(
+					Cookie cookie = new Cookie(
 						cookieData.Name,
 						cookieData.Value,
 						cookieData.Domain,

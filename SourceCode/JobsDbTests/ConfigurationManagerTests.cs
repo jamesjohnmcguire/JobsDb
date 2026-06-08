@@ -34,7 +34,7 @@ internal class ConfigurationManagerTests
 	[Test]
 	public void Constructor_NoConfigFile_CreatesDefaultConfiguration()
 	{
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 
 		Assert.That(manager.Config, Is.Not.Null);
 		Assert.That(manager.Config.Credentials, Is.Not.Null);
@@ -45,7 +45,7 @@ internal class ConfigurationManagerTests
 	public void Constructor_ExistingConfigFile_LoadsConfiguration()
 	{
 		// Arrange
-		var config = new AppConfiguration
+		AppConfiguration config = new AppConfiguration
 		{
 			MasterPassword = "CustomPassword",
 			Credentials = new System.Collections.Generic.List<CredentialConfig>
@@ -64,7 +64,7 @@ internal class ConfigurationManagerTests
 		File.WriteAllText(_testConfigPath, json);
 
 		// Act
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 
 		// Assert
 		Assert.That(manager.Config.MasterPassword, Is.EqualTo("CustomPassword"));
@@ -75,7 +75,7 @@ internal class ConfigurationManagerTests
 	public void SaveConfiguration_ValidConfig_SavesToFile()
 	{
 		// Arrange
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 		manager.Config.MasterPassword = "NewPassword";
 
 		// Act
@@ -93,7 +93,7 @@ internal class ConfigurationManagerTests
 	public void GetDecryptedPassword_ExistingSource_ReturnsPassword()
 	{
 		// Arrange
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 		manager.Config.Credentials.Add(new CredentialConfig
 		{
 			Source = "TestSource",
@@ -113,7 +113,7 @@ internal class ConfigurationManagerTests
 	public void GetDecryptedPassword_NonExistingSource_ReturnsNull()
 	{
 		// Arrange
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 
 		// Act
 		var password = manager.GetDecryptedPassword("NonExistent");
@@ -152,7 +152,7 @@ internal class ConfigurationManagerTests
 	public void GetCredentialConfig_NonExistingSource_ReturnsNull()
 	{
 		// Arrange
-		var manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
 
 		// Act
 		var credConfig = manager.GetCredentialConfig("NonExistent");

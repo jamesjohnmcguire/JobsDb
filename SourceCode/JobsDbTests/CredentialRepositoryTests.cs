@@ -44,7 +44,7 @@ internal class CredentialRepositoryTests
 	public async Task AddOrUpdateAsync_NewCredential_AddsToDatabase()
 	{
 		// Arrange
-		var credential = new ScraperCredential
+		ScraperCredential credential = new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "LinkedIn",
@@ -66,7 +66,7 @@ internal class CredentialRepositoryTests
 	public async Task AddOrUpdateAsync_ExistingCredential_UpdatesInDatabase()
 	{
 		// Arrange
-		var credential = new ScraperCredential
+		ScraperCredential credential = new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "LinkedIn",
@@ -90,7 +90,7 @@ internal class CredentialRepositoryTests
 	public async Task GetBySourceAsync_ExistingCredential_ReturnsCredential()
 	{
 		// Arrange
-		var credential = new ScraperCredential
+		ScraperCredential credential = new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "TokyoDev",

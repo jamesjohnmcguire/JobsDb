@@ -19,7 +19,7 @@ internal class JobTests
 	public void Job_NewInstance_HasDefaultValues()
 	{
 		// Arrange & Act
-		var job = new Job();
+		Job job = new Job();
 
 		// Assert
 		Assert.That(job.Id, Is.EqualTo(0));
@@ -31,7 +31,7 @@ internal class JobTests
 	public void Job_SetProperties_ValuesAreSet()
 	{
 		// Arrange
-		var job = new Job();
+		Job job = new Job();
 		var testDate = DateTime.UtcNow;
 
 		// Act
@@ -61,7 +61,7 @@ internal class JobTests
 	public void Job_SetSalaryRange_ValuesAreSet()
 	{
 		// Arrange
-		var job = new Job();
+		Job job = new Job();
 
 		// Act
 		job.SalaryMin = 5000000;
@@ -78,7 +78,7 @@ internal class JobTests
 	public void Job_MarkAsApplied_DateAppliedIsSet()
 	{
 		// Arrange
-		var job = new Job();
+		Job job = new Job();
 		var appliedDate = DateTime.UtcNow;
 
 		// Act
@@ -95,7 +95,7 @@ internal class JobTests
 	public void Job_Archive_IsArchivedIsTrue()
 	{
 		// Arrange
-		var job = new Job { IsArchived = false };
+		Job job = new Job { IsArchived = false };
 
 		// Act
 		job.IsArchived = true;

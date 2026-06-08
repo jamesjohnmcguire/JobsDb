@@ -16,7 +16,7 @@ internal class CredentialConfigTests
 	public void CredentialConfig_SetProperties_ValuesAreSet()
 	{
 		// Arrange & Act
-		var config = new CredentialConfig
+		CredentialConfig config = new CredentialConfig
 		{
 			Source = "LinkedIn",
 			Username = "user@example.com",

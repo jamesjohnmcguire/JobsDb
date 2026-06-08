@@ -25,8 +25,8 @@ public static class CredentialEncryption
 		if (string.IsNullOrEmpty(plainText))
 			return string.Empty;
 
-		using var aes = Aes.Create();
-		var key = new Rfc2898DeriveBytes(masterPassword, Salt, 10000, HashAlgorithmName.SHA256);
+		using Aes aes = Aes.Create();
+		Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(masterPassword, Salt, 10000, HashAlgorithmName.SHA256);
 		aes.Key = key.GetBytes(32);
 		aes.IV = key.GetBytes(16);
 
@@ -45,8 +45,8 @@ public static class CredentialEncryption
 		if (string.IsNullOrEmpty(encryptedText))
 			return string.Empty;
 
-		using var aes = Aes.Create();
-		var key = new Rfc2898DeriveBytes(masterPassword, Salt, 10000, HashAlgorithmName.SHA256);
+		using Aes aes = Aes.Create();
+		Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(masterPassword, Salt, 10000, HashAlgorithmName.SHA256);
 		aes.Key = key.GetBytes(32);
 		aes.IV = key.GetBytes(16);
 

@@ -19,7 +19,7 @@ public class SearchFilterTests
 	public void SearchFilter_NewInstance_HasDefaultValues()
 	{
 		// Arrange & Act
-		var filter = new SearchFilter();
+		SearchFilter filter = new SearchFilter();
 
 		// Assert
 		Assert.That(filter.Id, Is.EqualTo(0));
@@ -30,7 +30,7 @@ public class SearchFilterTests
 	public void SearchFilter_SetProperties_ValuesAreSet()
 	{
 		// Arrange
-		var filter = new SearchFilter();
+		SearchFilter filter = new SearchFilter();
 
 		// Act
 		filter.Name = "Tokyo Developer Jobs";

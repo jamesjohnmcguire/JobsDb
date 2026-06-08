@@ -36,8 +36,8 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
-		var stopwatch = Stopwatch.StartNew();
-		var result = new ScraperResult();
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		ScraperResult result = new ScraperResult();
 
 		try
 		{
@@ -52,7 +52,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 			// Fetch the jobs page
 			var jobsHtml = await _httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
-			var doc = new HtmlDocument();
+			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(jobsHtml);
 
 			// Parse job listings - adjust selectors based on actual HTML structure
@@ -117,7 +117,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 	private async Task<Job> ParseJobNodeAsync(HtmlNode node)
 	{
-		var job = new Job();
+		Job job = new Job();
 
 		// Extract job title
 		var titleNode = node.SelectSingleNode(".//h2")
@@ -186,7 +186,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 	private async Task FetchJobDetailsAsync(Job job)
 	{
 		var detailsHtml = await _httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
-		var doc = new HtmlDocument();
+		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(detailsHtml);
 
 		// Extract description

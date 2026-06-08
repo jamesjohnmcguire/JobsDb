@@ -46,7 +46,7 @@ public class ScraperTester
 		Console.WriteLine();
 
 		// Parse and analyze
-		var doc = new HtmlDocument();
+		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(html);
 
 		Console.WriteLine("=== STRUCTURE ANALYSIS ===");
@@ -164,7 +164,7 @@ public class ScraperTester
 	public async Task TestSelector(string url, string xpath, int maxResults = 5)
 	{
 		var html = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
-		var doc = new HtmlDocument();
+		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(html);
 
 		var nodes = doc.DocumentNode.SelectNodes(xpath);

@@ -18,7 +18,7 @@ internal class ScraperResultTests
 	public void ScraperResult_NewInstance_HasDefaultValues()
 	{
 		// Act
-		var result = new ScraperResult();
+		ScraperResult result = new ScraperResult();
 
 		// Assert
 		Assert.That(result.Success, Is.False);
@@ -34,8 +34,8 @@ internal class ScraperResultTests
 	public void ScraperResult_SetProperties_ValuesAreSet()
 	{
 		// Arrange
-		var result = new ScraperResult();
-		var duration = TimeSpan.FromSeconds(30);
+		ScraperResult result = new ScraperResult();
+		TimeSpan duration = TimeSpan.FromSeconds(30);
 
 		// Act
 		result.Success = true;

@@ -71,7 +71,7 @@ public class ConfigurationManager
 	{
 		try
 		{
-			var options = new JsonSerializerOptions
+			JsonSerializerOptions options = new JsonSerializerOptions
 			{
 				WriteIndented = true,
 				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
