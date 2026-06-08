@@ -22,7 +22,7 @@ using System.Windows.Shapes;
 /// </summary>
 internal partial class MainWindow : Window
 {
-	public MainWindow()
+	internal MainWindow()
 	{
 		InitializeComponent();
 	}
