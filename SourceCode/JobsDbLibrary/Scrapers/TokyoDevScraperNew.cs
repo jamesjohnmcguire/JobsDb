@@ -66,7 +66,6 @@ public class TokyoDevScraper : JobScraperBase
 				 ?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
 				 ?? doc.DocumentNode.SelectNodes("//div[@class='job']");
 
-
 			var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]");
 
 			var jobNodes4 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]")
