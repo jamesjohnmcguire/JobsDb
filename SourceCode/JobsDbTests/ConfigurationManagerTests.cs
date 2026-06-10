@@ -28,7 +28,9 @@ internal class ConfigurationManagerTests
 	public void TearDown()
 	{
 		if (File.Exists(_testConfigPath))
+		{
 			File.Delete(_testConfigPath);
+		}
 	}
 
 	[Test]

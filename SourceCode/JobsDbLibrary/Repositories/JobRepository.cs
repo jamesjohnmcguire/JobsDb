@@ -76,7 +76,10 @@ public class JobRepository : IJobRepository
 	public async Task<bool> DeleteAsync(int id)
 	{
 		var job = await GetByIdAsync(id).ConfigureAwait(false);
-		if (job == null) return false;
+		if (job == null)
+		{
+			return false;
+		}
 
 		_context.Jobs.Remove(job);
 		await _context.SaveChangesAsync().ConfigureAwait(false);
@@ -92,7 +95,9 @@ public class JobRepository : IJobRepository
 	public async Task<List<Job>> SearchAsync(string searchTerm)
 	{
 		if (string.IsNullOrWhiteSpace(searchTerm))
+		{
 			return await GetActiveJobsAsync().ConfigureAwait(false);
+		}
 
 		var term = searchTerm.ToLower(CultureInfo.InvariantCulture);
 

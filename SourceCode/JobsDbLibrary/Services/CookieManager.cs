@@ -111,7 +111,9 @@ public class CookieManager
 				{
 					// Skip expired cookies
 					if (cookieData.Expiry.HasValue && cookieData.Expiry.Value < DateTime.UtcNow)
+					{
 						continue;
+					}
 
 					Cookie cookie = new Cookie(
 						cookieData.Name,
@@ -169,7 +171,9 @@ public class CookieManager
 	{
 		var cookiePath = GetCookiePath(source);
 		if (!File.Exists(cookiePath))
+		{
 			return false;
+		}
 
 		var fileAge = DateTime.UtcNow - File.GetLastWriteTimeUtc(cookiePath);
 		return fileAge.TotalDays <= 7;

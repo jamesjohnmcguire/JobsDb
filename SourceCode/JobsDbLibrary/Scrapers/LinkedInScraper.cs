@@ -292,10 +292,14 @@ public class LinkedInScraper : JobScraperBase
 		if (filter != null)
 		{
 			if (!string.IsNullOrEmpty(filter.Keywords))
+			{
 				parameters.Add($"keywords={Uri.EscapeDataString(filter.Keywords)}");
+			}
 
 			if (!string.IsNullOrEmpty(filter.Location))
+			{
 				parameters.Add($"location={Uri.EscapeDataString(filter.Location)}");
+			}
 		}
 		else
 		{
@@ -431,7 +435,9 @@ public class LinkedInScraper : JobScraperBase
 	private async Task FetchJobDetailsAsync(Job job)
 	{
 		if (string.IsNullOrEmpty(job.SourceUrl))
+		{
 			return;
+		}
 
 		try
 		{
@@ -468,7 +474,9 @@ public class LinkedInScraper : JobScraperBase
 					{
 						var valueNode = node.SelectSingleNode(".//span[contains(@class, 'job-criteria__text')]");
 						if (valueNode != null)
+						{
 							job.JobType = CleanText(valueNode.InnerText);
+						}
 					}
 				}
 			}
@@ -495,18 +503,26 @@ public class LinkedInScraper : JobScraperBase
 		if (numbers.Count >= 2)
 		{
 			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			{
 				job.SalaryMin = min;
+			}
 
 			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			{
 				job.SalaryMax = max;
+			}
 		}
 
 		if (salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
 			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase))
+		{
 			job.SalaryCurrency = "JPY";
+		}
 		else if (salaryText.Contains("$", StringComparison.InvariantCultureIgnoreCase) ||
 			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("usd", StringComparison.InvariantCultureIgnoreCase))
+		{
 			job.SalaryCurrency = "USD";
+		}
 	}
 
 	private static DateTime ParseLinkedInDate(string dateText)
@@ -541,7 +557,9 @@ public class LinkedInScraper : JobScraperBase
 	private static string CleanText(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))
+		{
 			return string.Empty;
+		}
 
 		return HtmlEntity.DeEntitize(text)
 			.Trim()

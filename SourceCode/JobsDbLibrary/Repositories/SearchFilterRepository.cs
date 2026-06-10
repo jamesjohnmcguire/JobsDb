@@ -61,7 +61,10 @@ public class SearchFilterRepository : ISearchFilterRepository
 	public async Task<bool> DeleteAsync(int id)
 	{
 		var filter = await GetByIdAsync(id).ConfigureAwait(false);
-		if (filter == null) return false;
+		if (filter == null)
+		{
+			return false;
+		}
 
 		_context.SearchFilters.Remove(filter);
 		await _context.SaveChangesAsync().ConfigureAwait(false);

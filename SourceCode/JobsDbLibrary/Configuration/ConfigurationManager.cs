@@ -98,7 +98,9 @@ public class ConfigurationManager
 	{
 		var credential = _config.Credentials.Find(c => c.Source == source);
 		if (credential == null || string.IsNullOrEmpty(credential.Password))
+		{
 			return null;
+		}
 
 		// Password is stored in plain text in JSON for simplicity
 		// It gets encrypted when stored in the database

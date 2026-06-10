@@ -39,7 +39,9 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		_context.Dispose();
 
 		if (File.Exists(_testDbPath))
+		{
 			File.Delete(_testDbPath);
+		}
 	}
 
 	[Test]

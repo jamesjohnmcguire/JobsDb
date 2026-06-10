@@ -350,10 +350,14 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		if (numbers.Count >= 2)
 		{
 			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			{
 				job.SalaryMin = min;
+			}
 
 			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			{
 				job.SalaryMax = max;
+			}
 		}
 
 		job.SalaryCurrency = salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
@@ -363,7 +367,9 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	private static string CleanText(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))
+		{
 			return string.Empty;
+		}
 
 		return HtmlEntity.DeEntitize(text)
 			.Trim()

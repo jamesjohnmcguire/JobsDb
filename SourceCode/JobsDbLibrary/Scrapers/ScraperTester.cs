@@ -97,7 +97,10 @@ public class ScraperTester
 				{
 					var sample = nodes[0].OuterHtml;
 					if (sample.Length > 300)
+					{
 						sample = sample.Substring(0, 300) + "...";
+					}
+
 					Console.WriteLine($"  Sample: {sample}");
 				}
 

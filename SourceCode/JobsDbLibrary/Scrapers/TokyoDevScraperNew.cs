@@ -258,19 +258,27 @@ public class TokyoDevScraper : JobScraperBase
 		if (numbers.Count >= 2)
 		{
 			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			{
 				job.SalaryMin = min;
+			}
 
 			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			{
 				job.SalaryMax = max;
+			}
 		}
 
 		// Determine currency
 		if (salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
 			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase))
+		{
 			job.SalaryCurrency = "JPY";
+		}
 		else if (salaryText.Contains("$", StringComparison.InvariantCultureIgnoreCase) ||
 			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("usd", StringComparison.InvariantCultureIgnoreCase))
+		{
 			job.SalaryCurrency = "USD";
+		}
 	}
 
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
