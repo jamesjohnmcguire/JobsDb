@@ -56,7 +56,8 @@ public class JobsDbContext : DbContext
 	/// <summary>
 	/// Constructor for dependency injection.
 	/// </summary>
-	public JobsDbContext(DbContextOptions<JobsDbContext> options) : base(options)
+	public JobsDbContext(DbContextOptions<JobsDbContext> options)
+		: base(options)
 	{
 	}
 
