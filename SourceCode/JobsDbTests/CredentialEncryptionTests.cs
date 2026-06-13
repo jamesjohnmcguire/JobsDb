@@ -86,7 +86,7 @@ internal class CredentialEncryptionTests
 	public void Encrypt_EmptyString_ReturnsEmptyString()
 	{
 		// Act
-		var result = CredentialEncryption.Encrypt("", MasterPassword);
+		var result = CredentialEncryption.Encrypt(string.Empty, MasterPassword);
 
 		// Assert
 		Assert.That(result, Is.Empty);
@@ -96,7 +96,7 @@ internal class CredentialEncryptionTests
 	public void Decrypt_EmptyString_ReturnsEmptyString()
 	{
 		// Act
-		var result = CredentialEncryption.Decrypt("", MasterPassword);
+		var result = CredentialEncryption.Decrypt(string.Empty, MasterPassword);
 
 		// Assert
 		Assert.That(result, Is.Empty);
