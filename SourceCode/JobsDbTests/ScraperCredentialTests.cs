@@ -6,11 +6,11 @@
 
 namespace JobsDb.Tests.Models;
 
-using NUnit.Framework;
-using JobsDb.Core.Models;
 using System;
-using JobsDbLibrary.Scrapers;
+using JobsDb.Core.Models;
 using JobsDb.Core.Scrapers;
+using JobsDbLibrary.Scrapers;
+using NUnit.Framework;
 
 [TestFixture]
 public class ScraperCredentialTests
