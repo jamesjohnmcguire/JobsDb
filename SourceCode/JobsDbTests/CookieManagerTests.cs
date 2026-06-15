@@ -16,14 +16,14 @@ using NUnit.Framework;
 [TestFixture]
 internal class CookieManagerTests
 {
-	private CookieManager _cookieManager;
-	private string _testCookiesPath;
+	private CookieManager cookieManager;
+	private string testCookiesPath;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_cookieManager = new CookieManager();
-		_testCookiesPath = Path.Combine(
+		cookieManager = new CookieManager();
+		testCookiesPath = Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 			"JobsDb",
 			"Cookies");
@@ -33,9 +33,9 @@ internal class CookieManagerTests
 	public void TearDown()
 	{
 		// Clean up test cookies
-		if (Directory.Exists(_testCookiesPath))
+		if (Directory.Exists(testCookiesPath))
 		{
-			var testFiles = Directory.GetFiles(_testCookiesPath, "test_*.json");
+			var testFiles = Directory.GetFiles(testCookiesPath, "test_*.json");
 			foreach (var file in testFiles)
 			{
 				try
@@ -53,14 +53,14 @@ internal class CookieManagerTests
 	public void ClearCookies_NonExistentSource_DoesNotThrow()
 	{
 		// Act & Assert
-		Assert.DoesNotThrow(() => _cookieManager.ClearCookies("NonExistent"));
+		Assert.DoesNotThrow(() => cookieManager.ClearCookies("NonExistent"));
 	}
 
 	[Test]
 	public void HasValidCookies_NonExistentSource_ReturnsFalse()
 	{
 		// Act
-		var result = _cookieManager.HasValidCookies("NonExistent");
+		var result = cookieManager.HasValidCookies("NonExistent");
 
 		// Assert
 		Assert.That(result, Is.False);
@@ -71,12 +71,12 @@ internal class CookieManagerTests
 	{
 		// Arrange
 		var testSource = "test_source_" + Guid.NewGuid();
-		var cookiePath = Path.Combine(_testCookiesPath, $"{testSource.ToLower()}_cookies.json");
-		Directory.CreateDirectory(_testCookiesPath);
+		var cookiePath = Path.Combine(testCookiesPath, $"{testSource.ToLower()}_cookies.json");
+		Directory.CreateDirectory(testCookiesPath);
 		File.WriteAllText(cookiePath, "[]");
 
 		// Act
-		_cookieManager.ClearCookies(testSource);
+		cookieManager.ClearCookies(testSource);
 
 		// Assert
 		Assert.That(File.Exists(cookiePath), Is.False);

@@ -16,31 +16,31 @@ using NUnit.Framework;
 [TestFixture]
 internal class ConfigurationManagerTests
 {
-	private string _testConfigPath;
+	private string testConfigPath;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_testConfigPath = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+		testConfigPath = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
-		if (File.Exists(_testConfigPath))
+		if (File.Exists(testConfigPath))
 		{
-			File.Delete(_testConfigPath);
+			File.Delete(testConfigPath);
 		}
 	}
 
 	[Test]
 	public void Constructor_NoConfigFile_CreatesDefaultConfiguration()
 	{
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 
 		Assert.That(manager.Config, Is.Not.Null);
 		Assert.That(manager.Config.Credentials, Is.Not.Null);
-		Assert.That(File.Exists(_testConfigPath), Is.True);
+		Assert.That(File.Exists(testConfigPath), Is.True);
 	}
 
 	[Test]
@@ -63,10 +63,10 @@ internal class ConfigurationManagerTests
 		};
 
 		var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-		File.WriteAllText(_testConfigPath, json);
+		File.WriteAllText(testConfigPath, json);
 
 		// Act
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 
 		// Assert
 		Assert.That(manager.Config.MasterPassword, Is.EqualTo("CustomPassword"));
@@ -77,16 +77,16 @@ internal class ConfigurationManagerTests
 	public void SaveConfiguration_ValidConfig_SavesToFile()
 	{
 		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 		manager.Config.MasterPassword = "NewPassword";
 
 		// Act
 		manager.SaveConfiguration();
 
 		// Assert
-		Assert.That(File.Exists(_testConfigPath), Is.True);
+		Assert.That(File.Exists(testConfigPath), Is.True);
 
-		var json = File.ReadAllText(_testConfigPath);
+		var json = File.ReadAllText(testConfigPath);
 		var loaded = JsonSerializer.Deserialize<AppConfiguration>(json);
 		Assert.That(loaded.MasterPassword, Is.EqualTo("NewPassword"));
 	}
@@ -95,7 +95,7 @@ internal class ConfigurationManagerTests
 	public void GetDecryptedPassword_ExistingSource_ReturnsPassword()
 	{
 		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 		manager.Config.Credentials.Add(new CredentialConfig
 		{
 			Source = "TestSource",
@@ -115,7 +115,7 @@ internal class ConfigurationManagerTests
 	public void GetDecryptedPassword_NonExistingSource_ReturnsNull()
 	{
 		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 
 		// Act
 		var password = manager.GetDecryptedPassword("NonExistent");
@@ -128,7 +128,7 @@ internal class ConfigurationManagerTests
 	public void GetCredentialConfig_ExistingSource_ReturnsConfig()
 	{
 		ConfigurationManager manager =
-			new ConfigurationManager(_testConfigPath);
+			new ConfigurationManager(testConfigPath);
 		AppConfiguration appConfig = manager.Config;
 		List<CredentialConfig> credentialsList = appConfig.Credentials;
 
@@ -154,7 +154,7 @@ internal class ConfigurationManagerTests
 	public void GetCredentialConfig_NonExistingSource_ReturnsNull()
 	{
 		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(_testConfigPath);
+		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
 
 		// Act
 		var credConfig = manager.GetCredentialConfig("NonExistent");

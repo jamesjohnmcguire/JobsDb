@@ -19,12 +19,12 @@ using HtmlAgilityPack;
 /// </summary>
 public class ScraperTester
 {
-	private readonly HttpClient _httpClient;
+	private readonly HttpClient httpClient;
 
 	public ScraperTester()
 	{
-		_httpClient = new HttpClient();
-		_httpClient.DefaultRequestHeaders.Add(
+		httpClient = new HttpClient();
+		httpClient.DefaultRequestHeaders.Add(
 			"User-Agent",
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 	}
@@ -37,7 +37,7 @@ public class ScraperTester
 	{
 		Console.WriteLine($"Fetching: {url}");
 
-		var html = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
+		var html = await httpClient.GetStringAsync(url).ConfigureAwait(false);
 
 		// Save HTML for manual inspection
 		File.WriteAllText(outputFile, html);
@@ -166,7 +166,7 @@ public class ScraperTester
 	/// </summary>
 	public async Task TestSelector(string url, string xpath, int maxResults = 5)
 	{
-		var html = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
+		var html = await httpClient.GetStringAsync(url).ConfigureAwait(false);
 		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(html);
 

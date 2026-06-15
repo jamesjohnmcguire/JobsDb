@@ -19,16 +19,16 @@ using OpenQA.Selenium;
 /// </summary>
 public class CookieManager
 {
-	private readonly string _cookiesFolder;
+	private readonly string cookiesFolder;
 
 	public CookieManager()
 	{
-		_cookiesFolder = Path.Combine(
+		cookiesFolder = Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 			"JobsDb",
 			"Cookies");
 
-		Directory.CreateDirectory(_cookiesFolder);
+		Directory.CreateDirectory(cookiesFolder);
 	}
 
 	/// <summary>
@@ -181,7 +181,7 @@ public class CookieManager
 
 	private string GetCookiePath(string source)
 	{
-		return Path.Combine(_cookiesFolder, $"{source.ToLower()}_cookies.json");
+		return Path.Combine(cookiesFolder, $"{source.ToLower()}_cookies.json");
 	}
 
 	/// <summary>

@@ -15,16 +15,16 @@ using Microsoft.EntityFrameworkCore;
 
 public class ScraperLogRepository : IScraperLogRepository
 {
-	private readonly JobsDbContext _context;
+	private readonly JobsDbContext context;
 
 	public ScraperLogRepository(JobsDbContext context)
 	{
-		_context = context;
+		this.context = context;
 	}
 
 	public async Task<List<ScraperLog>> GetRecentLogsAsync(int count = 50)
 	{
-		return await _context.ScraperLogs
+		return await context.ScraperLogs
 			.OrderByDescending(l => l.Timestamp)
 			.Take(count)
 			.ToListAsync().ConfigureAwait(false);
@@ -32,7 +32,7 @@ public class ScraperLogRepository : IScraperLogRepository
 
 	public async Task<List<ScraperLog>> GetLogsBySourceAsync(string source, int count = 50)
 	{
-		return await _context.ScraperLogs
+		return await context.ScraperLogs
 			.Where(l => l.Source == source)
 			.OrderByDescending(l => l.Timestamp)
 			.Take(count)
@@ -41,8 +41,8 @@ public class ScraperLogRepository : IScraperLogRepository
 
 	public async Task<ScraperLog> AddAsync(ScraperLog log)
 	{
-		_context.ScraperLogs.Add(log);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.ScraperLogs.Add(log);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return log;
 	}
 }

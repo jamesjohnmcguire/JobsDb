@@ -17,28 +17,28 @@ using NUnit.Framework;
 [TestFixture]
 internal class CredentialRepositoryTests
 {
-	private JobsDbContext _context;
-	private CredentialRepository _repository;
-	private string _testDbPath;
+	private JobsDbContext context;
+	private CredentialRepository repository;
+	private string testDbPath;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_testDbPath = Path.Combine(Path.GetTempPath(), $"test_creds_{Guid.NewGuid()}.db");
-		_context = new JobsDbContext(_testDbPath);
-		_context.Database.EnsureCreated();
-		_repository = new CredentialRepository(_context);
+		testDbPath = Path.Combine(Path.GetTempPath(), $"test_creds_{Guid.NewGuid()}.db");
+		context = new JobsDbContext(testDbPath);
+		context.Database.EnsureCreated();
+		repository = new CredentialRepository(context);
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
-		_context.Database.EnsureDeleted();
-		_context.Dispose();
+		context.Database.EnsureDeleted();
+		context.Dispose();
 
-		if (File.Exists(_testDbPath))
+		if (File.Exists(testDbPath))
 		{
-			File.Delete(_testDbPath);
+			File.Delete(testDbPath);
 		}
 	}
 
@@ -56,11 +56,11 @@ internal class CredentialRepositoryTests
 		};
 
 		// Act
-		var result = await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
+		var result = await repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result.Id, Is.GreaterThan(0));
-		var retrieved = await _repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
+		var retrieved = await repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
 		Assert.That(retrieved, Is.Not.Null);
 	}
 
@@ -76,15 +76,15 @@ internal class CredentialRepositoryTests
 			EncryptedPassword = "encrypted",
 			IsActive = true
 		};
-		await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
+		await repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		credential.Username = "new@example.com";
 
 		// Act
-		var result = await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
+		var result = await repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Assert
-		var retrieved = await _repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
+		var retrieved = await repository.GetBySourceAsync("LinkedIn").ConfigureAwait(false);
 		Assert.That(retrieved.Username, Is.EqualTo("new@example.com"));
 	}
 
@@ -100,10 +100,10 @@ internal class CredentialRepositoryTests
 			EncryptedPassword = "encrypted",
 			IsActive = true
 		};
-		await _repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
+		await repository.AddOrUpdateAsync(credential).ConfigureAwait(false);
 
 		// Act
-		var result = await _repository.GetBySourceAsync("TokyoDev").ConfigureAwait(false);
+		var result = await repository.GetBySourceAsync("TokyoDev").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -114,7 +114,7 @@ internal class CredentialRepositoryTests
 	public async Task GetBySourceAsync_NonExistingSource_ReturnsNull()
 	{
 		// Act
-		var result = await _repository.GetBySourceAsync("NonExistent").ConfigureAwait(false);
+		var result = await repository.GetBySourceAsync("NonExistent").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result, Is.Null);
@@ -124,7 +124,7 @@ internal class CredentialRepositoryTests
 	public async Task GetAllActiveAsync_OnlyReturnsActive()
 	{
 		// Arrange
-		await _repository.AddOrUpdateAsync(new ScraperCredential
+		await repository.AddOrUpdateAsync(new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "LinkedIn",
@@ -132,7 +132,7 @@ internal class CredentialRepositoryTests
 			EncryptedPassword = "encrypted",
 			IsActive = true
 		}).ConfigureAwait(false);
-		await _repository.AddOrUpdateAsync(new ScraperCredential
+		await repository.AddOrUpdateAsync(new ScraperCredential
 		{
 			CookieData = "cookie",
 			Source = "TokyoDev",
@@ -142,7 +142,7 @@ internal class CredentialRepositoryTests
 		}).ConfigureAwait(false);
 
 		// Act
-		var active = await _repository.GetAllActiveAsync().ConfigureAwait(false);
+		var active = await repository.GetAllActiveAsync().ConfigureAwait(false);
 
 		// Assert
 		Assert.That(active.Count, Is.EqualTo(1));

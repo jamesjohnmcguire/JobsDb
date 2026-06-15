@@ -28,9 +28,9 @@ using OpenQA.Selenium.Chrome;
 /// </summary>
 public class TokyoDevScraperSelenium : JobScraperBase
 {
-	private IWebDriver _driver;
-	private readonly CookieManager _cookieManager;
-	private readonly ConfigurationManager _configManager;
+	private IWebDriver driver;
+	private readonly CookieManager cookieManager;
+	private readonly ConfigurationManager configManager;
 	private const string BaseUrl = "https://www.tokyodev.com";
 	private const string JobsUrl = "https://www.tokyodev.com/jobs";
 
@@ -41,8 +41,8 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		ConfigurationManager configManager = null)
 		: base(jobRepository, credentialRepository, "TokyoDev")
 	{
-		_cookieManager = cookieManager ?? new CookieManager();
-		_configManager = configManager ?? new Configuration.ConfigurationManager();
+		this.cookieManager = cookieManager ?? new CookieManager();
+		this.configManager = configManager ?? new Configuration.ConfigurationManager();
 	}
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
@@ -56,7 +56,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 			// Navigate to jobs page
 			Console.WriteLine($"Navigating to {JobsUrl}...");
-			_driver.Navigate().GoToUrl(JobsUrl);
+			driver.Navigate().GoToUrl(JobsUrl);
 
 			// Wait for page to load
 			Thread.Sleep(3000);
@@ -65,7 +65,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			ScrollPage();
 
 			// Get the rendered HTML
-			var pageSource = _driver.PageSource;
+			var pageSource = driver.PageSource;
 
 			// Save for debugging
 			System.IO.File.WriteAllText("tokyodev_scraped.html", pageSource);
@@ -81,8 +81,8 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			if (jobNodes == null || !jobNodes.Any())
 			{
 				Console.WriteLine("❌ No job nodes found. Check tokyodev_scraped.html");
-				Console.WriteLine("Page title: " + _driver.Title);
-				Console.WriteLine("Current URL: " + _driver.Url);
+				Console.WriteLine("Page title: " + driver.Title);
+				Console.WriteLine("Current URL: " + driver.Url);
 
 				result.Success = false;
 				result.ErrorMessage = "No job listings found on page";
@@ -175,12 +175,12 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		options.AddExcludedArgument("enable-automation");
 		options.AddAdditionalOption("useAutomationExtension", false);
 
-		_driver = new ChromeDriver(options);
-		_driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-		_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+		driver = new ChromeDriver(options);
+		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
 
 		// Remove webdriver property
-		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)_driver;
+		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 	}
 
@@ -188,8 +188,8 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	{
 		try
 		{
-			_driver?.Quit();
-			_driver?.Dispose();
+			driver?.Quit();
+			driver?.Dispose();
 		}
 		catch
 		{
@@ -201,12 +201,12 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		// Scroll in steps to trigger lazy loading
 		for (int i = 0; i < 3; i++)
 		{
-			((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollBy(0, 1000);");
+			((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0, 1000);");
 			Thread.Sleep(1000);
 		}
 
 		// Scroll back to top
-		((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, 0);");
+		((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, 0);");
 		Thread.Sleep(500);
 	}
 
@@ -316,10 +316,10 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 	private async Task FetchJobDetailsAsync(Job job)
 	{
-		_driver.Navigate().GoToUrl(job.SourceUrl);
+		driver.Navigate().GoToUrl(job.SourceUrl);
 		Thread.Sleep(2000);
 
-		var pageSource = _driver.PageSource;
+		var pageSource = driver.PageSource;
 		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(pageSource);
 

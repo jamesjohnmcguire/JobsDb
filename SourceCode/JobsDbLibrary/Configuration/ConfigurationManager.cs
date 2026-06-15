@@ -20,7 +20,7 @@ using JobsDb.Core.Scrapers;
 public class ConfigurationManager
 {
 	private readonly string _configPath;
-	private AppConfiguration _config;
+	private AppConfiguration config;
 	private const string DefaultConfigFileName = "jobsdb_config.json";
 
 	public ConfigurationManager(string configPath = null)
@@ -41,7 +41,7 @@ public class ConfigurationManager
 		LoadConfiguration();
 	}
 
-	public AppConfiguration Config => _config;
+	public AppConfiguration Config => config;
 
 	private void LoadConfiguration()
 	{
@@ -50,19 +50,19 @@ public class ConfigurationManager
 			try
 			{
 				var json = File.ReadAllText(_configPath);
-				_config = JsonSerializer.Deserialize<AppConfiguration>(json);
+				config = JsonSerializer.Deserialize<AppConfiguration>(json);
 				Console.WriteLine($"✓ Configuration loaded from: {_configPath}");
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine($"⚠ Error loading config: {ex.Message}");
-				_config = CreateDefaultConfiguration();
+				config = CreateDefaultConfiguration();
 			}
 		}
 		else
 		{
 			Console.WriteLine($"ℹ No config file found. Creating default at: {_configPath}");
-			_config = CreateDefaultConfiguration();
+			config = CreateDefaultConfiguration();
 			SaveConfiguration();
 		}
 	}
@@ -77,7 +77,7 @@ public class ConfigurationManager
 				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
 			};
 
-			var json = JsonSerializer.Serialize(_config, options);
+			var json = JsonSerializer.Serialize(config, options);
 			File.WriteAllText(_configPath, json);
 			Console.WriteLine($"✓ Configuration saved to: {_configPath}");
 		}
@@ -96,7 +96,7 @@ public class ConfigurationManager
 
 	public string GetDecryptedPassword(string source)
 	{
-		var credential = _config.Credentials.Find(c => c.Source == source);
+		var credential = config.Credentials.Find(c => c.Source == source);
 		if (credential == null || string.IsNullOrEmpty(credential.Password))
 		{
 			return null;
@@ -110,7 +110,7 @@ public class ConfigurationManager
 	public CredentialConfig GetCredentialConfig(string source)
 	{
 		CredentialConfig? credentialsConfig =
-			_config.Credentials.Find(c => c.Source == source);
+			config.Credentials.Find(c => c.Source == source);
 		return credentialsConfig;
 	}
 }

@@ -27,7 +27,7 @@ public class JobsDbContext : DbContext
 
 	public DbSet<SearchFilter> SearchFilters { get; set; }
 
-	private readonly string _dbPath;
+	private readonly string dbPath;
 
 	/// <summary>
 	/// Default constructor - creates database in LocalApplicationData folder.
@@ -37,7 +37,7 @@ public class JobsDbContext : DbContext
 		var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 		var appFolder = Path.Combine(folder, "JobsDb");
 		Directory.CreateDirectory(appFolder);
-		_dbPath = Path.Combine(appFolder, "jobsdb.db");
+		dbPath = Path.Combine(appFolder, "jobsdb.db");
 	}
 
 	/// <summary>
@@ -45,8 +45,8 @@ public class JobsDbContext : DbContext
 	/// </summary>
 	public JobsDbContext(string dbPath)
 	{
-		_dbPath = dbPath;
-		var directory = Path.GetDirectoryName(_dbPath);
+		this.dbPath = dbPath;
+		var directory = Path.GetDirectoryName(this.dbPath);
 		if (!string.IsNullOrEmpty(directory))
 		{
 			Directory.CreateDirectory(directory);
@@ -65,7 +65,7 @@ public class JobsDbContext : DbContext
 	{
 		if (!optionsBuilder.IsConfigured)
 		{
-			optionsBuilder.UseSqlite($"Data Source={_dbPath}");
+			optionsBuilder.UseSqlite($"Data Source={dbPath}");
 		}
 	}
 
@@ -194,7 +194,7 @@ public class JobsDbContext : DbContext
 	public void Initialize()
 	{
 		Database.EnsureCreated();
-		Console.WriteLine($"✓ Database initialized at: {_dbPath}");
+		Console.WriteLine($"✓ Database initialized at: {dbPath}");
 	}
 
 	/// <summary>
@@ -202,6 +202,6 @@ public class JobsDbContext : DbContext
 	/// </summary>
 	public string GetDatabasePath()
 	{
-		return _dbPath;
+		return dbPath;
 	}
 }

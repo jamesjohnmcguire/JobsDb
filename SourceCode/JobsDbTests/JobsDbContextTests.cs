@@ -20,7 +20,7 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class JobsDbContextTests : BaseTestsSupport
 {
-	private JobsDbContext _context;
+	private JobsDbContext context;
 	private Job testJobAppied;
 
 	/// <summary>
@@ -44,32 +44,32 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[SetUp]
 	public void SetUp()
 	{
-		_context = new JobsDbContext(TestDbPath);
+		context = new JobsDbContext(TestDbPath);
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
-		_context.Database.EnsureDeleted();
-		_context.Dispose();
+		context.Database.EnsureDeleted();
+		context.Dispose();
 	}
 
 	[Test]
 	public void Initialize_CreatesDatabase()
 	{
 		// Act
-		_context.Initialize();
+		context.Initialize();
 
 		// Assert
 		Assert.That(File.Exists(TestDbPath), Is.True);
-		Assert.That(_context.Database.CanConnect(), Is.True);
+		Assert.That(context.Database.CanConnect(), Is.True);
 	}
 
 	[Test]
 	public void GetDatabasePath_ReturnsCorrectPath()
 	{
 		// Act
-		var path = _context.GetDatabasePath();
+		var path = context.GetDatabasePath();
 
 		// Assert
 		Assert.That(path, Is.EqualTo(TestDbPath));
@@ -79,46 +79,46 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void Jobs_DbSet_IsNotNull()
 	{
 		// Act
-		_context.Initialize();
+		context.Initialize();
 
 		// Assert
-		Assert.That(_context.Jobs, Is.Not.Null);
+		Assert.That(context.Jobs, Is.Not.Null);
 	}
 
 	[Test]
 	public void Credentials_DbSet_IsNotNull()
 	{
 		// Act
-		_context.Initialize();
+		context.Initialize();
 
 		// Assert
-		Assert.That(_context.Credentials, Is.Not.Null);
+		Assert.That(context.Credentials, Is.Not.Null);
 	}
 
 	[Test]
 	public void ScraperLogs_DbSet_IsNotNull()
 	{
 		// Act
-		_context.Initialize();
+		context.Initialize();
 
 		// Assert
-		Assert.That(_context.ScraperLogs, Is.Not.Null);
+		Assert.That(context.ScraperLogs, Is.Not.Null);
 	}
 
 	[Test]
 	public void SearchFilters_DbSet_IsNotNull()
 	{
 		// Act
-		_context.Initialize();
+		context.Initialize();
 
 		// Assert
-		Assert.That(_context.SearchFilters, Is.Not.Null);
+		Assert.That(context.SearchFilters, Is.Not.Null);
 	}
 
 	[Test]
 	public void Job_UniqueConstraint_EnforcesSourceAndSourceJobId()
 	{
-		_context.Initialize();
+		context.Initialize();
 
 		Job badJob = TestJob;
 		badJob.Title = "Different Job";
@@ -126,19 +126,19 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		badJob.Source = "LinkedIn";
 		badJob.SourceUrl = "https://test.com/2";
 
-		_context.Jobs.Add(TestJob);
-		_context.SaveChanges();
+		context.Jobs.Add(TestJob);
+		context.SaveChanges();
 
-		_context.Jobs.Add(badJob);
+		context.Jobs.Add(badJob);
 
-		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 	}
 
 	[Test]
 	public void ScraperCredential_UniqueSource_EnforcesConstraint()
 	{
 		// Arrange
-		_context.Initialize();
+		context.Initialize();
 
 		ScraperCredential cred1 = new ScraperCredential
 		{
@@ -158,25 +158,25 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		};
 
 		// Act
-		_context.Credentials.Add(cred1);
-		_context.SaveChanges();
+		context.Credentials.Add(cred1);
+		context.SaveChanges();
 
-		_context.Credentials.Add(cred2);
+		context.Credentials.Add(cred2);
 
 		// Assert
-		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 	}
 
 	[Test]
 	public void Job_StatusEnum_SavesAsString()
 	{
-		_context.Initialize();
+		context.Initialize();
 
-		_context.Jobs.Add(testJobAppied);
-		_context.SaveChanges();
+		context.Jobs.Add(testJobAppied);
+		context.SaveChanges();
 
 		// Verify it's stored as string in database
-		var saved = _context.Jobs.First();
+		var saved = context.Jobs.First();
 
 		Assert.That(saved.Status, Is.EqualTo(ApplicationStatus.Applied));
 	}
@@ -184,12 +184,12 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[Test]
 	public void Job_DateScraped_HasDefaultValue()
 	{
-		_context.Initialize();
+		context.Initialize();
 
-		_context.Jobs.Add(TestJob);
-		_context.SaveChanges();
+		context.Jobs.Add(TestJob);
+		context.SaveChanges();
 
-		var saved = _context.Jobs.First();
+		var saved = context.Jobs.First();
 
 		// Assert
 		Assert.That(saved.DateScraped, Is.Not.EqualTo(default(DateTime)));
@@ -199,7 +199,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void SearchFilter_CreatedDate_HasDefaultValue()
 	{
 		// Arrange
-		_context.Initialize();
+		context.Initialize();
 
 		SearchFilter filter = new SearchFilter
 		{
@@ -211,10 +211,10 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		};
 
 		// Act
-		_context.SearchFilters.Add(filter);
-		_context.SaveChanges();
+		context.SearchFilters.Add(filter);
+		context.SaveChanges();
 
-		var saved = _context.SearchFilters.First();
+		var saved = context.SearchFilters.First();
 
 		// Assert
 		Assert.That(saved.CreatedDate, Is.Not.EqualTo(default(DateTime)));
@@ -224,7 +224,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void ScraperCredential_IsActive_HasDefaultValue()
 	{
 		// Arrange
-		_context.Initialize();
+		context.Initialize();
 
 		ScraperCredential cred = new ScraperCredential
 		{
@@ -236,10 +236,10 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		};
 
 		// Act
-		_context.Credentials.Add(cred);
-		_context.SaveChanges();
+		context.Credentials.Add(cred);
+		context.SaveChanges();
 
-		var saved = _context.Credentials.First();
+		var saved = context.Credentials.First();
 
 		// Assert
 		Assert.That(saved.IsActive, Is.True);
@@ -249,16 +249,16 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void Job_Indexes_AreCreated()
 	{
 		// Arrange
-		_context.Initialize();
+		context.Initialize();
 
-		_context.Jobs.Add(testJobAppied);
-		_context.SaveChanges();
+		context.Jobs.Add(testJobAppied);
+		context.SaveChanges();
 
 		// These queries use indexes
-		List<Job> byStatus = _context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
-		List<Job> byCompany = _context.Jobs.Where(j => j.Company == "Test Company").ToList();
-		List<Job> byLocation = _context.Jobs.Where(j => j.Location == "Remote").ToList();
-		List<Job> byArchived = _context.Jobs.Where(j => !j.IsArchived).ToList();
+		List<Job> byStatus = context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
+		List<Job> byCompany = context.Jobs.Where(j => j.Company == "Test Company").ToList();
+		List<Job> byLocation = context.Jobs.Where(j => j.Location == "Remote").ToList();
+		List<Job> byArchived = context.Jobs.Where(j => !j.IsArchived).ToList();
 
 		// Assert
 		Assert.That(byStatus.Count, Is.EqualTo(1));
@@ -270,10 +270,10 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[Test]
 	public void Context_MultipleInstances_UseSameDatabase()
 	{
-		_context.Initialize();
+		context.Initialize();
 
-		_context.Jobs.Add(TestJob);
-		_context.SaveChanges();
+		context.Jobs.Add(TestJob);
+		context.SaveChanges();
 
 		// Act - Create new context with same path
 		using (JobsDbContext context2 = new JobsDbContext(TestDbPath))
@@ -290,7 +290,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void Job_RequiredFields_EnforcedByDatabase()
 	{
 		// Arrange
-		_context.Initialize();
+		context.Initialize();
 
 		Job job = new Job
 		{
@@ -302,7 +302,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		};
 
 		// Act & Assert
-		_context.Jobs.Add(job);
-		Assert.Throws<DbUpdateException>(() => _context.SaveChanges());
+		context.Jobs.Add(job);
+		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 	}
 }

@@ -19,7 +19,7 @@ using JobsDbLibrary.Scrapers;
 
 public class TokyoDevScraperPrevious : JobScraperBase
 {
-	private readonly HttpClient _httpClient;
+	private readonly HttpClient httpClient;
 	private const string BaseUrl = "https://www.tokyodev.com";
 	private const string JobsUrl = "https://www.tokyodev.com/jobs";
 
@@ -28,8 +28,8 @@ public class TokyoDevScraperPrevious : JobScraperBase
 		ICredentialRepository credentialRepository)
 		: base(jobRepository, credentialRepository, "TokyoDev")
 	{
-		_httpClient = new HttpClient();
-		_httpClient.DefaultRequestHeaders.Add(
+		httpClient = new HttpClient();
+		httpClient.DefaultRequestHeaders.Add(
 			"User-Agent",
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 	}
@@ -51,7 +51,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 			}
 
 			// Fetch the jobs page
-			var jobsHtml = await _httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
+			var jobsHtml = await httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(jobsHtml);
 
@@ -185,7 +185,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 	private async Task FetchJobDetailsAsync(Job job)
 	{
-		var detailsHtml = await _httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
+		var detailsHtml = await httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
 		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(detailsHtml);
 

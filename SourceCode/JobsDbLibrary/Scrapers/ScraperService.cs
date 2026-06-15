@@ -18,13 +18,13 @@ using JobsDb.Core.Scrapers;
 /// </summary>
 public class ScraperService
 {
-	private readonly Dictionary<string, JobScraperBase> _scrapers;
-	private readonly JobsDbContext _context;
+	private readonly Dictionary<string, JobScraperBase> scrapers;
+	private readonly JobsDbContext context;
 
 	public ScraperService(JobsDbContext context)
 	{
-		_context = context;
-		_scrapers = new Dictionary<string, JobScraperBase>();
+		this.context = context;
+		scrapers = new Dictionary<string, JobScraperBase>();
 	}
 
 	/// <summary>
@@ -32,7 +32,7 @@ public class ScraperService
 	/// </summary>
 	public void RegisterScraper(string source, JobScraperBase scraper)
 	{
-		_scrapers[source] = scraper;
+		scrapers[source] = scraper;
 	}
 
 	/// <summary>
@@ -40,7 +40,7 @@ public class ScraperService
 	/// </summary>
 	public async Task<ScraperResult> RunScraperAsync(string source, SearchFilter filter = null)
 	{
-		if (!_scrapers.ContainsKey(source))
+		if (!scrapers.ContainsKey(source))
 		{
 			return new ScraperResult
 			{
@@ -50,7 +50,7 @@ public class ScraperService
 		}
 
 		var startTime = DateTime.UtcNow;
-		var scraper = _scrapers[source];
+		var scraper = scrapers[source];
 		var result = await scraper.ScrapeJobsAsync(filter).ConfigureAwait(false);
 
 		// Log the scraping activity
@@ -66,8 +66,8 @@ public class ScraperService
 			DurationMs = (int)result.Duration.TotalMilliseconds
 		};
 
-		_context.ScraperLogs.Add(log);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.ScraperLogs.Add(log);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 
 		return result;
 	}
@@ -79,7 +79,7 @@ public class ScraperService
 	{
 		List<ScraperResult> results = new List<ScraperResult>();
 
-		foreach (var source in _scrapers.Keys)
+		foreach (var source in scrapers.Keys)
 		{
 			var result = await RunScraperAsync(source).ConfigureAwait(false);
 			results.Add(result);
@@ -93,6 +93,6 @@ public class ScraperService
 	/// </summary>
 	public List<string> GetRegisteredSources()
 	{
-		return _scrapers.Keys.ToList();
+		return scrapers.Keys.ToList();
 	}
 }

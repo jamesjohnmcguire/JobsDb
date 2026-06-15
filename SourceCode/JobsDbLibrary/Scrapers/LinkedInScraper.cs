@@ -27,8 +27,8 @@ using OpenQA.Selenium.Chrome;
 /// </summary>
 public class LinkedInScraper : JobScraperBase
 {
-	private IWebDriver _driver;
-	private bool _isLoggedIn;
+	private IWebDriver driver;
+	private bool isLoggedIn;
 	private const string LinkedInJobsUrl = "https://www.linkedin.com/jobs/search/";
 	private const string LinkedInLoginUrl = "https://www.linkedin.com/login";
 	private const string MasterPassword = "JobsDb2024!"; // Should match CredentialsWindow
@@ -76,7 +76,7 @@ public class LinkedInScraper : JobScraperBase
 			// Build search URL with filters
 			var searchUrl = BuildSearchUrl(filter);
 			Console.WriteLine($"Navigating to: {searchUrl}");
-			_driver.Navigate().GoToUrl(searchUrl);
+			driver.Navigate().GoToUrl(searchUrl);
 
 			// Wait for jobs to load
 			Thread.Sleep(4000);
@@ -85,12 +85,12 @@ public class LinkedInScraper : JobScraperBase
 			Console.WriteLine("Scrolling to load more jobs...");
 			for (int i = 0; i < 3; i++)
 			{
-				((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
+				((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
 				Thread.Sleep(2000);
 			}
 
 			// Get page source and parse
-			var pageSource = _driver.PageSource;
+			var pageSource = driver.PageSource;
 			System.IO.File.WriteAllText("linkedin_scraped.html", pageSource);
 			Console.WriteLine("✓ Page source saved to linkedin_scraped.html");
 
@@ -189,12 +189,12 @@ public class LinkedInScraper : JobScraperBase
 		options.AddExcludedArgument("enable-automation");
 		options.AddAdditionalOption("useAutomationExtension", false);
 
-		_driver = new ChromeDriver(options);
-		_driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-		_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+		driver = new ChromeDriver(options);
+		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
 
 		// Remove webdriver property
-		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)_driver;
+		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 	}
 
@@ -202,8 +202,8 @@ public class LinkedInScraper : JobScraperBase
 	{
 		try
 		{
-			_driver?.Quit();
-			_driver?.Dispose();
+			driver?.Quit();
+			driver?.Dispose();
 		}
 		catch
 		{
@@ -214,11 +214,11 @@ public class LinkedInScraper : JobScraperBase
 	{
 		try
 		{
-			_driver.Navigate().GoToUrl(LinkedInLoginUrl);
+			driver.Navigate().GoToUrl(LinkedInLoginUrl);
 			Thread.Sleep(2000);
 
 			// Find and fill username
-			var usernameField = _driver.FindElement(By.Id("username"));
+			var usernameField = driver.FindElement(By.Id("username"));
 			usernameField.Clear();
 
 			// Type slowly to appear more human
@@ -229,7 +229,7 @@ public class LinkedInScraper : JobScraperBase
 			}
 
 			// Find and fill password
-			var passwordField = _driver.FindElement(By.Id("password"));
+			var passwordField = driver.FindElement(By.Id("password"));
 			passwordField.Clear();
 
 			var decryptedPassword = CredentialEncryption.Decrypt(
@@ -243,15 +243,15 @@ public class LinkedInScraper : JobScraperBase
 			}
 
 			// Click login button
-			var loginButton = _driver.FindElement(By.XPath("//button[@type='submit']"));
+			var loginButton = driver.FindElement(By.XPath("//button[@type='submit']"));
 			loginButton.Click();
 
 			// Wait for redirect
 			Thread.Sleep(5000);
 
 			// Check if we need to handle 2FA or verification
-			if (_driver.Url.Contains("checkpoint", StringComparison.InvariantCultureIgnoreCase) ||
-				_driver.Url.Contains("challenge", StringComparison.InvariantCultureIgnoreCase))
+			if (driver.Url.Contains("checkpoint", StringComparison.InvariantCultureIgnoreCase) ||
+				driver.Url.Contains("challenge", StringComparison.InvariantCultureIgnoreCase))
 			{
 				Console.WriteLine("⚠ LinkedIn verification required. Please complete manually...");
 				Console.WriteLine("Waiting 60 seconds for manual verification...");
@@ -259,12 +259,12 @@ public class LinkedInScraper : JobScraperBase
 			}
 
 			// Check if login was successful
-			_isLoggedIn = _driver.Url.Contains("feed", StringComparison.InvariantCultureIgnoreCase) ||
-							_driver.Url.Contains("jobs", StringComparison.InvariantCultureIgnoreCase) ||
-							_driver.Url.Contains("mynetwork", StringComparison.InvariantCultureIgnoreCase) ||
-							!_driver.Url.Contains("login", StringComparison.InvariantCultureIgnoreCase);
+			isLoggedIn = driver.Url.Contains("feed", StringComparison.InvariantCultureIgnoreCase) ||
+							driver.Url.Contains("jobs", StringComparison.InvariantCultureIgnoreCase) ||
+							driver.Url.Contains("mynetwork", StringComparison.InvariantCultureIgnoreCase) ||
+							!driver.Url.Contains("login", StringComparison.InvariantCultureIgnoreCase);
 
-			if (_isLoggedIn)
+			if (isLoggedIn)
 			{
 				Console.WriteLine("✓ Successfully logged in");
 				credential.LastUsed = DateTime.UtcNow;
@@ -275,7 +275,7 @@ public class LinkedInScraper : JobScraperBase
 				Console.WriteLine("❌ Login verification failed");
 			}
 
-			return _isLoggedIn;
+			return isLoggedIn;
 		}
 		catch (Exception ex)
 		{
@@ -441,14 +441,14 @@ public class LinkedInScraper : JobScraperBase
 
 		try
 		{
-			_driver.Navigate().GoToUrl(job.SourceUrl);
+			driver.Navigate().GoToUrl(job.SourceUrl);
 			Thread.Sleep(3000);
 
 			// Scroll to load full description
-			((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
+			((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
 			Thread.Sleep(1000);
 
-			var pageSource = _driver.PageSource;
+			var pageSource = driver.PageSource;
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(pageSource);
 

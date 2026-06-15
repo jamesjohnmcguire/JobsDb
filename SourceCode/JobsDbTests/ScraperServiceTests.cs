@@ -15,28 +15,28 @@ using NUnit.Framework;
 [TestFixture]
 internal class ScraperServiceTests
 {
-	private JobsDbContext _context;
-	private ScraperService _service;
-	private string _testDbPath;
+	private JobsDbContext context;
+	private ScraperService service;
+	private string testDbPath;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_testDbPath = Path.Combine(Path.GetTempPath(), $"test_scraper_{Guid.NewGuid()}.db");
-		_context = new JobsDbContext(_testDbPath);
-		_context.Database.EnsureCreated();
-		_service = new ScraperService(_context);
+		testDbPath = Path.Combine(Path.GetTempPath(), $"test_scraper_{Guid.NewGuid()}.db");
+		context = new JobsDbContext(testDbPath);
+		context.Database.EnsureCreated();
+		service = new ScraperService(context);
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
-		_context.Database.EnsureDeleted();
-		_context.Dispose();
+		context.Database.EnsureDeleted();
+		context.Dispose();
 
-		if (File.Exists(_testDbPath))
+		if (File.Exists(testDbPath))
 		{
-			File.Delete(_testDbPath);
+			File.Delete(testDbPath);
 		}
 	}
 
@@ -50,8 +50,8 @@ internal class ScraperServiceTests
 			"TestSource");
 
 		// Act
-		_service.RegisterScraper("TestSource", mockScraper.Object);
-		var sources = _service.GetRegisteredSources();
+		service.RegisterScraper("TestSource", mockScraper.Object);
+		var sources = service.GetRegisteredSources();
 
 		// Assert
 		Assert.That(sources, Contains.Item("TestSource"));
@@ -61,7 +61,7 @@ internal class ScraperServiceTests
 	public async Task RunScraperAsync_UnregisteredSource_ReturnsErrorResult()
 	{
 		// Act
-		var result = await _service.RunScraperAsync("NonExistentSource").ConfigureAwait(false);
+		var result = await service.RunScraperAsync("NonExistentSource").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result.Success, Is.False);
@@ -76,17 +76,17 @@ internal class ScraperServiceTests
 			Mock.Of<IJobRepository>(),
 			Mock.Of<ICredentialRepository>());
 
-		_service.RegisterScraper("TestSource", mockScraper);
+		service.RegisterScraper("TestSource", mockScraper);
 
 		// Act
-		var result = await _service.RunScraperAsync("TestSource").ConfigureAwait(false);
+		var result = await service.RunScraperAsync("TestSource").ConfigureAwait(false);
 
 		// Assert
 		Assert.That(result.Success, Is.True);
 		Assert.That(result.JobsFound, Is.EqualTo(5));
 
 		// Verify log was created
-		List<ScraperLog> logs = _context.ScraperLogs.ToList();
+		List<ScraperLog> logs = context.ScraperLogs.ToList();
 		Assert.That(logs.Count, Is.EqualTo(1));
 		Assert.That(logs[0].Source, Is.EqualTo("TestSource"));
 		Assert.That(logs[0].Success, Is.True);
@@ -103,11 +103,11 @@ internal class ScraperServiceTests
 			Mock.Of<IJobRepository>(),
 			Mock.Of<ICredentialRepository>());
 
-		_service.RegisterScraper("Source1", scraper1);
-		_service.RegisterScraper("Source2", scraper2);
+		service.RegisterScraper("Source1", scraper1);
+		service.RegisterScraper("Source2", scraper2);
 
 		// Act
-		var results = await _service.RunAllScrapersAsync().ConfigureAwait(false);
+		var results = await service.RunAllScrapersAsync().ConfigureAwait(false);
 
 		// Assert
 		Assert.That(results.Count, Is.EqualTo(2));
@@ -125,11 +125,11 @@ internal class ScraperServiceTests
 			Mock.Of<IJobRepository>(),
 			Mock.Of<ICredentialRepository>());
 
-		_service.RegisterScraper("LinkedIn", scraper1);
-		_service.RegisterScraper("TokyoDev", scraper2);
+		service.RegisterScraper("LinkedIn", scraper1);
+		service.RegisterScraper("TokyoDev", scraper2);
 
 		// Act
-		var sources = _service.GetRegisteredSources();
+		var sources = service.GetRegisteredSources();
 
 		// Assert
 		Assert.That(sources.Count, Is.EqualTo(2));

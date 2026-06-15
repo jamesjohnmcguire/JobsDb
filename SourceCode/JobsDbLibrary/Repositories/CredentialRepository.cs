@@ -17,22 +17,22 @@ using Microsoft.EntityFrameworkCore;
 
 public class CredentialRepository : ICredentialRepository
 {
-	private readonly JobsDbContext _context;
+	private readonly JobsDbContext context;
 
 	public CredentialRepository(JobsDbContext context)
 	{
-		_context = context;
+		this.context = context;
 	}
 
 	public async Task<ScraperCredential> GetBySourceAsync(string source)
 	{
-		return await _context.Credentials
+		return await context.Credentials
 			.FirstOrDefaultAsync(c => c.Source == source && c.IsActive).ConfigureAwait(false);
 	}
 
 	public async Task<ScraperCredential> AddOrUpdateAsync(ScraperCredential credential)
 	{
-		var existing = await _context.Credentials
+		var existing = await context.Credentials
 			.FirstOrDefaultAsync(c => c.Source == credential.Source).ConfigureAwait(false);
 
 		if (existing != null)
@@ -41,27 +41,27 @@ public class CredentialRepository : ICredentialRepository
 			existing.EncryptedPassword = credential.EncryptedPassword;
 			existing.CookieData = credential.CookieData;
 			existing.IsActive = credential.IsActive;
-			_context.Credentials.Update(existing);
+			context.Credentials.Update(existing);
 		}
 		else
 		{
-			_context.Credentials.Add(credential);
+			context.Credentials.Add(credential);
 		}
 
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return existing ?? credential;
 	}
 
 	public async Task<List<ScraperCredential>> GetAllActiveAsync()
 	{
-		return await _context.Credentials
+		return await context.Credentials
 			.Where(c => c.IsActive)
 			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<bool> DeleteBySourceAsync(string source)
 	{
-		var credential = await _context.Credentials
+		var credential = await context.Credentials
 			.FirstOrDefaultAsync(c => c.Source == source).ConfigureAwait(false);
 
 		if (credential == null)
@@ -69,8 +69,8 @@ public class CredentialRepository : ICredentialRepository
 			return false;
 		}
 
-		_context.Credentials.Remove(credential);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.Credentials.Remove(credential);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return true;
 	}
 }

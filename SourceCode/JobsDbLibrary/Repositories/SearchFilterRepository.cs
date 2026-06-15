@@ -16,23 +16,23 @@ using Microsoft.EntityFrameworkCore;
 
 public class SearchFilterRepository : ISearchFilterRepository
 {
-	private readonly JobsDbContext _context;
+	private readonly JobsDbContext context;
 
 	public SearchFilterRepository(JobsDbContext context)
 	{
-		_context = context;
+		this.context = context;
 	}
 
 	public async Task<List<SearchFilter>> GetAllAsync()
 	{
-		return await _context.SearchFilters
+		return await context.SearchFilters
 			.OrderBy(f => f.Name)
 			.ToListAsync().ConfigureAwait(false);
 	}
 
 	public async Task<List<SearchFilter>> GetActiveAsync()
 	{
-		return await _context.SearchFilters
+		return await context.SearchFilters
 			.Where(f => f.IsActive)
 			.OrderBy(f => f.Name)
 			.ToListAsync().ConfigureAwait(false);
@@ -40,21 +40,21 @@ public class SearchFilterRepository : ISearchFilterRepository
 
 	public async Task<SearchFilter> GetByIdAsync(int id)
 	{
-		return await _context.SearchFilters.FindAsync(id).ConfigureAwait(false);
+		return await context.SearchFilters.FindAsync(id).ConfigureAwait(false);
 	}
 
 	public async Task<SearchFilter> AddAsync(SearchFilter filter)
 	{
 		filter.CreatedDate = DateTime.UtcNow;
-		_context.SearchFilters.Add(filter);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.SearchFilters.Add(filter);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return filter;
 	}
 
 	public async Task<SearchFilter> UpdateAsync(SearchFilter filter)
 	{
-		_context.SearchFilters.Update(filter);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.SearchFilters.Update(filter);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return filter;
 	}
 
@@ -66,8 +66,8 @@ public class SearchFilterRepository : ISearchFilterRepository
 			return false;
 		}
 
-		_context.SearchFilters.Remove(filter);
-		await _context.SaveChangesAsync().ConfigureAwait(false);
+		context.SearchFilters.Remove(filter);
+		await context.SaveChangesAsync().ConfigureAwait(false);
 		return true;
 	}
 }
