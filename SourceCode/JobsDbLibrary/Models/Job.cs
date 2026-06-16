@@ -59,4 +59,3 @@ public class Job
 
 	public bool IsArchived { get; set; }
 }
-
