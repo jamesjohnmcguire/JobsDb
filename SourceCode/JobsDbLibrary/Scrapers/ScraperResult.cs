@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using JobsDb.Core.Models;
 
 /// <summary>
-/// Result returned by scraper operations
+/// Result returned by scraper operations.
 /// </summary>
 public class ScraperResult
 {

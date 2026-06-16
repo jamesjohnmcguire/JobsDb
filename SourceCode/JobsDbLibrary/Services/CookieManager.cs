@@ -15,7 +15,7 @@ using OpenQA.Selenium;
 
 /// <summary>
 /// Manages browser cookies to persist login sessions
-/// Saves cookies after successful login, loads them to avoid re-login
+/// Saves cookies after successful login, loads them to avoid re-login.
 /// </summary>
 public class CookieManager
 {
@@ -32,7 +32,7 @@ public class CookieManager
 	}
 
 	/// <summary>
-	/// Save all cookies from the current browser session
+	/// Save all cookies from the current browser session.
 	/// </summary>
 	public void SaveCookies(IWebDriver driver, string source)
 	{
@@ -67,7 +67,7 @@ public class CookieManager
 	}
 
 	/// <summary>
-	/// Load previously saved cookies into the browser
+	/// Load previously saved cookies into the browser.
 	/// </summary>
 	public bool LoadCookies(IWebDriver driver, string source)
 	{
@@ -145,7 +145,7 @@ public class CookieManager
 	}
 
 	/// <summary>
-	/// Delete saved cookies for a source (forces re-login)
+	/// Delete saved cookies for a source (forces re-login).
 	/// </summary>
 	public void ClearCookies(string source)
 	{
@@ -165,7 +165,7 @@ public class CookieManager
 	}
 
 	/// <summary>
-	/// Check if we have valid saved cookies
+	/// Check if we have valid saved cookies.
 	/// </summary>
 	public bool HasValidCookies(string source)
 	{
@@ -185,7 +185,7 @@ public class CookieManager
 	}
 
 	/// <summary>
-	/// Internal class to serialize/deserialize cookie data
+	/// Internal class to serialize/deserialize cookie data.
 	/// </summary>
 	private class CookieData
 	{

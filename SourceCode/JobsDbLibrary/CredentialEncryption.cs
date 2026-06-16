@@ -11,14 +11,14 @@ using System.Security.Cryptography;
 using System.Text;
 
 /// <summary>
-/// Utility class for encrypting/decrypting credentials
+/// Utility class for encrypting/decrypting credentials.
 /// </summary>
 public static class CredentialEncryption
 {
 	private static readonly byte[] Salt = Encoding.UTF8.GetBytes("JobsDb_Salt_2024_v1");
 
 	/// <summary>
-	/// Encrypt a plain text string using AES encryption
+	/// Encrypt a plain text string using AES encryption.
 	/// </summary>
 	public static string Encrypt(string plainText, string masterPassword)
 	{
@@ -40,7 +40,7 @@ public static class CredentialEncryption
 	}
 
 	/// <summary>
-	/// Decrypt an encrypted string using AES encryption
+	/// Decrypt an encrypted string using AES encryption.
 	/// </summary>
 	public static string Decrypt(string encryptedText, string masterPassword)
 	{

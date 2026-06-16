@@ -24,7 +24,7 @@ using OpenQA.Selenium.Chrome;
 
 /// <summary>
 /// TokyoDev scraper using Selenium WebDriver to bypass bot detection
-/// This behaves like a real browser and should work even with Cloudflare/bot protection
+/// This behaves like a real browser and should work even with Cloudflare/bot protection.
 /// </summary>
 public class TokyoDevScraperSelenium : JobScraperBase
 {

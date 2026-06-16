@@ -13,7 +13,7 @@ using JobsDb.Core.Repositories;
 using JobsDbLibrary.Scrapers;
 
 /// <summary>
-/// Base class for all job scrapers providing common functionality
+/// Base class for all job scrapers providing common functionality.
 /// </summary>
 public abstract class JobScraperBase
 {
@@ -57,7 +57,7 @@ public abstract class JobScraperBase
 	}
 
 	/// <summary>
-	/// Get credentials for this scraper's source from the database
+	/// Get credentials for this scraper's source from the database.
 	/// </summary>
 	protected async Task<ScraperCredential> GetCredentialsAsync()
 	{
@@ -68,7 +68,7 @@ public abstract class JobScraperBase
 	}
 
 	/// <summary>
-	/// Add a new job or update an existing one based on SourceJobId
+	/// Add a new job or update an existing one based on SourceJobId.
 	/// </summary>
 	protected async Task<Job> AddOrUpdateJobAsync(Job job)
 	{

@@ -15,7 +15,7 @@ using JobsDb.Core.Models;
 using JobsDb.Core.Scrapers;
 
 /// <summary>
-/// Manages configuration including credentials loaded from JSON file
+/// Manages configuration including credentials loaded from JSON file.
 /// </summary>
 public class ConfigurationManager
 {

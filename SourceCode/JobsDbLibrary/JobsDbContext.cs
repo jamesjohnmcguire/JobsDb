@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Entity Framework Core DbContext for JobsDb application
-/// Manages database connection and entity configurations
+/// Manages database connection and entity configurations.
 /// </summary>
 public class JobsDbContext : DbContext
 {

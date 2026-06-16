@@ -23,7 +23,7 @@ using OpenQA.Selenium.Chrome;
 
 /// <summary>
 /// LinkedIn scraper using Selenium WebDriver for browser automation
-/// Handles login and job search scraping with anti-detection measures
+/// Handles login and job search scraping with anti-detection measures.
 /// </summary>
 public class LinkedInScraper : JobScraperBase
 {

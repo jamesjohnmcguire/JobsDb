@@ -14,7 +14,7 @@ using JobsDb.Core.Data;
 using JobsDb.Core.Scrapers;
 
 /// <summary>
-/// Service to manage and run multiple scrapers
+/// Service to manage and run multiple scrapers.
 /// </summary>
 public class ScraperService
 {
@@ -28,7 +28,7 @@ public class ScraperService
 	}
 
 	/// <summary>
-	/// Register a scraper for a specific source
+	/// Register a scraper for a specific source.
 	/// </summary>
 	public void RegisterScraper(string source, JobScraperBase scraper)
 	{
@@ -36,7 +36,7 @@ public class ScraperService
 	}
 
 	/// <summary>
-	/// Run a specific scraper by source name
+	/// Run a specific scraper by source name.
 	/// </summary>
 	public async Task<ScraperResult> RunScraperAsync(string source, SearchFilter filter = null)
 	{
@@ -73,7 +73,7 @@ public class ScraperService
 	}
 
 	/// <summary>
-	/// Run all registered scrapers
+	/// Run all registered scrapers.
 	/// </summary>
 	public async Task<List<ScraperResult>> RunAllScrapersAsync()
 	{
@@ -89,7 +89,7 @@ public class ScraperService
 	}
 
 	/// <summary>
-	/// Get list of registered scraper sources
+	/// Get list of registered scraper sources.
 	/// </summary>
 	public List<string> GetRegisteredSources()
 	{

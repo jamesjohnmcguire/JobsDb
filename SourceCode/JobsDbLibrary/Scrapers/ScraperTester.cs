@@ -15,7 +15,7 @@ using HtmlAgilityPack;
 
 /// <summary>
 /// Utility class to help debug and test scrapers by analyzing HTML structure
-/// Run this first to understand the page structure before adjusting selectors
+/// Run this first to understand the page structure before adjusting selectors.
 /// </summary>
 public class ScraperTester
 {
@@ -31,7 +31,7 @@ public class ScraperTester
 
 	/// <summary>
 	/// Fetches a page and saves it locally for inspection
-	/// Also prints out potential selectors to use
+	/// Also prints out potential selectors to use.
 	/// </summary>
 	public async Task AnalyzePageStructure(string url, string outputFile = "page_analysis.html")
 	{
@@ -162,7 +162,7 @@ public class ScraperTester
 	}
 
 	/// <summary>
-	/// Test a specific XPath selector and show what it returns
+	/// Test a specific XPath selector and show what it returns.
 	/// </summary>
 	public async Task TestSelector(string url, string xpath, int maxResults = 5)
 	{
