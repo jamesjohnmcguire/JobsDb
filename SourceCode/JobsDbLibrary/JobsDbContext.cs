@@ -189,12 +189,15 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <summary>
-	/// Initialize the database (create if doesn't exist).
+	/// <summary>
+	/// Initialize the database by applying any pending migrations.
+	/// Creates the database file if it doesn't exist yet, and brings
+	/// an existing database up to date with the current model.
 	/// </summary>
 	public void Initialize()
 	{
-		Database.EnsureCreated();
-		Console.WriteLine($"✓ Database initialized at: {dbPath}");
+		Database.Migrate();
+		Console.WriteLine($"✓ Database initialized/migrated at: {dbPath}");
 	}
 
 	/// <summary>
