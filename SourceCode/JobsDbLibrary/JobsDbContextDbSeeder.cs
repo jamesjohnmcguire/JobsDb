@@ -1,7 +1,7 @@
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
 using System;
 using System.Linq;
+using JobsDb.Core.Models;
+using JobsDb.Core.Scrapers;
 
 namespace JobsDb.Core.Data;
 
