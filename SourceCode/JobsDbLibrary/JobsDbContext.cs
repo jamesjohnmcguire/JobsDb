@@ -72,7 +72,7 @@ public class JobsDbContext : DbContext
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
-		
+
 		// Each entity's configuration lives in its own IEntityTypeConfiguration<T>
 		// class under Data/Configurations/. This picks up every one of them from
 		// this assembly automatically - no per-entity wiring needed here.
