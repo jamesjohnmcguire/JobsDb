@@ -2,58 +2,51 @@
 
 [*]
 charset = utf-8
-guidelines = 80
-guidelines_style = 2px solid lime
 indent_size = 4
 indent_style = tab
 insert_final_newline = true
 max_line_length = 80
 trim_trailing_whitespace = true
 
-[*.{bat, cmd}]
+[*.{bat,cmd}]
 end_of_line = crlf
 
-[*.{cs, csproj, props, resx}]
+[*.{cs,csproj,props,resx}]
 end_of_line = lf
 
 [*.cs]
 # Renove require space after 'new' keyword
 dotnet_diagnostic.SA1000.severity = warning
+
 csharp_space_after_keywords_in_control_flow_statements = true
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
 csharp_space_between_method_call_parameter_list_parentheses = false
 
-dotnet_diagnostic.max_line_length.severity = warning
 
+# CA1859: Use concrete types when possible for improved performance
+dotnet_diagnostic.CA1859.severity = none
 
-# Set IDE0005 to Warning or Error
+# IDE0005: Remove unnecessary usings
 dotnet_diagnostic.IDE0005.severity = warning
 
-# IDE0008: Explicit types everywhere
+# IDE0008: Explicit types everywhere (opposite of IDE0007 - only enable one)
 csharp_style_var_for_built_in_types      = false
 csharp_style_var_when_type_is_apparent   = false
 csharp_style_var_elsewhere               = false
 dotnet_diagnostic.IDE0008.severity       = warning
 
-# IDE0011
-csharp_prefer_braces                     = true
-dotnet_diagnostic.IDE0011.severity       = warning
-
+# IDE0011: Require braces
+csharp_prefer_braces               = true
+dotnet_diagnostic.IDE0011.severity = warning
 
 # IDE0017: Simplify object initialization
-dotnet_style_object_initializer = false:suggestion
-
-# IDE0028: Use collection initializers
-# dotnet_style_collection_initializer = false:suggestion
-
-# CA1819: Properties should not return arrays
-dotnet_diagnostic.CA1819.severity = none
+dotnet_style_object_initializer = false
 
 # IDE0028: Use collection initializers
 # dotnet_style_collection_initializer = false:suggestion
 
 # IDE0036: Order modifiers
-csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async
+csharp_preferred_modifier_order    = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async
 dotnet_diagnostic.IDE0036.severity = warning
 
 # IDE0040: Add accessibility modifiers
@@ -71,8 +64,8 @@ csharp_style_namespace_declarations = file_scoped:warning
 csharp_prefer_static_local_function = true
 dotnet_diagnostic.IDE0062.severity = warning
 
-# SA1000: The keyword 'new' should be followed by a space
-dotnet_diagnostic.SA1000.severity = none
+# IDE0161: Convert to file-scoped namespace
+csharp_style_namespace_declarations = file_scoped:warning
 
 # SA1010: Opening square brackets should be spaced correctly
 dotnet_diagnostic.SA1010.severity = none
@@ -92,11 +85,11 @@ dotnet_diagnostic.SA1312.severity = warning
 # SA1412: Store files as UTF-8 with byte order mark
 dotnet_diagnostic.SA1412.severity = none
 
-# SA1516: Elements Must Be Separated By Blank Line
-dotnet_diagnostic.SA1516.severity = warning
-
 # SA1413: Use Trailing Commas In MultiLine Initializers
 dotnet_diagnostic.SA1413.severity = none
+
+# SA1516: Elements Must Be Separated By Blank Line
+dotnet_diagnostic.SA1516.severity = warning
 
 # IDE2000: Avoid multiple blank lines
 dotnet_style_allow_multiple_blank_lines_experimental = false
@@ -125,4 +118,3 @@ dotnet_diagnostic.IDE2005.severity = warning
 # IDE2006: No blank line after => token
 csharp_style_allow_blank_line_after_token_in_arrow_expression_clause_experimental = false
 dotnet_diagnostic.IDE2006.severity = warning
-
