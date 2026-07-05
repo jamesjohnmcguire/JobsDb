@@ -72,121 +72,13 @@ public class JobsDbContext : DbContext
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
-
-		// ==================== JOB ENTITY CONFIGURATION ====================
-		modelBuilder.Entity<Job>(entity =>
-		{
-			// Indexes for better query performance
-			entity.HasIndex(e => e.SourceJobId);
-			entity.HasIndex(e => new { e.Source, e.SourceJobId }).IsUnique();
-			entity.HasIndex(e => e.Status);
-			entity.HasIndex(e => e.DatePosted);
-			entity.HasIndex(e => e.IsArchived);
-			entity.HasIndex(e => e.Company);
-			entity.HasIndex(e => e.Location);
-
-			// Enum stored as string for readability
-			entity.Property(e => e.Status)
-				.HasConversion<string>();
-
-			// Default value for DateScraped
-			entity.Property(e => e.DateScraped)
-				.HasDefaultValueSql("datetime('now')");
-
-			// Column constraints
-			entity.Property(e => e.Title)
-				.IsRequired()
-				.HasMaxLength(500);
-
-			entity.Property(e => e.Company)
-				.IsRequired()
-				.HasMaxLength(200);
-
-			entity.Property(e => e.Source)
-				.IsRequired()
-				.HasMaxLength(50);
-
-			entity.Property(e => e.SourceUrl)
-				.IsRequired()
-				.HasMaxLength(1000);
-
-			entity.Property(e => e.SourceJobId)
-				.HasMaxLength(200);
-
-			entity.Property(e => e.Location)
-				.HasMaxLength(200);
-
-			entity.Property(e => e.JobType)
-				.HasMaxLength(50);
-
-			entity.Property(e => e.RemoteType)
-				.HasMaxLength(50);
-
-			entity.Property(e => e.SalaryCurrency)
-				.HasMaxLength(10);
-		});
-
-		// ==================== SCRAPER CREDENTIAL CONFIGURATION ====================
-		modelBuilder.Entity<ScraperCredential>(entity =>
-		{
-			entity.HasIndex(e => e.Source).IsUnique();
-
-			entity.Property(e => e.IsActive)
-				.HasDefaultValue(true);
-
-			entity.Property(e => e.Source)
-				.IsRequired()
-				.HasMaxLength(50);
-
-			entity.Property(e => e.Username)
-				.IsRequired()
-				.HasMaxLength(200);
-
-			entity.Property(e => e.EncryptedPassword)
-				.IsRequired();
-		});
-
-		// ==================== SCRAPER LOG CONFIGURATION ====================
-		modelBuilder.Entity<ScraperLog>(entity =>
-		{
-			entity.HasIndex(e => e.Timestamp);
-			entity.HasIndex(e => e.Source);
-			entity.HasIndex(e => e.Success);
-
-			entity.Property(e => e.Source)
-				.IsRequired()
-				.HasMaxLength(50);
-
-			entity.Property(e => e.Timestamp)
-				.HasDefaultValueSql("datetime('now')");
-		});
-
-		// ==================== SEARCH FILTER CONFIGURATION ====================
-		modelBuilder.Entity<SearchFilter>(entity =>
-		{
-			entity.HasIndex(e => e.IsActive);
-			entity.HasIndex(e => e.Name);
-
-			entity.Property(e => e.IsActive)
-				.HasDefaultValue(true);
-
-			entity.Property(e => e.CreatedDate)
-				.HasDefaultValueSql("datetime('now')");
-
-			entity.Property(e => e.Name)
-				.IsRequired()
-				.HasMaxLength(100);
-
-			entity.Property(e => e.Source)
-				.HasMaxLength(50);
-
-			entity.Property(e => e.Keywords)
-				.HasMaxLength(500);
-
-			entity.Property(e => e.Location)
-				.HasMaxLength(200);
-		});
+		
+		// Each entity's configuration lives in its own IEntityTypeConfiguration<T>
+		// class under Data/Configurations/. This picks up every one of them from
+		// this assembly automatically - no per-entity wiring needed here.
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
 	}
+
 
 	/// <summary>
 	/// <summary>
