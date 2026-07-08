@@ -13,7 +13,7 @@ using JobsDbLibrary.Scrapers;
 using NUnit.Framework;
 
 [TestFixture]
-public class SearchFilterTests
+internal class SearchFilterTests
 {
 	[Test]
 	public void SearchFilter_NewInstance_HasDefaultValues()

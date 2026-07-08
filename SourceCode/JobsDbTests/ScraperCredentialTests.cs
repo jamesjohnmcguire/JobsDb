@@ -13,7 +13,7 @@ using JobsDbLibrary.Scrapers;
 using NUnit.Framework;
 
 [TestFixture]
-public class ScraperCredentialTests
+internal class ScraperCredentialTests
 {
 	[Test]
 	public void ScraperCredential_NewInstance_IsActive()
