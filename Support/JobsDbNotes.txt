@@ -18,3 +18,30 @@ LinkedIn Scraper
 	https://www.reddit.com/r/webscraping/comments/11fm3zn/linkedin_scraping/
 	https://www.zenrows.com/blog/web-scraping-c-sharp
 	https://stackoverflow.com/questions/26523418/c-sharp-get-content-from-url-like-facebook-and-linkedin-does
+JobsDb
+	OnModelCreating
+
+	dotnet ef migrations add InitialCreate
+	dotnet ef database update
+
+	SQLitePCLRaw.lib.e_sqlite3
+
+	namespace JobsDbApplication;
+	namespace JobsDbConsole;
+	namespace JobsDb.Core;
+	namespace JobsDb.Core.Configuration;
+	namespace JobsDb.Core.Data;
+	namespace JobsDb.Core.Data.Configurations
+	namespace JobsDb.Core.Models;
+	namespace JobsDb.Core.Repositories;
+	namespace JobsDb.Core.Scrapers;
+	namespace JobsDb.Tests;
+	namespace JobsDb.Tests.Configuration;
+	namespace JobsDb.Tests.Data;
+	namespace JobsDb.Tests.Models;
+	namespace JobsDb.Tests.Repositories;
+
+	namespace JobsDb
+	namespace JobsDbTests;
+
+	 SearchFilter_CreatedDate_HasDefaultValue  Source: JobsDbContextTests.cs line 199	Microsoft.EntityFrameworkCore.DbUpdateException : An error occurred while saving the entity changes. See the inner exception for details.	Microsoft.Data.Sqlite.SqliteException : SQLite Error 1: 'no such table: SearchFilters'.
