@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDbLibrary.Scrapers;
+namespace JobsDb.Core.Scrapers;
 
 using System;
 using System.Collections.Generic;
@@ -15,9 +15,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using JobsDb.Core;
+using JobsDb.Core.Configuration;
 using JobsDb.Core.Models;
 using JobsDb.Core.Repositories;
 using JobsDb.Core.Scrapers;
+using JobsDb.Core.Services;
+using JobsDbLibrary.Scrapers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -27,6 +30,8 @@ using OpenQA.Selenium.Chrome;
 /// </summary>
 public class LinkedInScraper : JobScraperBase
 {
+	private readonly CookieManager cookieManager;
+	private readonly ConfigurationManager configManager;
 	private IWebDriver driver;
 	private bool isLoggedIn;
 	private const string LinkedInJobsUrl = "https://www.linkedin.com/jobs/search/";
@@ -35,9 +40,13 @@ public class LinkedInScraper : JobScraperBase
 
 	public LinkedInScraper(
 		IJobRepository jobRepository,
-		ICredentialRepository credentialRepository)
+		ICredentialRepository credentialRepository,
+		CookieManager cookieManager = null,
+		ConfigurationManager configManager = null)
 		: base(jobRepository, credentialRepository, "LinkedIn")
 	{
+		this.cookieManager = cookieManager ?? new CookieManager();
+		this.configManager = configManager ?? new Configuration.ConfigurationManager();
 	}
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
