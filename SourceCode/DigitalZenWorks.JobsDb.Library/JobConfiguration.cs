@@ -4,11 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+namespace DigitalZenWorks.JobsDb.Library;
+
 using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// EF Core configuration for the Job entity.

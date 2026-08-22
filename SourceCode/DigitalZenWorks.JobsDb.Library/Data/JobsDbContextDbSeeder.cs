@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+namespace DigitalZenWorks.JobsDb.Library;
+
 using System;
 using System.Linq;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
-
-namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// Seeds reference/static data after migrations run.

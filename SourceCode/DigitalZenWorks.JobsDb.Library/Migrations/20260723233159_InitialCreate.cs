@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
 #nullable disable
 
 namespace DigitalZenWorks.JobsDb.Library.Migrations;
+
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 /// <inheritdoc />
 public partial class InitialCreate : Migration

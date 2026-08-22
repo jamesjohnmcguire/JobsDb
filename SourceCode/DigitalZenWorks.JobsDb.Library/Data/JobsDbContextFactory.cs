@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+namespace DigitalZenWorks.JobsDb.Library;
+
 using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-
-namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// Tells the EF Core CLI tools how to construct a JobsDbContext at design time
