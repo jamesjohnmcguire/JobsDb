@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.JobsDb.Library.Data;
 
-using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DigitalZenWorks.JobsDb.Library.Data;
 using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 

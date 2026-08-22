@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
-using DigitalZenWorks.JobsDb.Library;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Scrapers;

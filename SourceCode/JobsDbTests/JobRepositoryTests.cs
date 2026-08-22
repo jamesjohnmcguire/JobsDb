@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
-using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 [TestFixture]

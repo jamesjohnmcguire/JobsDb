@@ -7,15 +7,8 @@
 namespace JobsDbTests;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using DigitalZenWorks.JobsDb.Library.Data;
-using DigitalZenWorks.JobsDb.Library.Repositories;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
 using DigitalZenWorks.JobsDb.Library.Services;
-using Moq;
 using NUnit.Framework;
 
 [TestFixture]

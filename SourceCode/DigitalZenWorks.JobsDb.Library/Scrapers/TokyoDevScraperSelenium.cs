@@ -13,12 +13,11 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Services;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
+using HtmlAgilityPack;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 

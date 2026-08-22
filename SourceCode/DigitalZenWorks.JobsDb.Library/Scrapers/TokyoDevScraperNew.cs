@@ -12,10 +12,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
+using HtmlAgilityPack;
 
 public class TokyoDevScraper : JobScraperBase
 {

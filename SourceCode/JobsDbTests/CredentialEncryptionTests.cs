@@ -6,18 +6,7 @@
 
 namespace JobsDb.Tests.Services;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
-using DigitalZenWorks.JobsDb.Library.Data;
-using DigitalZenWorks.JobsDb.Library.Models;
-using DigitalZenWorks.JobsDb.Library.Repositories;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
-using DigitalZenWorks.JobsDb.Library.Services;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
-using Moq;
 using NUnit.Framework;
 
 [TestFixture]

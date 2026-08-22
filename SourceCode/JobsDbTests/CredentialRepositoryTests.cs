@@ -10,7 +10,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
-using DigitalZenWorks.JobsDb.Library.Data;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;

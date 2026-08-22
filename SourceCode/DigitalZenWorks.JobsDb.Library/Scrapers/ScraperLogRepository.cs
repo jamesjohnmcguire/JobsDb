@@ -9,7 +9,6 @@ namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DigitalZenWorks.JobsDb.Library.Data;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using Microsoft.EntityFrameworkCore;
 

@@ -8,7 +8,6 @@ namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.Linq;
-using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 /// <summary>
