@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDbApplication;
+namespace DigitalZenWorks.JobsDb.Application;
 
 using System.Windows;
-using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Services;
+using global::JobsDb.Core.Data;
+using global::JobsDb.Core.Repositories;
+using global::JobsDb.Core.Services;
 using JobsDbLibrary.Scrapers;
 
 /// <summary>

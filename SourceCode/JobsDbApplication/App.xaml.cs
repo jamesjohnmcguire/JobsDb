@@ -4,15 +4,16 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDbApplication;
+namespace DigitalZenWorks.JobsDb.Application;
 
 using System.Windows;
-using JobsDb.Core.Configuration;
-using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Scrapers;
-using JobsDb.Core.Services;
+using global::JobsDb.Core.Configuration;
+using global::JobsDb.Core.Data;
+using global::JobsDb.Core.Repositories;
+using global::JobsDb.Core.Scrapers;
+using global::JobsDb.Core.Services;
 using JobsDbLibrary.Scrapers;
+using Application = System.Windows.Application;
 
 /// <summary>
 /// Interaction logic for App.xaml. Acts as the composition root: builds the
@@ -26,17 +27,17 @@ internal partial class App : Application
 	{
 		base.OnStartup(e);
 
-		JobsDbContext context = new ();
+		JobsDbContext context = new();
 		context.Initialize(); // Applies pending migrations.
 
 		IJobRepository jobRepository = new JobRepository(context);
 		ICredentialRepository credentialRepository =
 			new CredentialRepository(context);
 
-		ConfigurationManager configManager = new ();
-		CookieManager cookieManager = new ();
+		ConfigurationManager configManager = new();
+		CookieManager cookieManager = new();
 
-		ScraperService scraperService = new (context);
+		ScraperService scraperService = new(context);
 		scraperService.RegisterScraper(
 			"LinkedIn",
 			new LinkedInScraper(
@@ -47,7 +48,7 @@ internal partial class App : Application
 				jobRepository, credentialRepository, cookieManager, configManager));
 
 		MainWindow mainWindow =
-			new (jobRepository, scraperService, context);
+			new(jobRepository, scraperService, context);
 		mainWindow.Show();
 	}
 }
