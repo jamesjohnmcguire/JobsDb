@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// <copyright file="DbSeeder.cs" company="Digital Zen Works">
+// <copyright file="JobsDbContextDbSeeder.cs" company="Digital Zen Works">
 // Copyright © 2024 - 2026 Digital Zen Works.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ using DigitalZenWorks.JobsDb.Library.Scrapers;
 /// Safe to call every startup - checks before inserting (idempotent),
 /// similar in spirit to re-running a staticData.sql file.
 /// </summary>
-public static class DbSeeder
+public static class JobsDbContextDbSeeder
 {
 	public static void Seed(JobsDbContext context)
 	{
