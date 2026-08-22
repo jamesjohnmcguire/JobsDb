@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="JobConfiguration.cs" company="Digital Zen Works">
+// Copyright © 2024 - 2026 Digital Zen Works.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
 using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

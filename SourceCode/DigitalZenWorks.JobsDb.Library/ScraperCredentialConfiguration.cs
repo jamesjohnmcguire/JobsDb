@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="ScraperCredentialConfiguration.cs" company="Digital Zen Works">
+// Copyright © 2024 - 2026 Digital Zen Works.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
