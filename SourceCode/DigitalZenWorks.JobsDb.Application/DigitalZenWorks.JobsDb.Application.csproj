@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\JobsDbLibrary\JobsDbLibrary.csproj" />
+	  <ProjectReference Include="..\DigitalZenWorks.JobsDb.Library\DigitalZenWorks.JobsDb.Library.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
