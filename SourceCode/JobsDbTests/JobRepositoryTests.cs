@@ -10,9 +10,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 

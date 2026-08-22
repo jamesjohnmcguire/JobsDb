@@ -8,7 +8,7 @@ namespace JobsDbConsole;
 
 using System;
 using System.Threading.Tasks;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 internal class Program
 {

@@ -4,15 +4,15 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Configuration;
+namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 /// <summary>
 /// Manages configuration including credentials loaded from JSON file.

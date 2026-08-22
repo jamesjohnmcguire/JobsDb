@@ -10,10 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 

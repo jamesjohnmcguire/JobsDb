@@ -4,13 +4,13 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDbLibrary.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 public class ScraperLogRepository : IScraperLogRepository

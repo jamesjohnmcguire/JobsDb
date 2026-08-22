@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System;
 using System.Diagnostics;
@@ -13,9 +13,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 public class TokyoDevScraperPrevious : JobScraperBase
 {

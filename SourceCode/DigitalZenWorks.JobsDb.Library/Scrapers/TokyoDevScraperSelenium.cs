@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using JobsDb.Core.Configuration;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Services;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Services;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -42,7 +42,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		: base(jobRepository, credentialRepository, "TokyoDev")
 	{
 		this.cookieManager = cookieManager ?? new CookieManager();
-		this.configManager = configManager ?? new Configuration.ConfigurationManager();
+		this.configManager = configManager ?? new ConfigurationManager();
 	}
 
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)

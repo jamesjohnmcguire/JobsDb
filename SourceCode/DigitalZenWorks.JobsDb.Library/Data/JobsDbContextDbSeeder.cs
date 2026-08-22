@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
-namespace JobsDb.Core.Data;
+namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// Seeds reference/static data after migrations run.

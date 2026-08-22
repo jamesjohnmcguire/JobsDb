@@ -1,8 +1,8 @@
-using JobsDb.Core.Models;
+using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace JobsDb.Core.Data.Configurations;
+namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// EF Core configuration for the Job entity.

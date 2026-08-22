@@ -7,10 +7,11 @@
 namespace DigitalZenWorks.JobsDb.Application;
 
 using System.Windows;
-using global::JobsDb.Core.Data;
-using global::JobsDb.Core.Repositories;
-using global::JobsDb.Core.Services;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Services;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml.

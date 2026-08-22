@@ -1,9 +1,9 @@
-using JobsDb.Core.Models;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace JobsDb.Core.Data.Configurations;
+namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// EF Core configuration for the ScraperCredential entity.

@@ -7,9 +7,8 @@
 namespace JobsDb.Tests.Models;
 
 using System;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
 [TestFixture]

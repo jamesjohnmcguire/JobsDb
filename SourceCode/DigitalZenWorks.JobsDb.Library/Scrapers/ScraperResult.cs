@@ -4,11 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDbLibrary.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System;
 using System.Collections.Generic;
-using JobsDb.Core.Models;
+using DigitalZenWorks.JobsDb.Library.Models;
 
 /// <summary>
 /// Result returned by scraper operations.

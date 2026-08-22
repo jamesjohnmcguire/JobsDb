@@ -4,15 +4,15 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class JobRepository : IJobRepository

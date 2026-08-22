@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Services;
+namespace DigitalZenWorks.JobsDb.Library.Services;
 
 using System;
 using System.Collections.Generic;

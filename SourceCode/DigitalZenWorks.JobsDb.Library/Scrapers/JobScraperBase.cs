@@ -4,13 +4,13 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System;
 using System.Threading.Tasks;
-using JobsDb.Core.Models;
-using JobsDb.Core.Repositories;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 /// <summary>
 /// Base class for all job scrapers providing common functionality.

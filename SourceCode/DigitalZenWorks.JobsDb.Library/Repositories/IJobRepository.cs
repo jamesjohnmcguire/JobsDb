@@ -4,11 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using JobsDb.Core.Models;
+using DigitalZenWorks.JobsDb.Library.Models;
 
 public interface IJobRepository
 {

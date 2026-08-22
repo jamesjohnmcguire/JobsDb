@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core;
+namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.Security.Cryptography;

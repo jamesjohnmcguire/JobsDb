@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Scrapers;
+namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 public class Credentials
 {

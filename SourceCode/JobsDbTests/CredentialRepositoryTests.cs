@@ -9,9 +9,10 @@ namespace JobsDbTests;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
 [TestFixture]

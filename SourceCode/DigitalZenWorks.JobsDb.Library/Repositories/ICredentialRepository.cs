@@ -4,11 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 public interface ICredentialRepository
 {

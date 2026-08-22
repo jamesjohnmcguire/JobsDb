@@ -4,14 +4,14 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 
 public class SearchFilterRepository : ISearchFilterRepository

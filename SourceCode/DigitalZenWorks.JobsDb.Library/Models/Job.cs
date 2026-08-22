@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Models;
+namespace DigitalZenWorks.JobsDb.Library.Models;
 
 using System;
 using System.ComponentModel.DataAnnotations;

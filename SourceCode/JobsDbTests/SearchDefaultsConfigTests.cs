@@ -6,7 +6,7 @@
 
 namespace JobsDbTests;
 
-using JobsDb.Core.Configuration;
+using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
 [TestFixture]

@@ -4,15 +4,15 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 
 public class CredentialRepository : ICredentialRepository

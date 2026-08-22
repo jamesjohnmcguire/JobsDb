@@ -4,11 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Repositories;
+namespace DigitalZenWorks.JobsDb.Library.Repositories;
 
+using DigitalZenWorks.JobsDb.Library;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using JobsDb.Core.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 public interface ISearchFilterRepository
 {

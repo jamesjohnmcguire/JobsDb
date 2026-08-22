@@ -9,7 +9,7 @@ namespace JobsDb.Tests;
 using System;
 using System.Globalization;
 using System.IO;
-using JobsDb.Core.Models;
+using DigitalZenWorks.JobsDb.Library.Models;
 using NUnit.Framework;
 
 /// <summary>

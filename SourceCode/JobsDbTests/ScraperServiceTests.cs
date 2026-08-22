@@ -11,10 +11,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using JobsDb.Core.Data;
-using JobsDb.Core.Repositories;
-using JobsDb.Core.Scrapers;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.Data;
+using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 

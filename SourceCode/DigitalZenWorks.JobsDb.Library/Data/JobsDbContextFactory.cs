@@ -3,7 +3,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace JobsDb.Core.Data;
+namespace DigitalZenWorks.JobsDb.Library;
 
 /// <summary>
 /// Tells the EF Core CLI tools how to construct a JobsDbContext at design time

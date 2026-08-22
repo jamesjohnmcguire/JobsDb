@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Configuration;
+namespace DigitalZenWorks.JobsDb.Library;
 
 public class SearchDefaultsConfig
 {

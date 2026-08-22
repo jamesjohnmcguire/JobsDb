@@ -1,9 +1,9 @@
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace JobsDb.Core.Data.Configurations;
+namespace DigitalZenWorks.JobsDb.Library.Data;
 
 /// <summary>
 /// EF Core configuration for the SearchFilter entity.

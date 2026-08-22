@@ -4,13 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Core.Data;
+namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.IO;
-using JobsDb.Core.Models;
-using JobsDb.Core.Scrapers;
-using JobsDbLibrary.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
