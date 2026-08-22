@@ -16,7 +16,7 @@
 	<Project Path="HttpTool/SourceCode/HttpTool/HttpTool.csproj" />
 	<Project Path="HttpTool/SourceCode/WebTools.Test/WebTools.Test.csproj" />
 	<Project Path="HttpTool/SourceCode/WebTools/WebTools.csproj" />
-	<Project DefaultStartup="true" Path="JobsDbApplication/JobsDbApplication.csproj" />
+	<Project DefaultStartup="true" Path="DigitalZenWorks.JobsDb.Application/DigitalZenWorks.JobsDb.Application.csproj" />
 	<Project Path="JobsDbConsole/JobsDbConsole.csproj" />
 	<Project Path="JobsDbLibrary/JobsDbLibrary.csproj" />
 	<Project Path="JobsDbTests/JobsDbTests.csproj" />
