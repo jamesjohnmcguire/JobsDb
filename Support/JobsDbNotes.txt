@@ -1,4 +1,7 @@
 Tasks
+	TokyoDevScraper Merge Variants
+	Clean Up Namespaces
+	Replace Column1 Showing Up
 	Replace Console.WriteLines with Logging
 Resources
 	https://app.apijobs.dev/
@@ -45,3 +48,13 @@ JobsDb
 	namespace JobsDbTests;
 
 	 SearchFilter_CreatedDate_HasDefaultValue  Source: JobsDbContextTests.cs line 199	Microsoft.EntityFrameworkCore.DbUpdateException : An error occurred while saving the entity changes. See the inner exception for details.	Microsoft.Data.Sqlite.SqliteException : SQLite Error 1: 'no such table: SearchFilters'.
+Migrations
+	cd JobsDbLibrary
+	dotnet ef migrations add InitialCreate
+	dotnet ef database update
+HttpTool
+	warn : NU1510: PackageReference System.Net.Http will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.
+Namespaces Hell
+	DigitalZenWorks.JobsDb.Application
+	DigitalZenWorks.JobsDb.Library
+	DigitalZenWorks.JobsDb.Scrapers
