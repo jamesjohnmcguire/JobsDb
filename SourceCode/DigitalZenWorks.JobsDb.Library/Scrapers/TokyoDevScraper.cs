@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// <copyright file="TokyoDevScraper.cs" company="Digital Zen Works">
+// <copyright file="TokyoDevScraperPrevious.cs" company="Digital Zen Works">
 // Copyright © 2024 - 2026 Digital Zen Works.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -55,14 +55,33 @@ public class TokyoDevScraperPrevious : JobScraperBase
 			doc.LoadHtml(jobsHtml);
 
 			// Parse job listings - adjust selectors based on actual HTML structure
-			var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]")
+			// Right-click on a job listing → Inspect Element to find the correct CSS classes
+			// Common patterns to try:
+			// - Job cards might be: <div class="job-card">, <article class="listing">, etc.
+			// - They might be list items: <li class="job-item">
+			// - Or links: <a href="/jobs/[job-id]">
+
+			var jobNodes1 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]")
 				?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
 				?? doc.DocumentNode.SelectNodes("//div[@class='job']");
 
+			var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]");
+
+			var jobNodes4 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]")
+				 ?? doc.DocumentNode.SelectNodes("//article")
+				 ?? doc.DocumentNode.SelectNodes("//li[contains(@class, 'listing')]")
+				 ?? doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/') and not(contains(@href, '/jobs?'))]");
+
 			if (jobNodes == null || !jobNodes.Any())
 			{
+				/*
 				// Try alternative selectors
 				jobNodes = doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/')]");
+				*/
+
+				// Debug: Save HTML to file to inspect
+				System.IO.File.WriteAllText("tokyodev_debug.html", jobsHtml);
+				throw new Exception("No job nodes found. Check tokyodev_debug.html for structure.");
 			}
 
 			if (jobNodes != null)
@@ -75,8 +94,9 @@ public class TokyoDevScraperPrevious : JobScraperBase
 
 						if (job != null && !string.IsNullOrEmpty(job.Title))
 						{
-							var existing = await JobRepository.GetBySourceIdAsync(
-								SourceName, job.SourceJobId).ConfigureAwait(false);
+							var existing =
+								await JobRepository.GetBySourceIdAsync(
+									SourceName, job.SourceJobId).ConfigureAwait(false);
 
 							if (existing == null)
 							{
@@ -177,7 +197,7 @@ public class TokyoDevScraperPrevious : JobScraperBase
 		}
 
 		job.DatePosted = DateTime.UtcNow; // Default to today if not found
-		job.Source = sourceName;
+		job.Source = SourceName;
 
 		return job;
 	}

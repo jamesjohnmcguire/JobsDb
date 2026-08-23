@@ -113,7 +113,9 @@ public class TokyoDevScraperSelenium : JobScraperBase
 							}
 						}
 
-						var existing = await jobRepository.GetBySourceIdAsync(sourceName, job.SourceJobId).ConfigureAwait(false);
+						var existing =
+							await jobRepository.GetBySourceIdAsync(
+								SourceName, job.SourceJobId).ConfigureAwait(false);
 
 						if (existing == null)
 						{
@@ -257,7 +259,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	{
 		Job job = new Job
 		{
-			Source = sourceName,
+			Source = SourceName,
 			DatePosted = DateTime.UtcNow,
 			DateScraped = DateTime.UtcNow
 		};
