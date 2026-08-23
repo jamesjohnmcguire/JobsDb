@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// <copyright file="TokyoDevScraperPrevious.cs" company="Digital Zen Works">
+// <copyright file="TokyoDevScraper.cs" company="Digital Zen Works">
 // Copyright © 2024 - 2026 Digital Zen Works.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -7,6 +7,7 @@
 namespace DigitalZenWorks.JobsDb.Library.Scrapers;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -16,13 +17,13 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using HtmlAgilityPack;
 
-public class TokyoDevScraperPrevious : JobScraperBase
+public class TokyoDevScraper : JobScraperBase
 {
 	private readonly HttpClient httpClient;
 	private const string BaseUrl = "https://www.tokyodev.com";
 	private const string JobsUrl = "https://www.tokyodev.com/jobs";
 
-	public TokyoDevScraperPrevious(
+	public TokyoDevScraper(
 		IJobRepository jobRepository,
 		ICredentialRepository credentialRepository)
 		: base(jobRepository, credentialRepository, "TokyoDev")
@@ -60,62 +61,54 @@ public class TokyoDevScraperPrevious : JobScraperBase
 			// - Job cards might be: <div class="job-card">, <article class="listing">, etc.
 			// - They might be list items: <li class="job-item">
 			// - Or links: <a href="/jobs/[job-id]">
+			List<string> nodes = [];
+			nodes.Add("//div[contains(@class, 'job-listing')]");
+			nodes.Add("//article[contains(@class, 'job')]");
+			nodes.Add("//div[@class='job']");
+			nodes.Add("//article");
+			nodes.Add("//li[contains(@class, 'listing')]");
+			nodes.Add("//a[contains(@href, '/jobs/')]");
+			string nodesLong = "//a[contains(@href, '/jobs/') and " +
+				"not(contains(@href, '/jobs?'))]";
+			nodes.Add(nodesLong);
 
-			var jobNodes1 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]")
-				?? doc.DocumentNode.SelectNodes("//article[contains(@class, 'job')]")
-				?? doc.DocumentNode.SelectNodes("//div[@class='job']");
-
-			var jobNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job-listing')]");
-
-			var jobNodes4 = doc.DocumentNode.SelectNodes("//div[contains(@class, 'job')]")
-				 ?? doc.DocumentNode.SelectNodes("//article")
-				 ?? doc.DocumentNode.SelectNodes("//li[contains(@class, 'listing')]")
-				 ?? doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/') and not(contains(@href, '/jobs?'))]");
-
-			if (jobNodes == null || !jobNodes.Any())
+			foreach (string node in nodes)
 			{
-				/*
-				// Try alternative selectors
-				jobNodes = doc.DocumentNode.SelectNodes("//a[contains(@href, '/jobs/')]");
-				*/
+				HtmlNodeCollection? jobNodes = doc.DocumentNode.SelectNodes(node);
 
-				// Debug: Save HTML to file to inspect
-				System.IO.File.WriteAllText("tokyodev_debug.html", jobsHtml);
-				throw new Exception("No job nodes found. Check tokyodev_debug.html for structure.");
-			}
-
-			if (jobNodes != null)
-			{
-				foreach (var jobNode in jobNodes)
+				if (jobNodes != null)
 				{
-					try
+					foreach (var jobNode in jobNodes)
 					{
-						var job = await ParseJobNodeAsync(jobNode).ConfigureAwait(false);
-
-						if (job != null && !string.IsNullOrEmpty(job.Title))
+						try
 						{
-							var existing =
-								await JobRepository.GetBySourceIdAsync(
-									SourceName, job.SourceJobId).ConfigureAwait(false);
+							var job = await ParseJobNodeAsync(jobNode).ConfigureAwait(false);
 
-							if (existing == null)
+							if (job != null && !string.IsNullOrEmpty(job.Title))
 							{
-								await AddOrUpdateJobAsync(job).ConfigureAwait(false);
-								result.JobsAdded++;
-							}
-							else
-							{
-								await AddOrUpdateJobAsync(job).ConfigureAwait(false);
-								result.JobsUpdated++;
-							}
+								var existing =
+									await JobRepository.GetBySourceIdAsync(
+										SourceName, job.SourceJobId).ConfigureAwait(false);
 
-							result.Jobs.Add(job);
+								if (existing == null)
+								{
+									await AddOrUpdateJobAsync(job).ConfigureAwait(false);
+									result.JobsAdded++;
+								}
+								else
+								{
+									await AddOrUpdateJobAsync(job).ConfigureAwait(false);
+									result.JobsUpdated++;
+								}
+
+								result.Jobs.Add(job);
+							}
 						}
-					}
-					catch (Exception ex)
-					{
-						// Log but continue with other jobs
-						Console.WriteLine($"Error parsing job: {ex.Message}");
+						catch (Exception ex)
+						{
+							// Log but continue with other jobs
+							Console.WriteLine($"Error parsing job: {ex.Message}");
+						}
 					}
 				}
 			}
