@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Tests.Models;
+namespace JobsDbTests;
 
 using System;
 using DigitalZenWorks.JobsDb.Library.Models;

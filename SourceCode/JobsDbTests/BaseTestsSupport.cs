@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Tests;
+namespace JobsDbTests;
 
 using System;
 using System.IO;

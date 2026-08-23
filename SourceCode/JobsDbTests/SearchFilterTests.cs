@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Tests.Models;
+namespace JobsDbTests;
 
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;

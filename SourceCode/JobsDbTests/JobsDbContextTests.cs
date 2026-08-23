@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace JobsDb.Tests.Data;
+namespace JobsDbTests;
 
 using System;
 using System.Collections.Generic;
