@@ -15,3 +15,23 @@ EF Core migrations remain responsible for upgrades. Update this snapshot alongsi
 Application tables use PascalCase and columns use camelCase. The snapshot is exported from a newly migrated temporary database, so it shows final table definitions rather than historical alterations. A repeatable export command remains a follow-up task.
 
 Runtime and EF tooling share the default database path, `%LOCALAPPDATA%\JobsDb\jobsdb.db`. A path-based context resolves relative filenames against the current working directory and quotes connection-string characters safely. Supplied EF options and later connection overrides determine the reported data source; in-memory contexts report their configured memory source.
+
+## Updating a Database
+
+Restore the pinned EF tool once from the repository root:
+
+```sh
+dotnet tool restore
+```
+
+Run `DevelopmentTools/updateDatabase.cmd` on Windows or `bash DevelopmentTools/updateDatabase.sh` in Bash. The scripts apply pending migrations to the default `%LOCALAPPDATA%\JobsDb\jobsdb.db` database, preserving existing records. Repeating the command applies no migrations when the database is already current.
+
+To select a different database, pass EF's native connection option. For example, from PowerShell:
+
+```powershell
+.\DevelopmentTools\updateDatabase.cmd --connection "Data Source=C:/Data/JobsDb/review.db"
+```
+
+The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code.
+
+These scripts do not rebuild an existing database or import postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
