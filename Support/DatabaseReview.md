@@ -87,6 +87,8 @@ These questions do not block schema visibility or the core cleanup phases.
 
 - [ ] Use the concise `"id" INTEGER PRIMARY KEY AUTOINCREMENT` form in the readable SQLite snapshot, omitting redundant `NOT NULL` and generated primary-key constraint names. Compare semantic schema metadata rather than requiring identical generated DDL text, and preserve EF migration compatibility. Keep this separate from column naming.
 
+- [ ] Define expiry and retention for transient job listings and imported email content. Distinguish last-seen and successfully checked sources from failed or partial imports before expiring records. Allow pruning of stale imported content while preserving any application history and notes the owner wants to retain. Keep retention policy separate from schema upgrades and reference-data initialization.
+
 ## Validation and Scope
 
 The review is based on repository source and configuration. No runtime database rebuild, migration change, SQL replacement, credential rotation, or email integration has been performed. The existing `AGENTS.md` has been preserved as requested earlier. Its global line-length wording and contributor/PR assumptions should eventually be aligned with `codingStyle.md` and the single-contributor workflow.

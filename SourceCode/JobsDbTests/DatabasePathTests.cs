@@ -1,0 +1,176 @@
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="DatabasePathTests.cs" company="Digital Zen Works">
+// Copyright © 2024 - 2026 Digital Zen Works.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+namespace JobsDbTests;
+
+using System;
+using System.IO;
+using DigitalZenWorks.JobsDb.Library;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
+
+[TestFixture]
+internal sealed class DatabasePathTests
+{
+	private string databaseDirectory = string.Empty;
+
+	[SetUp]
+	public void SetUp()
+	{
+		string directoryName = "JobsDb-path-tests-" + Guid.NewGuid();
+		databaseDirectory = Path.Combine(Path.GetTempPath(), directoryName);
+		Directory.CreateDirectory(databaseDirectory);
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		Directory.Delete(databaseDirectory, true);
+	}
+
+	[Test]
+	public void Factory_UsesRuntimeDatabasePath()
+	{
+		using JobsDbContext runtimeContext = new JobsDbContext();
+		JobsDbContextFactory factory = new JobsDbContextFactory();
+		using JobsDbContext toolingContext =
+			factory.CreateDbContext(Array.Empty<string>());
+
+		Assert.That(
+			toolingContext.GetDatabasePath(),
+			Is.EqualTo(runtimeContext.GetDatabasePath()));
+	}
+
+	[Test]
+	public void Constructor_RelativePath_ResolvesAbsolutePath()
+	{
+		string expectedPath = Path.Combine(databaseDirectory, "relative.db");
+		string relativePath = Path.GetRelativePath(
+			Environment.CurrentDirectory, expectedPath);
+		using JobsDbContext context = new JobsDbContext(relativePath);
+
+		Assert.That(context.GetDatabasePath(), Is.EqualTo(expectedPath));
+	}
+
+	[Test]
+	public void Constructor_SemicolonInPath_CreatesLiteralFilename()
+	{
+		string databasePath = Path.Combine(
+			databaseDirectory, "jobs;extra setting.db");
+		using JobsDbContext context = new JobsDbContext(databasePath);
+
+		try
+		{
+			context.Initialize();
+
+			Assert.That(context.GetDatabasePath(), Is.EqualTo(databasePath));
+			Assert.That(File.Exists(databasePath), Is.True);
+		}
+		finally
+		{
+			context.Database.EnsureDeleted();
+		}
+	}
+
+	[Test]
+	public void OptionsConstructor_UsesConfiguredDatabasePath()
+	{
+		string databasePath = Path.Combine(databaseDirectory, "options.db");
+		SqliteConnectionStringBuilder connectionStringBuilder =
+			new SqliteConnectionStringBuilder();
+		connectionStringBuilder.DataSource = databasePath;
+		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
+			new DbContextOptionsBuilder<JobsDbContext>();
+		optionsBuilder.UseSqlite(connectionStringBuilder.ConnectionString);
+		using JobsDbContext context = new JobsDbContext(optionsBuilder.Options);
+
+		try
+		{
+			context.Initialize();
+
+			Assert.That(context.GetDatabasePath(), Is.EqualTo(databasePath));
+			Assert.That(File.Exists(databasePath), Is.True);
+		}
+		finally
+		{
+			context.Database.EnsureDeleted();
+		}
+	}
+
+	[Test]
+	public void GetDatabasePath_ReflectsConnectionOverride()
+	{
+		string originalPath = Path.Combine(databaseDirectory, "original.db");
+		string replacementPath = Path.Combine(
+			databaseDirectory, "replacement.db");
+		using JobsDbContext context = new JobsDbContext(originalPath);
+		SqliteConnectionStringBuilder connectionStringBuilder =
+			new SqliteConnectionStringBuilder();
+		connectionStringBuilder.DataSource = replacementPath;
+		context.Database.SetConnectionString(
+			connectionStringBuilder.ConnectionString);
+
+		try
+		{
+			context.Initialize();
+
+			Assert.That(
+				context.GetDatabasePath(), Is.EqualTo(replacementPath));
+			Assert.That(File.Exists(replacementPath), Is.True);
+			Assert.That(File.Exists(originalPath), Is.False);
+		}
+		finally
+		{
+			context.Database.EnsureDeleted();
+		}
+	}
+
+	[Test]
+	public void Constructor_InMemoryDatabase_ReportsMemorySource()
+	{
+		using JobsDbContext context = new JobsDbContext(":memory:");
+		context.Database.OpenConnection();
+		context.Initialize();
+
+		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
+	}
+
+	[Test]
+	public void OptionsConstructor_InMemoryDatabase_ReportsMemorySource()
+	{
+		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
+			new DbContextOptionsBuilder<JobsDbContext>();
+		optionsBuilder.UseSqlite("Data Source=:memory:");
+		using JobsDbContext context = new JobsDbContext(optionsBuilder.Options);
+		context.Database.OpenConnection();
+		context.Initialize();
+
+		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
+	}
+
+	[TestCase("")]
+	[TestCase(" ")]
+	[TestCase("\t")]
+	public void Constructor_RejectsBlankPath(string databasePath)
+	{
+		Assert.Throws<ArgumentException>(() =>
+		{
+			using JobsDbContext context = new JobsDbContext(databasePath);
+		});
+	}
+
+	[Test]
+	public void Constructor_RejectsNullPath()
+	{
+		string? databasePath = null;
+
+		Assert.Throws<ArgumentNullException>(() =>
+		{
+			using JobsDbContext context = new JobsDbContext(databasePath!);
+		});
+	}
+}

@@ -7,9 +7,11 @@
 namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
+using System.Data.Common;
 using System.IO;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -19,6 +21,32 @@ using Microsoft.EntityFrameworkCore.Metadata;
 /// </summary>
 public class JobsDbContext : DbContext
 {
+	/// <summary>
+	/// Initializes a context using the default application database.
+	/// </summary>
+	public JobsDbContext()
+		: this(GetDefaultDatabasePath())
+	{
+	}
+
+	/// <summary>
+	/// Initializes a context using the specified SQLite database path.
+	/// </summary>
+	/// <param name="databasePath">A file path or :memory:.</param>
+	public JobsDbContext(string databasePath)
+		: this(CreateOptions(databasePath))
+	{
+	}
+
+	/// <summary>
+	/// Initializes a context using the supplied database options.
+	/// </summary>
+	/// <param name="options">The configured database options.</param>
+	public JobsDbContext(DbContextOptions<JobsDbContext> options)
+		: base(options)
+	{
+	}
+
 	public DbSet<Job> Jobs { get; set; }
 
 	public DbSet<ScraperCredential> Credentials { get; set; }
@@ -27,56 +55,45 @@ public class JobsDbContext : DbContext
 
 	public DbSet<SearchFilter> SearchFilters { get; set; }
 
-	private readonly string dbPath;
-
 	/// <summary>
-	/// Default constructor - creates database in LocalApplicationData folder.
+	/// Initialize the database by applying any pending migrations.
+	/// Creates the database file if it doesn't exist yet, and brings
+	/// an existing database up to date with the current model.
 	/// </summary>
-	public JobsDbContext()
+	public void Initialize()
 	{
-		var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-		var appFolder = Path.Combine(folder, "JobsDb");
-		Directory.CreateDirectory(appFolder);
-		dbPath = Path.Combine(appFolder, "jobsdb.db");
+		Database.Migrate();
+		string databasePath = GetDatabasePath();
+		Console.WriteLine($"Database initialized/migrated at: {databasePath}");
 	}
 
 	/// <summary>
-	/// Constructor with custom database path.
+	/// Gets the configured SQLite data source, including in-memory names.
 	/// </summary>
-	public JobsDbContext(string dbPath)
+	public string GetDatabasePath()
 	{
-		this.dbPath = dbPath;
-		var directory = Path.GetDirectoryName(this.dbPath);
-		if (!string.IsNullOrEmpty(directory))
+		DbConnection connection = Database.GetDbConnection();
+		string dataSource = connection.DataSource;
+
+		if (!string.IsNullOrEmpty(dataSource))
 		{
-			Directory.CreateDirectory(directory);
+			return dataSource;
 		}
-	}
 
-	/// <summary>
-	/// Constructor for dependency injection.
-	/// </summary>
-	public JobsDbContext(DbContextOptions<JobsDbContext> options)
-		: base(options)
-	{
-	}
-
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	{
-		if (!optionsBuilder.IsConfigured)
-		{
-			optionsBuilder.UseSqlite($"Data Source={dbPath}");
-		}
+		SqliteConnectionStringBuilder connectionStringBuilder =
+			new SqliteConnectionStringBuilder(connection.ConnectionString);
+		return connectionStringBuilder.DataSource;
 	}
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		ArgumentNullException.ThrowIfNull(modelBuilder);
+
 		base.OnModelCreating(modelBuilder);
 
-		// Each entity's configuration lives in its own IEntityTypeConfiguration<T>
-		// class under Data/Configurations/. This picks up every one of them from
-		// this assembly automatically - no per-entity wiring needed here.
-		modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
+		// Apply entity mappings before assigning database column names.
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(JobsDbContext).Assembly);
 
 		foreach (IMutableEntityType entityType in
 			modelBuilder.Model.GetEntityTypes())
@@ -91,24 +108,40 @@ public class JobsDbContext : DbContext
 		}
 	}
 
-
-	/// <summary>
-	/// <summary>
-	/// Initialize the database by applying any pending migrations.
-	/// Creates the database file if it doesn't exist yet, and brings
-	/// an existing database up to date with the current model.
-	/// </summary>
-	public void Initialize()
+	private static DbContextOptions<JobsDbContext> CreateOptions(
+		string databasePath)
 	{
-		Database.Migrate();
-		Console.WriteLine($"✓ Database initialized/migrated at: {dbPath}");
+		ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
+
+		string dataSource = databasePath;
+
+		if (databasePath != ":memory:")
+		{
+			dataSource = Path.GetFullPath(databasePath);
+			string? databaseDirectory = Path.GetDirectoryName(dataSource);
+
+			if (databaseDirectory != null)
+			{
+				Directory.CreateDirectory(databaseDirectory);
+			}
+		}
+
+		SqliteConnectionStringBuilder connectionStringBuilder =
+			new SqliteConnectionStringBuilder();
+		connectionStringBuilder.DataSource = dataSource;
+
+		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
+			new DbContextOptionsBuilder<JobsDbContext>();
+		optionsBuilder.UseSqlite(connectionStringBuilder.ConnectionString);
+		return optionsBuilder.Options;
 	}
 
-	/// <summary>
-	/// Get the database file path.
-	/// </summary>
-	public string GetDatabasePath()
+	private static string GetDefaultDatabasePath()
 	{
-		return dbPath;
+		string applicationDataFolder = Environment.GetFolderPath(
+			Environment.SpecialFolder.LocalApplicationData);
+		string applicationFolder = Path.Combine(
+			applicationDataFolder, "JobsDb");
+		return Path.Combine(applicationFolder, "jobsdb.db");
 	}
 }

@@ -6,35 +6,21 @@
 
 namespace DigitalZenWorks.JobsDb.Library;
 
-using System;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 /// <summary>
-/// Tells the EF Core CLI tools how to construct a JobsDbContext at design time
-/// (i.e. when you run `dotnet ef migrations add ...` or `dotnet ef database update`).
-///
-/// This is only used by the tooling — never referenced by your running application.
-/// It's required because JobsDbContext doesn't have a plain parameterless constructor
-/// that resolves a connection string on its own (it builds the path in its constructor).
+/// Creates design-time contexts using the application's default database
+/// configuration. EF tooling can override the connection when required.
 /// </summary>
 public class JobsDbContextFactory : IDesignTimeDbContextFactory<JobsDbContext>
 {
+	/// <summary>
+	/// Creates a context for EF migration tooling.
+	/// </summary>
+	/// <param name="args">Arguments supplied by EF tooling.</param>
+	/// <returns>A context using the default application database.</returns>
 	public JobsDbContext CreateDbContext(string[] args)
 	{
-		// Use a fixed, predictable path for design-time operations so that
-		// migrations are generated against a consistent schema baseline.
-		// This does NOT have to be the same file your app uses at runtime -
-		// it's just used to scaffold/apply migrations.
-		var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-		var appFolder = Path.Combine(folder, "JobsDb");
-		Directory.CreateDirectory(appFolder);
-		var dbPath = Path.Combine(appFolder, "jobsdb.db");
-
-		var optionsBuilder = new DbContextOptionsBuilder<JobsDbContext>();
-		optionsBuilder.UseSqlite($"Data Source={dbPath}");
-
-		return new JobsDbContext(optionsBuilder.Options);
+		return new JobsDbContext();
 	}
 }

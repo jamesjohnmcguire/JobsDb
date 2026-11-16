@@ -13,3 +13,5 @@ Use a new database file. This bootstrap script creates the schema; it does not r
 EF Core migrations remain responsible for upgrades. Update this snapshot alongside schema migrations. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
 
 Application tables use PascalCase and columns use camelCase. The snapshot is exported from a newly migrated temporary database, so it shows final table definitions rather than historical alterations. A repeatable export command remains a follow-up task.
+
+Runtime and EF tooling share the default database path, `%LOCALAPPDATA%\JobsDb\jobsdb.db`. A path-based context resolves relative filenames against the current working directory and quotes connection-string characters safely. Supplied EF options and later connection overrides determine the reported data source; in-memory contexts report their configured memory source.
