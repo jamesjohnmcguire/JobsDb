@@ -14,26 +14,26 @@ CREATE TABLE "Credentials" (
 
 CREATE TABLE "Jobs" (
 	"id" INTEGER NOT NULL CONSTRAINT "PK_Jobs" PRIMARY KEY AUTOINCREMENT,
-	"title" TEXT NOT NULL,
 	"company" TEXT NOT NULL,
-	"location" TEXT NOT NULL,
-	"description" TEXT NOT NULL,
-	"requirements" TEXT NOT NULL,
-	"source" TEXT NOT NULL,
-	"sourceUrl" TEXT NOT NULL,
-	"sourceJobId" TEXT NOT NULL,
-	"salaryMin" TEXT NULL,
-	"salaryMax" TEXT NULL,
-	"salaryCurrency" TEXT NOT NULL,
-	"jobType" TEXT NOT NULL,
-	"remoteType" TEXT NOT NULL,
+	"dateApplied" TEXT NULL,
 	"datePosted" TEXT NOT NULL,
 	"dateScraped" TEXT NOT NULL DEFAULT (datetime('now')),
-	"dateApplied" TEXT NULL,
-	"status" TEXT NOT NULL,
+	"description" TEXT NULL,
+	"isArchived" INTEGER NOT NULL,
+	"jobType" TEXT NULL,
+	"location" TEXT NULL,
+	"notes" TEXT NULL,
 	"priority" INTEGER NULL,
-	"notes" TEXT NOT NULL,
-	"isArchived" INTEGER NOT NULL
+	"remoteType" TEXT NULL,
+	"requirements" TEXT NULL,
+	"salaryCurrency" TEXT NULL,
+	"salaryMax" TEXT NULL,
+	"salaryMin" TEXT NULL,
+	"source" TEXT NOT NULL,
+	"sourceJobId" TEXT NOT NULL,
+	"sourceUrl" TEXT NOT NULL,
+	"status" TEXT NOT NULL,
+	"title" TEXT NOT NULL
 );
 
 CREATE TABLE "ScraperLogs" (
@@ -98,5 +98,8 @@ VALUES ('20260723233159_InitialCreate', '10.0.11');
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20261116204352_UseCamelCaseColumns', '10.0.11');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20261116222114_AllowOptionalJobDetails', '10.0.11');
 
 COMMIT;

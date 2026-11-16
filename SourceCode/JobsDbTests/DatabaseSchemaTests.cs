@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -159,6 +160,115 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			Is.EqualTo(existingCredential.EncryptedPassword));
 		Assert.That(savedLog.JobsFound, Is.EqualTo(existingLog.JobsFound));
 		Assert.That(context.Database.GetPendingMigrations(), Is.Empty);
+	}
+
+	[TestCase(false)]
+	[TestCase(true)]
+	public void Job_MissingOptionalDetails_SavesNullValues(
+		bool useSchemaScript)
+	{
+		using JobsDbContext context = CreateContext();
+
+		if (useSchemaScript)
+		{
+			LoadSchema(context);
+		}
+		else
+		{
+			context.Initialize();
+		}
+
+		Job job = new Job
+		{
+			Title = "Incomplete Listing",
+			Company = "Test Company",
+			Source = "Test",
+			SourceUrl = "https://example.com/jobs/incomplete",
+			SourceJobId = "incomplete",
+			DatePosted = DateTime.UtcNow
+		};
+		context.Jobs.Add(job);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+
+		Job savedJob = context.Jobs.Single();
+
+		Assert.That(savedJob.Location, Is.Null);
+		Assert.That(savedJob.Description, Is.Null);
+		Assert.That(savedJob.Requirements, Is.Null);
+		Assert.That(savedJob.SalaryCurrency, Is.Null);
+		Assert.That(savedJob.JobType, Is.Null);
+		Assert.That(savedJob.RemoteType, Is.Null);
+		Assert.That(savedJob.Notes, Is.Null);
+	}
+
+	[Test]
+	public void OptionalDetailsMigration_PreservesRecordsInBothDirections()
+	{
+		using JobsDbContext context = CreateContext();
+		IMigrator migrator = context.GetService<IMigrator>();
+		migrator.Migrate("20261116204352_UseCamelCaseColumns");
+
+		Job existingJob = CopyJob(TestJob!);
+		existingJob.Id = 42;
+		existingJob.Status = ApplicationStatus.Applied;
+		existingJob.Notes = "Keep these application notes";
+		context.Jobs.Add(existingJob);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+
+		context.Initialize();
+
+		Job savedJob = context.Jobs.Single();
+
+		Assert.That(savedJob.Id, Is.EqualTo(existingJob.Id));
+		Assert.That(savedJob.Status, Is.EqualTo(existingJob.Status));
+		Assert.That(savedJob.Location, Is.EqualTo(existingJob.Location));
+		Assert.That(savedJob.Description, Is.EqualTo(existingJob.Description));
+		Assert.That(
+			savedJob.Requirements, Is.EqualTo(existingJob.Requirements));
+		Assert.That(
+			savedJob.SalaryCurrency, Is.EqualTo(existingJob.SalaryCurrency));
+		Assert.That(savedJob.JobType, Is.EqualTo(existingJob.JobType));
+		Assert.That(savedJob.RemoteType, Is.EqualTo(existingJob.RemoteType));
+		Assert.That(savedJob.Notes, Is.EqualTo(existingJob.Notes));
+
+		migrator.Migrate("20261116204352_UseCamelCaseColumns");
+		context.ChangeTracker.Clear();
+		Job restoredJob = context.Jobs.Single();
+
+		Assert.That(restoredJob.Id, Is.EqualTo(existingJob.Id));
+		Assert.That(restoredJob.Notes, Is.EqualTo(existingJob.Notes));
+		Assert.That(
+			restoredJob.Description, Is.EqualTo(existingJob.Description));
+	}
+
+	[Test]
+	public void OptionalDetailsRollback_RejectsMissingValues()
+	{
+		using JobsDbContext context = CreateContext();
+		context.Initialize();
+
+		Job job = CopyJob(TestJob!);
+		job.Location = null;
+		context.Jobs.Add(job);
+		context.SaveChanges();
+
+		IMigrator migrator = context.GetService<IMigrator>();
+		SqliteException? databaseException = Assert.Throws<SqliteException>(
+			() => migrator.Migrate("20261116204352_UseCamelCaseColumns"));
+
+		Assert.That(
+			databaseException!.SqliteExtendedErrorCode,
+			Is.EqualTo(1299)); // SQLITE_CONSTRAINT_NOTNULL
+
+		context.ChangeTracker.Clear();
+		Job retainedJob = context.Jobs.Single();
+
+		Assert.That(retainedJob.Location, Is.Null);
+		Assert.That(
+			context.Database.GetAppliedMigrations(),
+			Does.Contain("20261116222114_AllowOptionalJobDetails"));
 	}
 
 	private static JobsDbContext CreateContext()

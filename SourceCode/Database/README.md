@@ -35,3 +35,9 @@ To select a different database, pass EF's native connection option. For example,
 The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code. The build workflow calls the same updater after rebuilding and before running all tests. It forwards database arguments such as `--connection` and supplies `--no-build` to reuse the rebuilt assemblies.
 
 These scripts do not rebuild an existing database or import postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
+
+## Job Field Contract
+
+`title`, `company`, `source`, `sourceUrl`, and `sourceJobId` must not be NULL. Descriptive fields `location`, `description`, `requirements`, `salaryCurrency`, `jobType`, `remoteType`, and `notes` may be NULL when not supplied. Numeric salary fields were already optional. No placeholder text is inserted for missing details.
+
+The optional-details migration preserves existing values. Reverting to the preceding schema requires filling any NULL details first; rollback does not silently replace unknown values with empty strings. Search-filter, credential, and scraper-log field contracts remain separate cleanup tasks.

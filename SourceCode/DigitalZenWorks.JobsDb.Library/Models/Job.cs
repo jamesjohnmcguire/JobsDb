@@ -20,11 +20,11 @@ public class Job
 	[Required]
 	public string Company { get; set; }
 
-	public string Location { get; set; }
+	public string? Location { get; set; }
 
-	public string Description { get; set; }
+	public string? Description { get; set; }
 
-	public string Requirements { get; set; }
+	public string? Requirements { get; set; }
 
 	[Required]
 	public string Source { get; set; } // "LinkedIn", "TokyoDev", etc.
@@ -38,11 +38,11 @@ public class Job
 
 	public decimal? SalaryMax { get; set; }
 
-	public string SalaryCurrency { get; set; }
+	public string? SalaryCurrency { get; set; }
 
-	public string JobType { get; set; } // Full-time, Part-time, Contract, etc.
+	public string? JobType { get; set; } // Full-time, Part-time, Contract, etc.
 
-	public string RemoteType { get; set; } // On-site, Remote, Hybrid
+	public string? RemoteType { get; set; } // On-site, Remote, Hybrid
 
 	public DateTime DatePosted { get; set; }
 
@@ -54,7 +54,7 @@ public class Job
 
 	public int? Priority { get; set; } // 1-5 rating
 
-	public string Notes { get; set; }
+	public string? Notes { get; set; }
 
 	public bool IsArchived { get; set; }
 }

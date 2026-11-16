@@ -15,6 +15,7 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NUnit.Framework;
 
 [TestFixture]
@@ -354,23 +355,34 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		}
 	}
 
-	[Test]
-	public void Job_RequiredFields_EnforcedByDatabase()
+	[TestCase(nameof(Job.Title), "title")]
+	[TestCase(nameof(Job.Company), "company")]
+	[TestCase(nameof(Job.Source), "source")]
+	[TestCase(nameof(Job.SourceUrl), "sourceUrl")]
+	[TestCase(nameof(Job.SourceJobId), "sourceJobId")]
+	public void Job_RequiredFields_RejectNull(
+		string propertyName,
+		string columnName)
 	{
-		// Arrange
 		context.Initialize();
 
-		Job job = new Job
-		{
-			// Missing Title (required)
-			Company = "Test Co",
-			Source = "Test",
-			SourceUrl = "https://test.com",
-			DatePosted = DateTime.UtcNow
-		};
-
-		// Act & Assert
+		Job job = CopyJob(TestJob!);
 		context.Jobs.Add(job);
-		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+		EntityEntry jobEntry = context.Entry(job);
+		PropertyEntry propertyEntry = jobEntry.Property(propertyName);
+		propertyEntry.CurrentValue = null;
+
+		DbUpdateException? updateException =
+			Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+		SqliteException? databaseException =
+			updateException?.InnerException as SqliteException;
+
+		Assert.That(databaseException, Is.Not.Null);
+		Assert.That(
+			databaseException!.SqliteExtendedErrorCode,
+			Is.EqualTo(1299)); // SQLITE_CONSTRAINT_NOTNULL
+		Assert.That(
+			databaseException.Message,
+			Does.Contain("Jobs." + columnName));
 	}
 }

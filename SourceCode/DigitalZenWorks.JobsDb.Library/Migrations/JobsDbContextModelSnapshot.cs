@@ -52,7 +52,6 @@ partial class JobsDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValueSql("datetime('now')");
 
                 b.Property<string>("Description")
-                    .IsRequired()
                     .HasColumnType("TEXT")
                     .HasColumnName("description");
 
@@ -61,19 +60,16 @@ partial class JobsDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("isArchived");
 
                 b.Property<string>("JobType")
-                    .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnType("TEXT")
                     .HasColumnName("jobType");
 
                 b.Property<string>("Location")
-                    .IsRequired()
                     .HasMaxLength(200)
                     .HasColumnType("TEXT")
                     .HasColumnName("location");
 
                 b.Property<string>("Notes")
-                    .IsRequired()
                     .HasColumnType("TEXT")
                     .HasColumnName("notes");
 
@@ -82,18 +78,15 @@ partial class JobsDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("priority");
 
                 b.Property<string>("RemoteType")
-                    .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnType("TEXT")
                     .HasColumnName("remoteType");
 
                 b.Property<string>("Requirements")
-                    .IsRequired()
                     .HasColumnType("TEXT")
                     .HasColumnName("requirements");
 
                 b.Property<string>("SalaryCurrency")
-                    .IsRequired()
                     .HasMaxLength(10)
                     .HasColumnType("TEXT")
                     .HasColumnName("salaryCurrency");

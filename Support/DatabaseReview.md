@@ -93,6 +93,10 @@ These questions do not block schema visibility or the core cleanup phases.
 
 - [ ] Extend the workflow with data preparation and reference-data initialization or a designated development rebuild when needed. The Japanese project's C# SqlExtractor uses CsvHelper and domain-specific SQL templates; assess reusable importer/writer functionality alongside the shared submodules when implementing JobsDb data imports.
 
+- [ ] Create an object map and data-flow diagram tracing external sources and future email input through parsers, import services, models, repositories, EF mappings, and SQLite, then back to the console and WPF application. Show read and write paths, ownership of user-maintained data, and currently disconnected or planned components. Save the diagram in repository documentation and keep it current as the architecture is connected.
+
+- [ ] Preserve known job details when a partial source refresh omits them; distinguish missing incoming values from explicit clearing and preserve user-maintained application status and notes. Complete this before wiring live imports into the dashboard and email workflow.
+
 ## Validation and Scope
 
 The review is based on repository source and configuration. No runtime database rebuild, migration change, SQL replacement, credential rotation, or email integration has been performed. The existing `AGENTS.md` has been preserved as requested earlier. Its global line-length wording and contributor/PR assumptions should eventually be aligned with `codingStyle.md` and the single-contributor workflow.
