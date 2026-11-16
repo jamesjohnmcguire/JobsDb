@@ -8,10 +8,18 @@ insert_final_newline = true
 max_line_length = 80
 trim_trailing_whitespace = true
 
-[*.{bat,cmd}]
+[*.{bat,cmd,ps1}]
 end_of_line = crlf
+max_line_length = off
 
-[*.{cs,csproj,props,resx}]
+[*.sh]
+end_of_line = lf
+max_line_length = off
+
+[*.{md,txt}]
+max_line_length = off
+
+[*.{cs,csproj,props,resx,slnx,json,xml,yml,yaml,config,xaml,sql}]
 end_of_line = lf
 
 [*.cs]
@@ -87,6 +95,15 @@ dotnet_diagnostic.IDE2005.severity = warning
 # IDE2006: No blank line after => token
 csharp_style_allow_blank_line_after_token_in_arrow_expression_clause_experimental = false
 dotnet_diagnostic.IDE2006.severity = warning
+
+# RCS1033: Remove redundant boolean literal
+dotnet_diagnostic.RCS1033.severity = none
+
+# RCS1049: Simplify boolean comparison
+dotnet_diagnostic.RCS1049.severity = none
+
+# RCS1085: Use auto-implemented property
+dotnet_diagnostic.RCS1085.severity = none
 
 # SA1000: Remove require space after 'new' keyword
 dotnet_diagnostic.SA1000.severity = warning
