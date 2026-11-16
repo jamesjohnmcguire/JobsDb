@@ -1,99 +1,102 @@
--- Current JobsDb SQLite schema, generated from committed EF migrations.
+-- Current JobsDb SQLite schema, generated from EF migrations.
 -- Load into a new empty database; use migrations to upgrade existing data.
 
-CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+BEGIN TRANSACTION;
+CREATE TABLE "Credentials" (
+	"id" INTEGER NOT NULL CONSTRAINT "PK_Credentials" PRIMARY KEY AUTOINCREMENT,
+	"source" TEXT NOT NULL,
+	"username" TEXT NOT NULL,
+	"encryptedPassword" TEXT NOT NULL,
+	"cookieData" TEXT NOT NULL,
+	"lastUsed" TEXT NULL,
+	"isActive" INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE "Jobs" (
+	"id" INTEGER NOT NULL CONSTRAINT "PK_Jobs" PRIMARY KEY AUTOINCREMENT,
+	"title" TEXT NOT NULL,
+	"company" TEXT NOT NULL,
+	"location" TEXT NOT NULL,
+	"description" TEXT NOT NULL,
+	"requirements" TEXT NOT NULL,
+	"source" TEXT NOT NULL,
+	"sourceUrl" TEXT NOT NULL,
+	"sourceJobId" TEXT NOT NULL,
+	"salaryMin" TEXT NULL,
+	"salaryMax" TEXT NULL,
+	"salaryCurrency" TEXT NOT NULL,
+	"jobType" TEXT NOT NULL,
+	"remoteType" TEXT NOT NULL,
+	"datePosted" TEXT NOT NULL,
+	"dateScraped" TEXT NOT NULL DEFAULT (datetime('now')),
+	"dateApplied" TEXT NULL,
+	"status" TEXT NOT NULL,
+	"priority" INTEGER NULL,
+	"notes" TEXT NOT NULL,
+	"isArchived" INTEGER NOT NULL
+);
+
+CREATE TABLE "ScraperLogs" (
+	"id" INTEGER NOT NULL CONSTRAINT "PK_ScraperLogs" PRIMARY KEY AUTOINCREMENT,
+	"source" TEXT NOT NULL,
+	"timestamp" TEXT NOT NULL DEFAULT (datetime('now')),
+	"jobsFound" INTEGER NOT NULL,
+	"jobsAdded" INTEGER NOT NULL,
+	"jobsUpdated" INTEGER NOT NULL,
+	"success" INTEGER NOT NULL,
+	"errorMessage" TEXT NOT NULL,
+	"durationMs" INTEGER NOT NULL
+);
+
+CREATE TABLE "SearchFilters" (
+	"id" INTEGER NOT NULL
+		CONSTRAINT "PK_SearchFilters" PRIMARY KEY AUTOINCREMENT,
+	"name" TEXT NOT NULL,
+	"keywords" TEXT NOT NULL,
+	"location" TEXT NOT NULL,
+	"source" TEXT NOT NULL,
+	"isActive" INTEGER NOT NULL DEFAULT 1,
+	"createdDate" TEXT NOT NULL DEFAULT (datetime('now')),
+	"lastRunDate" TEXT NULL
+);
+
+CREATE TABLE "__EFMigrationsHistory" (
 	"MigrationId" TEXT NOT NULL
 		CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
 	"ProductVersion" TEXT NOT NULL
 );
 
-BEGIN TRANSACTION;
-CREATE TABLE "Credentials" (
-	"Id" INTEGER NOT NULL CONSTRAINT "PK_Credentials" PRIMARY KEY AUTOINCREMENT,
-	"Source" TEXT NOT NULL,
-	"Username" TEXT NOT NULL,
-	"EncryptedPassword" TEXT NOT NULL,
-	"CookieData" TEXT NOT NULL,
-	"LastUsed" TEXT NULL,
-	"IsActive" INTEGER NOT NULL DEFAULT 1
-);
+CREATE UNIQUE INDEX "IX_Credentials_source" ON "Credentials" ("source");
 
-CREATE TABLE "Jobs" (
-	"Id" INTEGER NOT NULL CONSTRAINT "PK_Jobs" PRIMARY KEY AUTOINCREMENT,
-	"Title" TEXT NOT NULL,
-	"Company" TEXT NOT NULL,
-	"Location" TEXT NOT NULL,
-	"Description" TEXT NOT NULL,
-	"Requirements" TEXT NOT NULL,
-	"Source" TEXT NOT NULL,
-	"SourceUrl" TEXT NOT NULL,
-	"SourceJobId" TEXT NOT NULL,
-	"SalaryMin" TEXT NULL,
-	"SalaryMax" TEXT NULL,
-	"SalaryCurrency" TEXT NOT NULL,
-	"JobType" TEXT NOT NULL,
-	"RemoteType" TEXT NOT NULL,
-	"DatePosted" TEXT NOT NULL,
-	"DateScraped" TEXT NOT NULL DEFAULT (datetime('now')),
-	"DateApplied" TEXT NULL,
-	"Status" TEXT NOT NULL,
-	"Priority" INTEGER NULL,
-	"Notes" TEXT NOT NULL,
-	"IsArchived" INTEGER NOT NULL
-);
+CREATE INDEX "IX_Jobs_company" ON "Jobs" ("company");
 
-CREATE TABLE "ScraperLogs" (
-	"Id" INTEGER NOT NULL CONSTRAINT "PK_ScraperLogs" PRIMARY KEY AUTOINCREMENT,
-	"Source" TEXT NOT NULL,
-	"Timestamp" TEXT NOT NULL DEFAULT (datetime('now')),
-	"JobsFound" INTEGER NOT NULL,
-	"JobsAdded" INTEGER NOT NULL,
-	"JobsUpdated" INTEGER NOT NULL,
-	"Success" INTEGER NOT NULL,
-	"ErrorMessage" TEXT NOT NULL,
-	"DurationMs" INTEGER NOT NULL
-);
+CREATE INDEX "IX_Jobs_datePosted" ON "Jobs" ("datePosted");
 
-CREATE TABLE "SearchFilters" (
-	"Id" INTEGER NOT NULL
-		CONSTRAINT "PK_SearchFilters" PRIMARY KEY AUTOINCREMENT,
-	"Name" TEXT NOT NULL,
-	"Keywords" TEXT NOT NULL,
-	"Location" TEXT NOT NULL,
-	"Source" TEXT NOT NULL,
-	"IsActive" INTEGER NOT NULL DEFAULT 1,
-	"CreatedDate" TEXT NOT NULL DEFAULT (datetime('now')),
-	"LastRunDate" TEXT NULL
-);
+CREATE INDEX "IX_Jobs_isArchived" ON "Jobs" ("isArchived");
 
-CREATE UNIQUE INDEX "IX_Credentials_Source" ON "Credentials" ("Source");
+CREATE INDEX "IX_Jobs_location" ON "Jobs" ("location");
 
-CREATE INDEX "IX_Jobs_Company" ON "Jobs" ("Company");
+CREATE INDEX "IX_Jobs_sourceJobId" ON "Jobs" ("sourceJobId");
 
-CREATE INDEX "IX_Jobs_DatePosted" ON "Jobs" ("DatePosted");
+CREATE UNIQUE INDEX "IX_Jobs_source_sourceJobId"
+	ON "Jobs" ("source", "sourceJobId");
 
-CREATE INDEX "IX_Jobs_IsArchived" ON "Jobs" ("IsArchived");
+CREATE INDEX "IX_Jobs_status" ON "Jobs" ("status");
 
-CREATE INDEX "IX_Jobs_Location" ON "Jobs" ("Location");
+CREATE INDEX "IX_ScraperLogs_source" ON "ScraperLogs" ("source");
 
-CREATE UNIQUE INDEX "IX_Jobs_Source_SourceJobId"
-	ON "Jobs" ("Source", "SourceJobId");
+CREATE INDEX "IX_ScraperLogs_success" ON "ScraperLogs" ("success");
 
-CREATE INDEX "IX_Jobs_SourceJobId" ON "Jobs" ("SourceJobId");
+CREATE INDEX "IX_ScraperLogs_timestamp" ON "ScraperLogs" ("timestamp");
 
-CREATE INDEX "IX_Jobs_Status" ON "Jobs" ("Status");
+CREATE INDEX "IX_SearchFilters_isActive" ON "SearchFilters" ("isActive");
 
-CREATE INDEX "IX_ScraperLogs_Source" ON "ScraperLogs" ("Source");
-
-CREATE INDEX "IX_ScraperLogs_Success" ON "ScraperLogs" ("Success");
-
-CREATE INDEX "IX_ScraperLogs_Timestamp" ON "ScraperLogs" ("Timestamp");
-
-CREATE INDEX "IX_SearchFilters_IsActive" ON "SearchFilters" ("IsActive");
-
-CREATE INDEX "IX_SearchFilters_Name" ON "SearchFilters" ("Name");
+CREATE INDEX "IX_SearchFilters_name" ON "SearchFilters" ("name");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20260723233159_InitialCreate', '10.0.11');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20261116204352_UseCamelCaseColumns', '10.0.11');
 
 COMMIT;

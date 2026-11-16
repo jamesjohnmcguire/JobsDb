@@ -11,6 +11,7 @@ using System.IO;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
 /// Entity Framework Core DbContext for JobsDb application
@@ -76,6 +77,18 @@ public class JobsDbContext : DbContext
 		// class under Data/Configurations/. This picks up every one of them from
 		// this assembly automatically - no per-entity wiring needed here.
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
+
+		foreach (IMutableEntityType entityType in
+			modelBuilder.Model.GetEntityTypes())
+		{
+			foreach (IMutableProperty property in entityType.GetProperties())
+			{
+				string propertyName = property.Name;
+				char firstCharacter = char.ToLowerInvariant(propertyName[0]);
+				string columnName = firstCharacter + propertyName.Substring(1);
+				property.SetColumnName(columnName);
+			}
+		}
 	}
 
 

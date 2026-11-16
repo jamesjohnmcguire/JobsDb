@@ -81,6 +81,12 @@ Use `staticData.sql` only for genuine required reference data. The Tokyo search 
 
 These questions do not block schema visibility or the core cleanup phases.
 
+## Follow-up Schema Tasks
+
+- [ ] Rename EF Core's `__EFMigrationsHistory` table to `MigrationsHistory` in a separate atomic change. Configure the name consistently for runtime and tooling, preserve existing migration records, refresh the SQL snapshot, and test both fresh initialization and upgrades. Keep this separate from the application-column naming migration. Review the provider-owned history column naming separately because it requires additional EF service customization.
+
+- [ ] Use the concise `"id" INTEGER PRIMARY KEY AUTOINCREMENT` form in the readable SQLite snapshot, omitting redundant `NOT NULL` and generated primary-key constraint names. Compare semantic schema metadata rather than requiring identical generated DDL text, and preserve EF migration compatibility. Keep this separate from column naming.
+
 ## Validation and Scope
 
 The review is based on repository source and configuration. No runtime database rebuild, migration change, SQL replacement, credential rotation, or email integration has been performed. The existing `AGENTS.md` has been preserved as requested earlier. Its global line-length wording and contributor/PR assumptions should eventually be aligned with `codingStyle.md` and the single-contributor workflow.

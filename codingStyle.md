@@ -19,6 +19,13 @@ These preferences are intended to be shared across projects. Extend this documen
 - Avoid numbered names such as `job2` when a role such as `archivedJob` explains the distinction.
 - Keep names accurate when behavior changes. Preserve names required by external APIs; apply these preferences to names the project controls.
 
+## Database Names
+
+- Use PascalCase for table names, such as `Jobs` and `SearchFilters`.
+- Use camelCase for column names, such as `title`, `sourceJobId`, and `datePosted`.
+- Prefer `"id" INTEGER PRIMARY KEY AUTOINCREMENT` for SQLite integer primary keys.
+- Keep C# public property names in PascalCase and map them to the database convention.
+
 ## Line Length and Layout
 
 - Limit source code to 80 columns. Break long signatures and expressions at natural boundaries and indent continuation lines consistently.

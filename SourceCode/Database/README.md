@@ -12,4 +12,4 @@ Use a new database file. This bootstrap script creates the schema; it does not r
 
 EF Core migrations remain responsible for upgrades. Update this snapshot alongside schema migrations. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
 
-The snapshot currently comes from the initial migration. A repeatable export command is the next iteration; once there are later structural migrations, the snapshot must continue to show final table definitions rather than accumulate historical alterations.
+Application tables use PascalCase and columns use camelCase. The snapshot is exported from a newly migrated temporary database, so it shows final table definitions rather than historical alterations. A repeatable export command remains a follow-up task.

@@ -212,7 +212,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 
 		using SqliteCommand statusCommand = databaseConnection.CreateCommand();
 		statusCommand.CommandText =
-			"SELECT Status, typeof(Status) FROM Jobs WHERE Id = $jobIdentifier";
+			"SELECT status, typeof(status) FROM Jobs WHERE id = $jobIdentifier";
 		statusCommand.Parameters.AddWithValue("$jobIdentifier", appliedJob.Id);
 
 		using SqliteDataReader statusReader = statusCommand.ExecuteReader();
@@ -286,14 +286,14 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.IsActive, Is.True);
 	}
 
-	[TestCase("IX_Jobs_Company", false, new[] { "Company" })]
-	[TestCase("IX_Jobs_DatePosted", false, new[] { "DatePosted" })]
-	[TestCase("IX_Jobs_IsArchived", false, new[] { "IsArchived" })]
-	[TestCase("IX_Jobs_Location", false, new[] { "Location" })]
+	[TestCase("IX_Jobs_company", false, new[] { "company" })]
+	[TestCase("IX_Jobs_datePosted", false, new[] { "datePosted" })]
+	[TestCase("IX_Jobs_isArchived", false, new[] { "isArchived" })]
+	[TestCase("IX_Jobs_location", false, new[] { "location" })]
 	[TestCase(
-		"IX_Jobs_Source_SourceJobId", true, new[] { "Source", "SourceJobId" })]
-	[TestCase("IX_Jobs_SourceJobId", false, new[] { "SourceJobId" })]
-	[TestCase("IX_Jobs_Status", false, new[] { "Status" })]
+		"IX_Jobs_source_sourceJobId", true, new[] { "source", "sourceJobId" })]
+	[TestCase("IX_Jobs_sourceJobId", false, new[] { "sourceJobId" })]
+	[TestCase("IX_Jobs_status", false, new[] { "status" })]
 	public void Job_Indexes_HaveExpectedDefinitions(
 		string indexName,
 		bool expectsUnique,
