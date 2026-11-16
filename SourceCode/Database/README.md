@@ -32,6 +32,6 @@ To select a different database, pass EF's native connection option. For example,
 .\DevelopmentTools\updateDatabase.cmd --connection "Data Source=C:/Data/JobsDb/review.db"
 ```
 
-The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code.
+The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code. The build workflow calls the same updater after rebuilding and before running all tests. It forwards database arguments such as `--connection` and supplies `--no-build` to reuse the rebuilt assemblies.
 
 These scripts do not rebuild an existing database or import postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
