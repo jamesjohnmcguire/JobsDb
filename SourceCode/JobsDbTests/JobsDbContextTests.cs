@@ -13,6 +13,7 @@ using System.Linq;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -114,56 +115,104 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.SearchFilters, Is.Not.Null);
 	}
 
-	[Test]
-	public void Job_UniqueConstraint_EnforcesSourceAndSourceJobId()
+	[TestCase("Test", "123", true)]
+	[TestCase("AnotherSource", "123", false)]
+	[TestCase("Test", "456", false)]
+	public void Job_SourceIdentity_EnforcesCompositeUniqueness(
+		string source,
+		string sourceJobIdentifier,
+		bool expectsDuplicate)
 	{
 		context.Initialize();
 
-		Job badJob = TestJob;
-		badJob.Title = "Different Job";
-		badJob.Company = "Company B";
-		badJob.Source = "LinkedIn";
-		badJob.SourceUrl = "https://test.com/2";
+		Job originalJob = CopyJob(TestJob!);
+		Job incomingJob = CopyJob(originalJob);
+		incomingJob.Title = "Different Job";
+		incomingJob.Company = "Company B";
+		incomingJob.Source = source;
+		incomingJob.SourceJobId = sourceJobIdentifier;
+		incomingJob.SourceUrl = "https://test.com/2";
 
-		context.Jobs.Add(TestJob);
+		context.Jobs.Add(originalJob);
 		context.SaveChanges();
 
-		context.Jobs.Add(badJob);
+		context.Jobs.Add(incomingJob);
 
-		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+		if (expectsDuplicate)
+		{
+			DbUpdateException? updateException =
+				Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+			SqliteException? databaseException =
+				updateException?.InnerException as SqliteException;
+
+			Assert.That(databaseException, Is.Not.Null);
+			Assert.That(
+				databaseException!.SqliteExtendedErrorCode,
+				Is.EqualTo(2067)); // SQLITE_CONSTRAINT_UNIQUE
+			Assert.That(context.Jobs.Count(), Is.EqualTo(1));
+		}
+		else
+		{
+			context.SaveChanges();
+
+			Assert.That(incomingJob.Id, Is.Not.EqualTo(originalJob.Id));
+			Assert.That(context.Jobs.Count(), Is.EqualTo(2));
+		}
 	}
 
-	[Test]
-	public void ScraperCredential_UniqueSource_EnforcesConstraint()
+	[TestCase("LinkedIn", true)]
+	[TestCase("TokyoDev", false)]
+	public void ScraperCredential_Source_EnforcesUniqueness(
+		string source,
+		bool expectsDuplicate)
 	{
-		// Arrange
 		context.Initialize();
 
-		ScraperCredential cred1 = new ScraperCredential
+		ScraperCredential originalCredential = new ScraperCredential
 		{
-			CookieData = "cookie",
+			CookieData = "original cookie",
 			Source = "LinkedIn",
 			Username = "user1@example.com",
 			EncryptedPassword = "encrypted1",
 			IsActive = true
 		};
 
-		ScraperCredential cred2 = new ScraperCredential
+		ScraperCredential incomingCredential = new ScraperCredential
 		{
-			Source = "LinkedIn", // Same source
+			CookieData = "incoming cookie",
+			Source = source,
 			Username = "user2@example.com",
 			EncryptedPassword = "encrypted2",
 			IsActive = true
 		};
 
-		// Act
-		context.Credentials.Add(cred1);
+		context.Credentials.Add(originalCredential);
 		context.SaveChanges();
 
-		context.Credentials.Add(cred2);
+		context.Credentials.Add(incomingCredential);
 
-		// Assert
-		Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+		if (expectsDuplicate)
+		{
+			DbUpdateException? updateException =
+				Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+			SqliteException? databaseException =
+				updateException?.InnerException as SqliteException;
+
+			Assert.That(databaseException, Is.Not.Null);
+			Assert.That(
+				databaseException!.SqliteExtendedErrorCode,
+				Is.EqualTo(2067)); // SQLITE_CONSTRAINT_UNIQUE
+			Assert.That(context.Credentials.Count(), Is.EqualTo(1));
+		}
+		else
+		{
+			context.SaveChanges();
+
+			Assert.That(
+				incomingCredential.Id,
+				Is.Not.EqualTo(originalCredential.Id));
+			Assert.That(context.Credentials.Count(), Is.EqualTo(2));
+		}
 	}
 
 	[Test]
