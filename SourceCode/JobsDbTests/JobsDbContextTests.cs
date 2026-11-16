@@ -21,25 +21,6 @@ using NUnit.Framework;
 internal sealed class JobsDbContextTests : BaseTestsSupport
 {
 	private JobsDbContext context;
-	private Job testJobAppied;
-
-	/// <summary>
-	/// The one time setup method.
-	/// </summary>
-	[OneTimeSetUp]
-	public void OneTimeSetUp()
-	{
-		testJobAppied = CopyJob(TestJob);
-		testJobAppied.Status = ApplicationStatus.Applied;
-	}
-
-	/// <summary>
-	/// One time tear down method.
-	/// </summary>
-	[OneTimeTearDown]
-	public void OneTimeTearDown()
-	{
-	}
 
 	[SetUp]
 	public void SetUp()
@@ -220,13 +201,25 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	{
 		context.Initialize();
 
-		context.Jobs.Add(testJobAppied);
+		Job appliedJob = CopyJob(TestJob!);
+		appliedJob.Status = ApplicationStatus.Applied;
+		context.Jobs.Add(appliedJob);
 		context.SaveChanges();
 
-		// Verify it's stored as string in database
-		var saved = context.Jobs.First();
+		using SqliteConnection databaseConnection = new SqliteConnection(
+			context.Database.GetConnectionString());
+		databaseConnection.Open();
 
-		Assert.That(saved.Status, Is.EqualTo(ApplicationStatus.Applied));
+		using SqliteCommand statusCommand = databaseConnection.CreateCommand();
+		statusCommand.CommandText =
+			"SELECT Status, typeof(Status) FROM Jobs WHERE Id = $jobIdentifier";
+		statusCommand.Parameters.AddWithValue("$jobIdentifier", appliedJob.Id);
+
+		using SqliteDataReader statusReader = statusCommand.ExecuteReader();
+
+		Assert.That(statusReader.Read(), Is.True);
+		Assert.That(statusReader.GetString(0), Is.EqualTo("Applied"));
+		Assert.That(statusReader.GetString(1), Is.EqualTo("text"));
 	}
 
 	[Test]
@@ -293,26 +286,53 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.IsActive, Is.True);
 	}
 
-	[Test]
-	public void Job_Indexes_AreCreated()
+	[TestCase("IX_Jobs_Company", false, new[] { "Company" })]
+	[TestCase("IX_Jobs_DatePosted", false, new[] { "DatePosted" })]
+	[TestCase("IX_Jobs_IsArchived", false, new[] { "IsArchived" })]
+	[TestCase("IX_Jobs_Location", false, new[] { "Location" })]
+	[TestCase(
+		"IX_Jobs_Source_SourceJobId", true, new[] { "Source", "SourceJobId" })]
+	[TestCase("IX_Jobs_SourceJobId", false, new[] { "SourceJobId" })]
+	[TestCase("IX_Jobs_Status", false, new[] { "Status" })]
+	public void Job_Indexes_HaveExpectedDefinitions(
+		string indexName,
+		bool expectsUnique,
+		string[] expectedColumns)
 	{
-		// Arrange
 		context.Initialize();
 
-		context.Jobs.Add(testJobAppied);
-		context.SaveChanges();
+		using SqliteConnection databaseConnection = new SqliteConnection(
+			context.Database.GetConnectionString());
+		databaseConnection.Open();
 
-		// These queries use indexes
-		List<Job> byStatus = context.Jobs.Where(j => j.Status == ApplicationStatus.Applied).ToList();
-		List<Job> byCompany = context.Jobs.Where(j => j.Company == "Test Company").ToList();
-		List<Job> byLocation = context.Jobs.Where(j => j.Location == "Remote").ToList();
-		List<Job> byArchived = context.Jobs.Where(j => !j.IsArchived).ToList();
+		using SqliteCommand indexCommand = databaseConnection.CreateCommand();
+		indexCommand.CommandText = "SELECT [unique], partial " +
+			"FROM pragma_index_list('Jobs') WHERE name = $indexName";
+		indexCommand.Parameters.AddWithValue("$indexName", indexName);
 
-		// Assert
-		Assert.That(byStatus.Count, Is.EqualTo(1));
-		Assert.That(byCompany.Count, Is.EqualTo(1));
-		Assert.That(byLocation.Count, Is.EqualTo(1));
-		Assert.That(byArchived.Count, Is.EqualTo(1));
+		using (SqliteDataReader indexReader = indexCommand.ExecuteReader())
+		{
+			Assert.That(indexReader.Read(), Is.True);
+			Assert.That(indexReader.GetBoolean(0), Is.EqualTo(expectsUnique));
+			Assert.That(indexReader.GetBoolean(1), Is.False);
+		}
+
+		using SqliteCommand columnsCommand =
+			databaseConnection.CreateCommand();
+		columnsCommand.CommandText =
+			"SELECT name FROM pragma_index_info($indexName) ORDER BY seqno";
+		columnsCommand.Parameters.AddWithValue("$indexName", indexName);
+
+		using SqliteDataReader columnsReader = columnsCommand.ExecuteReader();
+		List<string> actualColumns = new List<string>();
+
+		while (columnsReader.Read())
+		{
+			string columnName = columnsReader.GetString(0);
+			actualColumns.Add(columnName);
+		}
+
+		Assert.That(actualColumns, Is.EqualTo(expectedColumns));
 	}
 
 	[Test]
