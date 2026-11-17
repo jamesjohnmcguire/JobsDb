@@ -16,6 +16,10 @@ The existing application initialization and `updateDatabase.*` scripts still app
 
 The proposed exporter has been removed. SQLite's `.schema` command is sufficient for inspecting a database, and `.read` loads SQL into a new database. Neither command infers a data-preserving upgrade from two schemas.
 
+## Mapping Experiment Status
+
+The [isolated mapping experiment](sqlFirstMappingReview.md) confirmed structural generation but found incompatible default C# types for dates, decimals, booleans, and status. Two SQL-created database repository regression cases protect the existing typed contract. Step 1 remains incomplete until the persistence conversion or generation approach works through that contract. Prove that boundary before adding generation to build scripts.
+
 ## Atomic Implementation Steps
 
 1. **Prove SQL-to-EF generation in isolation.** Create a temporary database using `sqlite3 -bail` and `.read schema.sql`, then use `dotnet ef dbcontext scaffold` to inspect generated mappings. Exclude migration-history tables. Establish stable entity names and preserve existing enum conversions, optional fields, and application behavior. Keep generated mappings separate from handwritten behavior. Acceptance: the current repositories can use the SQL-derived mappings without behavioral changes. Do not overwrite the current context or models as an experiment.

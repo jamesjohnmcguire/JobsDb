@@ -13,8 +13,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -269,6 +271,67 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(
 			context.Database.GetAppliedMigrations(),
 			Does.Contain("20261116222114_AllowOptionalJobDetails"));
+	}
+
+	[TestCase(false, ApplicationStatus.Applied)]
+	[TestCase(true, ApplicationStatus.Accepted)]
+	public async Task Schema_JobRepositoryPreservesTypedValues(
+		bool isArchived, ApplicationStatus applicationStatus)
+	{
+		using JobsDbContext context = CreateContext();
+		LoadSchema(context);
+		IJobRepository repository = new JobRepository(context);
+		DateTime datePosted = new DateTime(2026, 11, 1, 9, 30, 0);
+		DateTime dateApplied = new DateTime(2026, 11, 2, 14, 15, 0);
+		Job job = new Job
+		{
+			Title = "SQL-created database",
+			Company = "Test Company",
+			Source = "SchemaTest",
+			SourceJobId = "typed-values",
+			SourceUrl = "https://example.com/jobs/typed-values",
+			DatePosted = datePosted,
+			DateApplied = dateApplied,
+			SalaryMin = 123456.78m,
+			SalaryMax = 234567.89m,
+			Status = applicationStatus,
+			IsArchived = isArchived,
+			Notes = "Preserve application notes"
+		};
+
+		Job addedJob = await repository.AddAsync(job).ConfigureAwait(false);
+		int jobIdentifier = addedJob.Id;
+		DateTime dateScraped = addedJob.DateScraped;
+		context.ChangeTracker.Clear();
+
+		Job savedJob = await repository.GetByIdAsync(jobIdentifier)
+			.ConfigureAwait(false);
+
+		Assert.That(savedJob, Is.Not.Null);
+		Assert.That(savedJob.Id, Is.GreaterThan(0));
+		Assert.That(savedJob.Status, Is.EqualTo(applicationStatus));
+		Assert.That(savedJob.IsArchived, Is.EqualTo(isArchived));
+		Assert.That(savedJob.DatePosted, Is.EqualTo(datePosted));
+		Assert.That(savedJob.DateApplied, Is.EqualTo(dateApplied));
+		Assert.That(savedJob.DateScraped, Is.EqualTo(dateScraped));
+		Assert.That(savedJob.SalaryMin, Is.EqualTo(123456.78m));
+		Assert.That(savedJob.SalaryMax, Is.EqualTo(234567.89m));
+		Assert.That(savedJob.Location, Is.Null);
+		Assert.That(savedJob.Description, Is.Null);
+		Assert.That(savedJob.Notes, Is.EqualTo("Preserve application notes"));
+
+		savedJob.Notes = "Updated through the repository";
+		savedJob.Status = ApplicationStatus.Interviewing;
+		await repository.UpdateAsync(savedJob).ConfigureAwait(false);
+		context.ChangeTracker.Clear();
+		Job updatedJob = await repository.GetByIdAsync(jobIdentifier)
+			.ConfigureAwait(false);
+
+		Assert.That(
+			updatedJob.Status, Is.EqualTo(ApplicationStatus.Interviewing));
+		Assert.That(updatedJob.Notes, Is.EqualTo(savedJob.Notes));
+		Assert.That(updatedJob.SalaryMin, Is.EqualTo(savedJob.SalaryMin));
+		Assert.That(updatedJob.IsArchived, Is.EqualTo(isArchived));
 	}
 
 	private static JobsDbContext CreateContext()
