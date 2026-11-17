@@ -4,7 +4,7 @@ SETLOCAL
 PUSHD "%~dp0..\SourceCode"
 IF ERRORLEVEL 1 EXIT /B 1
 
-dotnet ef database update --project DigitalZenWorks.JobsDb.Library --configuration Debug %*
+dotnet ef database update --context JobsDbContext --project DigitalZenWorks.JobsDb.Library --configuration Debug %*
 IF ERRORLEVEL 1 GOTO error
 
 POPD

@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Persistence;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.Data.Sqlite;
@@ -23,6 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NUnit.Framework;
+using StorageContext = DigitalZenWorks.JobsDb.Library.Persistence.Generated.
+	JobStorageContext;
+using StorageJob = DigitalZenWorks.JobsDb.Library.Persistence.Generated.Job;
 
 [TestFixture]
 internal sealed class DatabaseSchemaTests : BaseTestsSupport
@@ -332,6 +336,80 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(updatedJob.Notes, Is.EqualTo(savedJob.Notes));
 		Assert.That(updatedJob.SalaryMin, Is.EqualTo(savedJob.SalaryMin));
 		Assert.That(updatedJob.IsArchived, Is.EqualTo(isArchived));
+	}
+
+	[TestCase(false)]
+	[TestCase(true)]
+	public async Task Schema_StorageMapperWorksWithExistingRepository(
+		bool includeOptionalValues)
+	{
+		using JobsDbContext context = CreateContext();
+		LoadSchema(context);
+		IJobRepository repository = new JobRepository(context);
+		Job repositoryJob = CopyJob(TestJob!);
+		repositoryJob.SalaryMin = 123456.789m;
+		repositoryJob.SalaryMax = 234567.891m;
+		repositoryJob.DateApplied = new DateTime(2026, 11, 2, 14, 15, 0);
+		repositoryJob.Status = ApplicationStatus.Interviewing;
+		repositoryJob.IsArchived = true;
+		await repository.AddAsync(repositoryJob).ConfigureAwait(false);
+
+		DbConnection connection = context.Database.GetDbConnection();
+		DbContextOptionsBuilder<StorageContext> optionsBuilder =
+			new DbContextOptionsBuilder<StorageContext>();
+		optionsBuilder.UseSqlite(connection);
+		using StorageContext storageContext =
+			new StorageContext(optionsBuilder.Options);
+		StorageJob storedRepositoryJob = await storageContext.Jobs.SingleAsync()
+			.ConfigureAwait(false);
+		Job mappedJob = JobStorageMapper.ToDomain(storedRepositoryJob);
+
+		Assert.That(
+			mappedJob, Is.EqualTo(repositoryJob).UsingPropertiesComparer());
+
+		Job storageJob = CopyJob(TestJob!);
+		storageJob.SourceJobId = "storage-job";
+		storageJob.DateScraped = new DateTime(2026, 11, 3, 10, 20, 30);
+		storageJob.DateScraped = storageJob.DateScraped.AddTicks(1234567);
+		storageJob.IsArchived = includeOptionalValues;
+		storageJob.Status = ApplicationStatus.Applied;
+
+		if (includeOptionalValues)
+		{
+			storageJob.SalaryMin = 123456.789m;
+			storageJob.SalaryMax = 234567.891m;
+			storageJob.DateApplied = new DateTime(2026, 11, 4, 9, 15, 0);
+			storageJob.Priority = 3;
+		}
+		else
+		{
+			storageJob.Location = null;
+			storageJob.Description = null;
+			storageJob.Requirements = null;
+			storageJob.SalaryCurrency = null;
+			storageJob.JobType = null;
+			storageJob.RemoteType = null;
+			storageJob.Notes = null;
+		}
+
+		StorageJob storedJob = JobStorageMapper.ToStorage(storageJob);
+		storageContext.Jobs.Add(storedJob);
+		await storageContext.SaveChangesAsync().ConfigureAwait(false);
+		storageJob.Id = storedJob.Id;
+		context.ChangeTracker.Clear();
+		Job savedJob = await repository.GetByIdAsync(storedJob.Id)
+			.ConfigureAwait(false);
+
+		Assert.That(savedJob, Is.EqualTo(storageJob).UsingPropertiesComparer());
+
+		savedJob.Notes = "Updated by existing repository";
+		savedJob.Status = ApplicationStatus.Accepted;
+		await repository.UpdateAsync(savedJob).ConfigureAwait(false);
+		StorageJob updatedStorageJob = await storageContext.Jobs.AsNoTracking()
+			.SingleAsync(job => job.Id == savedJob.Id).ConfigureAwait(false);
+		Job updatedJob = JobStorageMapper.ToDomain(updatedStorageJob);
+
+		Assert.That(updatedJob, Is.EqualTo(savedJob).UsingPropertiesComparer());
 	}
 
 	private static JobsDbContext CreateContext()

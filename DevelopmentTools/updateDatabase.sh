@@ -2,7 +2,7 @@
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../SourceCode" || exit 1
 
-dotnet ef database update --project DigitalZenWorks.JobsDb.Library --configuration Debug "$@"
+dotnet ef database update --context JobsDbContext --project DigitalZenWorks.JobsDb.Library --configuration Debug "$@"
 resultCode=$?
 
 if [ "$resultCode" -ne 0 ]; then

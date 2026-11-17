@@ -39,7 +39,7 @@ These preferences are intended to be shared across projects. Extend this documen
 - Prefer clear names and simple code over comments explaining complicated expressions.
 - Use comments to explain intent, constraints, and non-obvious decisions.
 - Update or remove misleading comments, obsolete examples, and abandoned commented-out implementations when changing the surrounding code.
-- Keep documentation direct, specific, and proportional to the task.
+- Reserve repository documentation for tasks, plans, important findings, and architectural decisions. Omit minor implementation details; use an occasional focused code comment where helpful.
 
 ## Applying These Preferences
 

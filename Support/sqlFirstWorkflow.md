@@ -18,7 +18,7 @@ The proposed exporter has been removed. SQLite's `.schema` command is sufficient
 
 ## Mapping Experiment Status
 
-The [isolated mapping experiment](sqlFirstMappingReview.md) confirmed structural generation but found incompatible default C# types for dates, decimals, booleans, and status. Two SQL-created database repository regression cases protect the existing typed contract. Step 1 remains incomplete until the persistence conversion or generation approach works through that contract. Prove that boundary before adding generation to build scripts.
+The [isolated mapping experiment](sqlFirstMappingReview.md) identified storage-type differences. A Jobs-only generated context and `JobStorageMapper` now prove compatibility with the existing repository in both directions, including optional values, using EF's built-in conversions. This is an infrastructure proof; the application still uses `JobsDbContext`. Extend the approach to the remaining tables and add repeatable schema preparation before adopting generation in the build. The updater explicitly selects `JobsDbContext` while both contexts exist.
 
 ## Atomic Implementation Steps
 
