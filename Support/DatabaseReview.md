@@ -2,11 +2,15 @@
 
 Reviewed: 2026-11-16. This review covers the JobsDb library, database scripts, migrations, desktop startup, scraper persistence, configuration, tests, and CI. Submodules were inspected for integration context, not audited internally. This is a source review; the user's live database and email account were not opened or changed.
 
+## Architecture Requirement
+
+Use the [layered architecture](Architecture.md) as the target for incremental cleanup. EF Core remains an evaluated persistence implementation. Presentation calls application services; business rules and application contracts must not depend on EF or WPF. Keep generated persistence code behind that boundary. The diagram documents the target flow and the current gaps.
+
 ## Recommended Direction
 
 Keep EF Core and migrations for now. The intended sequence is database foundation, a connected working dashboard, then email ingestion. The immediate requirement is a trustworthy, checked-in view of the current schema, with a documented way to recreate an empty database from SQL. Replacing the persistence framework would add work without resolving the existing inconsistencies by itself.
 
-Use `SourceCode/Database/schema.sql` as the readable current schema. Generate it reproducibly from a temporary database built from committed migrations, rather than from the user's database. Keep full current `CREATE TABLE` and index definitions visible even after future migrations introduce alterations. Include the EF migration-history baseline needed for a SQL-created database to accept subsequent migrations. Exclude transient migration locks and SQLite internal implementation tables from the exported application schema. Validate the resulting bootstrap end to end.
+Use `SourceCode/Database/schema.sql` as the authoritative, manually maintained desired schema. EF mappings and upgrade migrations must follow that SQL. The corrected [SQL-first workflow](sqlFirstWorkflow.md) supersedes migration-first generation instructions in the original findings and implementation sequence below. Runtime migration behavior remains unchanged until the transition is implemented and tested.
 
 Use `staticData.sql` only for genuine required reference data. The Tokyo search filter is editable example/user configuration, not established reference data; it should not become mandatory static data by accident.
 
@@ -95,7 +99,9 @@ These questions do not block schema visibility or the core cleanup phases.
 
 - [ ] Create an object map and data-flow diagram tracing external sources and future email input through parsers, import services, models, repositories, EF mappings, and SQLite, then back to the console and WPF application. Show read and write paths, ownership of user-maintained data, and currently disconnected or planned components. Save the diagram in repository documentation and keep it current as the architecture is connected.
 
-- [ ] Preserve known job details when a partial source refresh omits them; distinguish missing incoming values from explicit clearing and preserve user-maintained application status and notes. Complete this before wiring live imports into the dashboard and email workflow.
+- [ ] Deferred while scraper rework is not a priority: preserve known job details when a partial source refresh omits them; distinguish missing incoming values from explicit clearing and preserve user-maintained application status and notes. Complete this before wiring live imports into the dashboard and email workflow.
+
+- [ ] Implement the SQL-first workflow in `sqlFirstWorkflow.md`: SQL-created temporary database, derived EF mappings, reviewed upgrade migrations, and semantic validation. The uncommitted migration-first exporter was removed because it reversed the intended source of truth.
 
 ## Validation and Scope
 
