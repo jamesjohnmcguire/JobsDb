@@ -18,6 +18,7 @@ public sealed class LibraryManager : IDisposable
 {
 	private readonly JobsDbContext context;
 	private readonly IJobRepository jobRepository;
+	private readonly IJobQueryService jobQueries;
 	private readonly ICredentialRepository credentialRepository;
 	private readonly Lazy<IJobRefreshService> refreshService;
 	private bool disposed;
@@ -26,8 +27,21 @@ public sealed class LibraryManager : IDisposable
 	{
 		this.context = context;
 		jobRepository = new JobRepository(context);
+		jobQueries = new JobQueryService(jobRepository);
 		credentialRepository = new CredentialRepository(context);
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
+	}
+
+	/// <summary>
+	/// Gets the service supplying job collections.
+	/// </summary>
+	public IJobQueryService JobQueries
+	{
+		get
+		{
+			ObjectDisposedException.ThrowIf(disposed, this);
+			return jobQueries;
+		}
 	}
 
 	/// <summary>

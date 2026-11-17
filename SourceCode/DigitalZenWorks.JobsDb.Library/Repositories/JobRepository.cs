@@ -26,7 +26,9 @@ public class JobRepository : IJobRepository
 	public async Task<List<Job>> GetAllAsync()
 	{
 		return await context.Jobs
-			.OrderByDescending(j => j.DatePosted)
+			.AsNoTracking()
+			.OrderByDescending(job => job.DatePosted)
+			.ThenByDescending(job => job.Id)
 			.ToListAsync().ConfigureAwait(false);
 	}
 
@@ -41,8 +43,10 @@ public class JobRepository : IJobRepository
 	public async Task<List<Job>> GetActiveJobsAsync()
 	{
 		return await context.Jobs
-			.Where(j => !j.IsArchived)
-			.OrderByDescending(j => j.DatePosted)
+			.AsNoTracking()
+			.Where(job => !job.IsArchived)
+			.OrderByDescending(job => job.DatePosted)
+			.ThenByDescending(job => job.Id)
 			.ToListAsync().ConfigureAwait(false);
 	}
 
@@ -67,7 +71,18 @@ public class JobRepository : IJobRepository
 
 	public async Task<Job> UpdateAsync(Job job)
 	{
-		context.Jobs.Update(job);
+		Job? trackedJob = context.Jobs.Local.FirstOrDefault(
+			existingJob => existingJob.Id == job.Id);
+
+		if (trackedJob == null)
+		{
+			context.Jobs.Update(job);
+		}
+		else
+		{
+			context.Entry(trackedJob).CurrentValues.SetValues(job);
+		}
+
 		await context.SaveChangesAsync().ConfigureAwait(false);
 		return job;
 	}

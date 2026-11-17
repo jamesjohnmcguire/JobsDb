@@ -52,7 +52,7 @@ internal partial class MainWindow : Window
 #if FUTURE_UI
 			StatusBarText.Text = "Loading jobs...";
 #endif
-			allJobs = await jobRepository.GetActiveJobsAsync();
+			allJobs = await libraryManager.JobQueries.GetJobsAsync();
 			UpdateJobsList(allJobs);
 #if FUTURE_UI
 			JobCountText.Text = $"{allJobs.Count} jobs";

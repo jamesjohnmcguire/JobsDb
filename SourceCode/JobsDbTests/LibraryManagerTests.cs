@@ -48,7 +48,8 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		}
 
 		using LibraryManager reader = LibraryManager.Initialize(TestDbPath);
-		List<Job> jobs = await reader.Jobs.GetAllAsync().ConfigureAwait(false);
+		List<Job> jobs =
+			await reader.JobQueries.GetJobsAsync().ConfigureAwait(false);
 		Assert.That(jobs, Has.Count.EqualTo(1));
 		Assert.That(jobs[0].Title, Is.EqualTo("Software Developer"));
 		Assert.That(
@@ -96,6 +97,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		manager.Dispose();
 
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Jobs);
+		Assert.Throws<ObjectDisposedException>(() => _ = manager.JobQueries);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Credentials);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Refresh);
 		Assert.ThrowsAsync<ObjectDisposedException>(
