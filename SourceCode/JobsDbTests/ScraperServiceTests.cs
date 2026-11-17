@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
+using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -140,6 +141,39 @@ internal class ScraperServiceTests
 		Assert.That(sources.Count, Is.EqualTo(2));
 		Assert.That(sources, Contains.Item("LinkedIn"));
 		Assert.That(sources, Contains.Item("TokyoDev"));
+	}
+
+	[TestCase(false)]
+	[TestCase(true)]
+	public async Task Refresh_WaitsForPersistedResults(bool refreshAll)
+	{
+		MockTestScraper scraper = new MockTestScraper(
+			Mock.Of<IJobRepository>(),
+			Mock.Of<ICredentialRepository>());
+		service.RegisterScraper("TestSource", scraper);
+		IJobRefreshService refreshService = service;
+		ScraperResult result;
+
+		if (refreshAll)
+		{
+			List<ScraperResult> results =
+				await refreshService.RefreshJobsAsync().ConfigureAwait(false);
+			Assert.That(results, Has.Count.EqualTo(1));
+			result = results[0];
+		}
+		else
+		{
+			result = await refreshService.RefreshSourceAsync("TestSource")
+				.ConfigureAwait(false);
+		}
+
+		Assert.That(result.Success, Is.True);
+		Assert.That(result.JobsAdded, Is.EqualTo(3));
+		using JobsDbContext reader = new JobsDbContext(testDbPath);
+		ScraperLog log = reader.ScraperLogs.Single();
+		Assert.That(log.Source, Is.EqualTo("TestSource"));
+		Assert.That(log.JobsAdded, Is.EqualTo(result.JobsAdded));
+		Assert.That(log.Success, Is.True);
 	}
 
 	// Mock scraper for testing

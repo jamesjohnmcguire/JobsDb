@@ -10,11 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DigitalZenWorks.JobsDb.Library.Services;
 
 /// <summary>
 /// Service to manage and run multiple scrapers.
 /// </summary>
-public class ScraperService
+internal sealed class ScraperService : IJobRefreshService
 {
 	private readonly Dictionary<string, JobScraperBase> scrapers;
 	private readonly JobsDbContext context;
@@ -23,6 +24,18 @@ public class ScraperService
 	{
 		this.context = context;
 		scrapers = new Dictionary<string, JobScraperBase>();
+	}
+
+	/// <inheritdoc/>
+	public Task<List<ScraperResult>> RefreshJobsAsync()
+	{
+		return RunAllScrapersAsync();
+	}
+
+	/// <inheritdoc/>
+	public Task<ScraperResult> RefreshSourceAsync(string source)
+	{
+		return RunScraperAsync(source);
 	}
 
 	/// <summary>

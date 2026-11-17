@@ -9,7 +9,6 @@ namespace DigitalZenWorks.JobsDb.Application;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
-using DigitalZenWorks.JobsDb.Library.Scrapers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,32 +21,21 @@ using System.Windows.Controls;
 /// </summary>
 internal partial class MainWindow : Window
 {
-	private readonly JobsDbContext context;
+	private readonly LibraryManager libraryManager;
 	private readonly IJobRepository jobRepository;
-	private readonly ScraperService scraperService;
 	private List<Job> allJobs;
 	private Job selectedJob;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MainWindow"/> class.
 	/// </summary>
-	/// <param name="jobRepository">Repository for reading and writing job
-	/// records.</param>
-	/// <param name="scraperService">Service for running the registered
-	/// scrapers.</param>
-	/// <param name="context">The database context, retained here only for
-	/// cases the window needs direct access (e.g. passing to child windows
-	/// like credential configuration).</param>
-	internal MainWindow(
-		IJobRepository jobRepository,
-		ScraperService scraperService,
-		JobsDbContext context)
+	/// <param name="libraryManager">The initialized library services.</param>
+	internal MainWindow(LibraryManager libraryManager)
 	{
 		InitializeComponent();
 
-		this.jobRepository = jobRepository;
-		this.scraperService = scraperService;
-		this.context = context;
+		this.libraryManager = libraryManager;
+		jobRepository = libraryManager.Jobs;
 
 		Loaded += MainWindow_Loaded;
 	}
@@ -284,7 +272,7 @@ internal partial class MainWindow : Window
 
 		try
 		{
-			var results = await scraperService.RunAllScrapersAsync();
+			var results = await libraryManager.Refresh.RefreshJobsAsync();
 			var totalAdded = results.Sum(r => r.JobsAdded);
 			var totalUpdated = results.Sum(r => r.JobsUpdated);
 
@@ -325,7 +313,8 @@ internal partial class MainWindow : Window
 
 		try
 		{
-			var result = await scraperService.RunScraperAsync(source);
+			var result =
+				await libraryManager.Refresh.RefreshSourceAsync(source);
 
 			await LoadJobsAsync();
 
@@ -349,7 +338,8 @@ internal partial class MainWindow : Window
 	private void ConfigureCredentials_Click(object sender, RoutedEventArgs e)
 	{
 #if FUTURE_UI
-		var credentialsWindow = new CredentialsWindow(context);
+		var credentialsWindow = new CredentialsWindow(
+			libraryManager.Credentials);
 		credentialsWindow.Owner = this;
 		credentialsWindow.ShowDialog();
 #endif

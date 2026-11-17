@@ -13,7 +13,7 @@ Build a layered application intended for long-term maintenance. EF Core is an im
 | Domain | Job identity, application state, and business rules | Has no dependencies on WPF, EF Core, database connections, or network clients |
 | Infrastructure | Repository implementations, EF mappings, database connections, source acquisition, and email/file adapters | Implements the interfaces needed by application services; translates storage and external representations |
 
-Dependency direction points toward application contracts and domain rules. Startup is the composition root: it chooses concrete implementations, configures dependencies, and owns application-wide resources. Windows, controls, and view models receive their dependencies rather than constructing infrastructure.
+Dependency direction points toward application contracts and domain rules. The library initialization entry point chooses concrete implementations and configures dependencies. The client owns the initialized library lifetime. Windows, controls, and view models receive their dependencies rather than constructing infrastructure.
 
 ## Target Data Flow
 
@@ -46,14 +46,18 @@ Replacing EF would still require implementing and testing another persistence ad
 
 The target data-access DLL owns EF contexts, mappings, repository implementations, and any generated storage code. The core library focuses on business logic and consumes ordinary typed models through interfaces. ORM configuration stays inside data access. Database upgrades are SQL operations independent of either DLL. Decide ownership of shared models and interfaces before extracting projects; avoid circular dependencies and prevent data-access preparation from requiring business-layer compilation.
 
-Database readiness checks now live in the library; startup invokes them once and owns context disposal. `MainWindow` still receives an EF context and calls repositories directly. Introduce a focused library initialization entry point so thin clients only initialize, obtain services, bind presentation, and display errors. That component coordinates setup and lifetime; business rules stay in focused services.
+The WPF app now calls `LibraryManager.Initialize()` and disposes the manager on exit. The manager validates the existing database, owns its context, and supplies repository and refresh interfaces. Scraper construction and registration stay inside the library; `ScraperService` is internal. Acquisition configuration is deferred until refresh is requested. This is a transitional boundary: the window still calls repository interfaces, and the context is not yet scoped to individual operations.
 
 The console already has a thinner entry point: `JobsDbConsole/Program.cs` delegates live TokyoDev inspection to the library's `ScraperTester.TestTokyoDev`. Preserve that functioning path and reuse suitable library operations when extracting shared application services. This diagnostic path currently fetches and inspects HTML; it does not yet persist jobs. The dashboard and console should both consume shared services rather than depend on each other.
 
 1. Establish SQL updates and database validation before application compilation. Keep EF as the ORM inside the data-access boundary; it does not own schema evolution.
-2. Centralize database initialization and make resource ownership explicit.
-3. Introduce the first focused application service and test its behavior independently of WPF and EF.
+2. Completed: centralize database initialization and resource ownership behind the library entry point.
+3. Introduce a focused job application service returning a list or collection of jobs. Keep database queries and business rules in the library; let the app own pagination and display logistics. Test service behavior independently of WPF and EF.
 4. Connect dashboard job loading through a view model and that service, with SQLite integration coverage and a WPF binding smoke check.
 5. Extend the same boundaries to writes and console operations. Keep scraper redesign deferred; apply these boundaries when that work resumes.
 
 Keep each change reviewable. Establish logical boundaries first; split assemblies when enforcing dependency direction justifies it. Do not introduce generic repository frameworks, service buses, or a separate service process without a demonstrated requirement.
+
+## Dashboard Refresh Task
+
+Add a **Refresh Db** button that awaits a library-managed acquisition session, reloads the job collection, and updates the status line after completion. Report failures and partial results accurately. Prevent overlapping refresh sessions and database access against a shared context. The app presents progress and results; source registration, scraping, persistence, and coordination remain internal to the library. The actual dashboard controls and this wiring are still pending; scraper redesign remains deferred.
