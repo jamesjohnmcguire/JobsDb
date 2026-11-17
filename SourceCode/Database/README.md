@@ -2,17 +2,17 @@
 
 `schema.sql` is the authoritative current SQLite schema: tables, columns, defaults, primary keys, and indexes. Edit this file directly; do not regenerate it from EF models. It also records the applied EF migration baseline so databases created from SQL can subsequently use application initialization and migrations.
 
-With `sqlite3` on PATH, create a new database from the repository root:
+With `sqlite3` on PATH, rebuild a development database from the repository root:
 
 ```powershell
-.\DevelopmentTools\createDatabase.cmd review.db
+.\DevelopmentTools\rebuildDatabase.cmd review.db
 ```
 
-For Bash, use `bash DevelopmentTools/createDatabase.sh review.db`. The scripts require a new destination, refuse existing files, and read `schema.sql` directly. Relative destination paths resolve from your terminal's working directory; the parent directory must already exist. They can also be invoked by full path from another directory. No EF generation or compilation is needed.
+For Bash, use `bash DevelopmentTools/rebuildDatabase.sh review.db`. The explicit destination is replaced, discarding its existing data; `jobsdb.db` is reserved for the application and refused in any directory. Close database connections first. Relative destinations resolve from your terminal's working directory, and the parent directory must exist. A temporary database is loaded before replacement, so SQL-loading failures leave the existing database intact. The normal build never calls rebuild.
 
-Use a new database file. This bootstrap script creates the schema; it does not reset or upgrade an existing database. It contains no scraped jobs, credentials, or sample search filters. No `staticData.sql` is currently needed.
+Rebuild loads `schema.sql` and then `staticData.sql` if present. No required static-data file is currently needed. Scraped jobs, credentials, and optional sample filters are not installed. No EF generation or compilation is needed.
 
-EF Core migrations currently remain responsible for upgrades. The creation scripts load SQL edits into new databases; the updater does not yet derive upgrades or C# mappings from those edits. The [SQL-first transition plan](../../Support/sqlFirstWorkflow.md) defines how mappings and reviewed upgrade migrations will follow the SQL. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
+EF Core migrations currently remain responsible for upgrades. Rebuild loads SQL edits into the selected development database; the updater does not yet derive upgrades or C# mappings from those edits. The [SQL-first transition plan](../../Support/sqlFirstWorkflow.md) defines how mappings and reviewed upgrade migrations will follow the SQL. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
 
 Application tables use PascalCase and columns use camelCase. Maintain final table and index definitions here; keep historical upgrade steps in migrations.
 
@@ -36,7 +36,7 @@ To select a different database, pass EF's native connection option. For example,
 
 The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code. The build workflow calls the same updater after rebuilding and before running all tests. It forwards database arguments such as `--connection` and supplies `--no-build` to reuse the rebuilt assemblies.
 
-These scripts do not rebuild an existing database or import postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
+The update scripts preserve records; use the separate rebuild command only for disposable development data. Neither command imports postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
 
 ## Job Field Contract
 

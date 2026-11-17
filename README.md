@@ -8,7 +8,7 @@ Install the .NET 10 SDK and initialize dependencies with `git submodule update -
 | Task | Windows | Bash |
 | --- | --- | --- |
 | Rebuild, update database, and test | `.\DevelopmentTools\build.cmd` | `bash DevelopmentTools/build.sh` |
-| Create a new database from SQL | `.\DevelopmentTools\createDatabase.cmd review.db` | `bash DevelopmentTools/createDatabase.sh review.db` |
+| Rebuild a development database from SQL | `.\DevelopmentTools\rebuildDatabase.cmd review.db` | `bash DevelopmentTools/rebuildDatabase.sh review.db` |
 | Apply database migrations | `.\DevelopmentTools\updateDatabase.cmd` | `bash DevelopmentTools/updateDatabase.sh` |
 | Run all tests (Debug) | `.\DevelopmentTools\test.cmd` | `bash DevelopmentTools/test.sh` |
 | Clean solution (Debug) | `.\DevelopmentTools\clean.cmd` | `bash DevelopmentTools/clean.sh` |

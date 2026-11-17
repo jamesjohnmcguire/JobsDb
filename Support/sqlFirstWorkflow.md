@@ -12,7 +12,7 @@ Follow the [layered architecture](Architecture.md). EF and generated persistence
 
 ## Current Implementation
 
-`createDatabase.*` now loads the master SQL directly into an explicitly named new database and refuses existing destinations. Application initialization and `updateDatabase.*` still apply EF migrations. The existing `schema.sql` contains the equivalent current schema and EF history baseline. The remaining transition steps below are not yet implemented. SQL edits reach fresh databases through creation scripts; today's updater does not detect those edits or derive upgrades.
+`rebuildDatabase.*` replaces an explicitly named development database from the master SQL and optional static data, after loading a temporary replacement. It reserves the `jobsdb.db` filename for application data and remains separate from normal builds. Application initialization and `updateDatabase.*` still apply EF migrations. The existing `schema.sql` contains the equivalent current schema and EF history baseline. The remaining transition steps below are not yet implemented. SQL edits reach development databases through rebuild; today's updater does not detect those edits or derive upgrades.
 
 The proposed exporter has been removed. SQLite's `.schema` command is sufficient for inspecting a database, and `.read` loads SQL into a new database. Neither command infers a data-preserving upgrade from two schemas.
 
