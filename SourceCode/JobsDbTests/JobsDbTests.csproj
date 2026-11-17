@@ -41,6 +41,9 @@
 		<None Include="../Database/schema.sql"
 			Link="Database/schema.sql"
 			CopyToOutputDirectory="PreserveNewest" />
+		<None Include="../Database/Upgrades/*"
+			Link="Database/Upgrades/%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

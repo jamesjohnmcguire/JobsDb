@@ -93,7 +93,7 @@ These questions do not block schema visibility or the core cleanup phases.
 
 - [ ] Define expiry and retention for transient job listings and imported email content. Distinguish last-seen and successfully checked sources from failed or partial imports before expiring records. Allow pruning of stale imported content while preserving any application history and notes the owner wants to retain. Keep retention policy separate from schema upgrades and reference-data initialization.
 
-- [x] Compose the base staged build workflow using the Japanese project's DevelopmentTools as a reference: rebuild, apply pending database migrations, then run all tests, stopping at the first failure. Keep the individual entry scripts lean.
+- [x] Compose the base staged build workflow using the Japanese project's DevelopmentTools as a reference: build the library containing the migrations, apply pending database migrations, rebuild the full solution, then run all tests, stopping at the first failure. Keep the individual entry scripts lean.
 
 - [ ] Extend the workflow with data preparation and reference-data initialization or a designated development rebuild when needed. The Japanese project's C# SqlExtractor uses CsvHelper and domain-specific SQL templates; assess reusable importer/writer functionality alongside the shared submodules when implementing JobsDb data imports.
 

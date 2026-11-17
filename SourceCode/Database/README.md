@@ -18,6 +18,10 @@ Application tables use PascalCase and columns use camelCase. Maintain final tabl
 
 Runtime and EF tooling share the default database path, `%LOCALAPPDATA%\JobsDb\jobsdb.db`. A path-based context resolves relative filenames against the current working directory and quotes connection-string characters safely. Supplied EF options and later connection overrides determine the reported data source; in-memory contexts report their configured memory source.
 
+## SQL Upgrade History
+
+The reviewed SQL files in `Upgrades/` follow `upgradeOrder.txt`, which lists the existing version ID and SQL filename on each line. A runner must skip recorded versions; each file writes its history entry in the same transaction as its schema changes. These files establish the SQL upgrade contract; the current updater still executes EF migrations until the next transition step.
+
 ## Updating a Database
 
 Restore the pinned EF tool once from the repository root:
@@ -26,7 +30,7 @@ Restore the pinned EF tool once from the repository root:
 dotnet tool restore
 ```
 
-Run `DevelopmentTools/updateDatabase.cmd` on Windows or `bash DevelopmentTools/updateDatabase.sh` in Bash. The scripts apply pending migrations to the default `%LOCALAPPDATA%\JobsDb\jobsdb.db` database, preserving existing records. Repeating the command applies no migrations when the database is already current.
+Run `DevelopmentTools/updateDatabase.cmd` on Windows or `bash DevelopmentTools/updateDatabase.sh` in Bash. The scripts first build the library containing the migrations in Debug, then apply pending migrations with EF's `--no-build` to the default `%LOCALAPPDATA%\JobsDb\jobsdb.db` database, preserving existing records. Repeating the command applies no migrations when the database is already current.
 
 To select a different database, pass EF's native connection option. For example, from PowerShell:
 
@@ -34,7 +38,7 @@ To select a different database, pass EF's native connection option. For example,
 .\DevelopmentTools\updateDatabase.cmd --connection "Data Source=C:/Data/JobsDb/review.db"
 ```
 
-The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return EF's exit code. The build workflow calls the same updater after rebuilding and before running all tests. It forwards database arguments such as `--connection` and supplies `--no-build` to reuse the rebuilt assemblies.
+The destination directory must already exist when overriding the connection. Relative connection paths resolve from `SourceCode/`, where the scripts run. Prefer an absolute path when selecting another database. The scripts can be invoked by full path from any working directory and return the failing step's exit code. The build workflow calls the updater first, then rebuilds the full solution and runs all tests. It forwards database arguments such as `--connection` to the updater; those arguments are passed only to EF's update command.
 
 The update scripts preserve records; use the separate rebuild command only for disposable development data. Neither command imports postings. Required reference-data initialization will be added separately; the existing example-filter seeder is not connected to this workflow.
 

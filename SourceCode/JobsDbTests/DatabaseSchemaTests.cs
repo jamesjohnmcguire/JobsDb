@@ -412,6 +412,171 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(updatedJob, Is.EqualTo(savedJob).UsingPropertiesComparer());
 	}
 
+	[Test]
+	public void SqlUpgrades_MatchMasterSchema()
+	{
+		using JobsDbContext upgradedContext = CreateContext();
+		ApplySqlUpgrades(upgradedContext);
+		using JobsDbContext expectedContext = CreateContext();
+		LoadSchema(expectedContext);
+
+		List<string> expectedSchema = ReadSchema(expectedContext);
+		List<string> actualSchema = ReadSchema(upgradedContext);
+
+		Assert.That(actualSchema, Is.EqualTo(expectedSchema));
+		Assert.That(
+			upgradedContext.Database.GetAppliedMigrations(),
+			Is.EqualTo(expectedContext.Database.GetAppliedMigrations()));
+		Assert.That(upgradedContext.Database.GetPendingMigrations(), Is.Empty);
+	}
+
+	[TestCase("20260723233159_InitialCreate")]
+	[TestCase("20261116204352_UseCamelCaseColumns")]
+	public void SqlUpgrades_PreserveExistingEfDatabase(string previousVersion)
+	{
+		using JobsDbContext context = CreateContext();
+		IMigrator migrator = context.GetService<IMigrator>();
+		migrator.Migrate(previousVersion);
+		Job existingJob = CopyJob(TestJob!);
+		existingJob.Id = 42;
+		existingJob.Status = ApplicationStatus.Applied;
+		existingJob.Notes = "Keep application history";
+		existingJob.SalaryMin = 123456.789m;
+		context.Jobs.Add(existingJob);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+
+		ApplySqlUpgrades(context);
+		Job savedJob = context.Jobs.Single();
+
+		Assert.That(
+			savedJob, Is.EqualTo(existingJob).UsingPropertiesComparer());
+		Assert.That(context.Database.GetPendingMigrations(), Is.Empty);
+	}
+
+	[TestCase(false)]
+	[TestCase(true)]
+	public void SqlUpgrades_PreserveConsumedIdentifiers(bool retainJob)
+	{
+		using JobsDbContext context = CreateContext();
+		ApplySqlUpgrades(context, 2);
+		Job deletedJob = CopyJob(TestJob!);
+		deletedJob.Id = 500;
+		context.Jobs.Add(deletedJob);
+		context.SaveChanges();
+		context.Jobs.Remove(deletedJob);
+		context.SaveChanges();
+
+		if (retainJob)
+		{
+			Job retainedJob = CopyJob(TestJob!);
+			retainedJob.Id = 42;
+			context.Jobs.Add(retainedJob);
+			context.SaveChanges();
+		}
+
+		ApplySqlUpgrades(context);
+		Job newJob = CopyJob(TestJob!);
+		newJob.SourceJobId = "after-sql-upgrade";
+		context.Jobs.Add(newJob);
+		context.SaveChanges();
+
+		Assert.That(newJob.Id, Is.GreaterThan(500));
+	}
+
+	[Test]
+	public void SqlUpgrades_CurrentDatabasePreservesData()
+	{
+		using JobsDbContext context = CreateContext();
+		LoadSchema(context);
+		Job existingJob = CopyJob(TestJob!);
+		existingJob.Status = ApplicationStatus.Applied;
+		existingJob.Notes = "Preserve current database";
+		context.Jobs.Add(existingJob);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+		List<string> expectedSchema = ReadSchema(context);
+
+		ApplySqlUpgrades(context);
+		Job savedJob = context.Jobs.Single();
+
+		Assert.That(
+			savedJob, Is.EqualTo(existingJob).UsingPropertiesComparer());
+		Assert.That(ReadSchema(context), Is.EqualTo(expectedSchema));
+	}
+
+	[Test]
+	public void SqlUpgrade_FailureRollsBackSchemaDataAndHistory()
+	{
+		using JobsDbContext context = CreateContext();
+		ApplySqlUpgrades(context, 2);
+		Job existingJob = CopyJob(TestJob!);
+		existingJob.Status = ApplicationStatus.Applied;
+		existingJob.Notes = "Preserve on failure";
+		context.Jobs.Add(existingJob);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+		List<string> expectedSchema = ReadSchema(context);
+		string script = ReadUpgradeScript("allowOptionalJobDetails.sql");
+		string failingStatement =
+			"INSERT INTO MissingUpgradeTable DEFAULT VALUES;\n" +
+			"CREATE INDEX \"IX_Jobs_company\"";
+		script = script.Replace(
+			"CREATE INDEX \"IX_Jobs_company\"",
+			failingStatement,
+			StringComparison.Ordinal);
+
+		Assert.Throws<SqliteException>(() => ExecuteSql(context, script));
+		ExecuteSql(context, "ROLLBACK; PRAGMA foreign_keys = ON;");
+		Job savedJob = context.Jobs.Single();
+
+		Assert.That(
+			savedJob, Is.EqualTo(existingJob).UsingPropertiesComparer());
+		Assert.That(ReadSchema(context), Is.EqualTo(expectedSchema));
+		Assert.That(
+			context.Database.GetAppliedMigrations(),
+			Does.Not.Contain("20261116222114_AllowOptionalJobDetails"));
+	}
+
+	private static void ApplySqlUpgrades(
+		JobsDbContext context, int maximumUpgrades = int.MaxValue)
+	{
+		string orderPath = Path.Combine(
+			TestContext.CurrentContext.TestDirectory,
+			"Database",
+			"Upgrades",
+			"upgradeOrder.txt");
+		string[] upgrades = File.ReadAllLines(orderPath);
+		HashSet<string> appliedVersions = context.Database
+			.GetAppliedMigrations().ToHashSet(StringComparer.Ordinal);
+
+		foreach (string upgrade in upgrades.Take(maximumUpgrades))
+		{
+			string[] fields = upgrade.Split(
+				' ', StringSplitOptions.RemoveEmptyEntries);
+			string version = fields[0];
+			string fileName = fields[1];
+
+			if (appliedVersions.Contains(version))
+			{
+				continue;
+			}
+
+			string script = ReadUpgradeScript(fileName);
+			ExecuteSql(context, script);
+		}
+	}
+
+	private static string ReadUpgradeScript(string fileName)
+	{
+		string path = Path.Combine(
+			TestContext.CurrentContext.TestDirectory,
+			"Database",
+			"Upgrades",
+			fileName);
+		return File.ReadAllText(path);
+	}
+
 	private static JobsDbContext CreateContext()
 	{
 		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
@@ -423,18 +588,23 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		return context;
 	}
 
-	[SuppressMessage(
-		"Security",
-		"CA2100",
-		Justification = "SQL comes only from the checked-in schema fixture.")]
 	private static void LoadSchema(JobsDbContext context)
 	{
 		string schemaPath = Path.Combine(
 			TestContext.CurrentContext.TestDirectory, "Database", "schema.sql");
 		string schema = File.ReadAllText(schemaPath);
+		ExecuteSql(context, schema);
+	}
+
+	[SuppressMessage(
+		"Security",
+		"CA2100",
+		Justification = "SQL comes only from checked-in database fixtures.")]
+	private static void ExecuteSql(JobsDbContext context, string script)
+	{
 		DbConnection connection = context.Database.GetDbConnection();
 		using DbCommand command = connection.CreateCommand();
-		command.CommandText = schema;
+		command.CommandText = script;
 		command.ExecuteNonQuery();
 	}
 

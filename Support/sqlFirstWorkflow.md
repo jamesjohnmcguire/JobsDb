@@ -2,34 +2,34 @@
 
 ## Source of Truth
 
-`SourceCode/Database/schema.sql` is the authoritative desired schema. Edit it directly; tooling must never overwrite it from EF models or a runtime database. Use PascalCase table names, camelCase column names, and the preferred `"id" INTEGER PRIMARY KEY AUTOINCREMENT` declaration. Reference data belongs in `staticData.sql` only when required.
+`SourceCode/Database/schema.sql` is the authoritative desired schema. Edit it directly; tooling must not overwrite it from C# models or a runtime database. Tables use PascalCase, columns use camelCase, and SQLite integer keys use `"id" INTEGER PRIMARY KEY AUTOINCREMENT`.
 
-EF Core can remain the application data-access layer. Migrations describe the steps from an older database to the schema declared in SQL; they are upgrade history, not the authority for the current design.
+Versioned SQL upgrade scripts describe how existing databases reach that schema while preserving data. `staticData.sql` is only for required reference data; updates must be repeatable without duplicating records or replacing user configuration.
 
-## Architecture Boundary
+## Architecture Decision
 
-Follow the [layered architecture](Architecture.md). EF and generated persistence code stay inside infrastructure. Schema preparation must preserve handwritten domain rules and enum semantics; generating database classes must not turn them into UI or business models. The isolated scaffolding experiment must establish this boundary before the build adopts generation.
+Database preparation runs independently of application compilation. The target order is SQL upgrades, required data, database validation, data-access preparation, application build, then tests. A current database needs no upgrade and remains the basis for the downstream workflow.
+
+EF Core may remain inside the [data-access layer](Architecture.md) as the ORM. Business logic uses typed models and interfaces; EF configuration, queries, and tracking stay inside data access. Compiled EF migrations will no longer be the normal update mechanism. Code generation remains optional and must justify its maintenance cost.
 
 ## Current Implementation
 
-`rebuildDatabase.*` replaces an explicitly named development database from the master SQL and optional static data, after loading a temporary replacement. It reserves the `jobsdb.db` filename for application data and remains separate from normal builds. Application initialization and `updateDatabase.*` still apply EF migrations. The existing `schema.sql` contains the equivalent current schema and EF history baseline. The remaining transition steps below are not yet implemented. SQL edits reach development databases through rebuild; today's updater does not detect those edits or derive upgrades.
+`rebuildDatabase.*` already loads the master SQL and optional static data into a temporary replacement before replacing an explicitly named development database. The `jobsdb.db` filename is reserved for application data. Rebuild remains separate from the normal build.
 
-The proposed exporter has been removed. SQLite's `.schema` command is sufficient for inspecting a database, and `.read` loads SQL into a new database. Neither command infers a data-preserving upgrade from two schemas.
+The updater and application initialization still execute EF migrations. The current script edits make that compilation prerequisite explicit, but do not implement the accepted SQL-only update direction. Existing EF history and upgrade compatibility must be preserved during the transition.
 
-## Mapping Experiment Status
+Reviewed SQL history is now checked in under `SourceCode/Database/Upgrades/`. `upgradeOrder.txt` pairs each existing migration ID with its camelCase SQL filename, preserving the installed history baseline. Each upgrade commits its version with its changes. The Jobs rebuild also preserves identifiers consumed by deleted postings. The native updater switch remains the next step.
 
-The [isolated mapping experiment](sqlFirstMappingReview.md) identified storage-type differences. A Jobs-only generated context and `JobStorageMapper` now prove compatibility with the existing repository in both directions, including optional values, using EF's built-in conversions. This is an infrastructure proof; the application still uses `JobsDbContext`. Do not expand this parallel storage layer yet: typed EF mappings already work against SQL-created databases, while generated storage adds a second entity definition and explicit property mapping. Require a demonstrated regeneration benefit before accepting that duplication. The updater explicitly selects `JobsDbContext` while both contexts exist.
+The Jobs-only generated context and mapper remain an isolated compatibility proof. Do not expand the duplicate storage model by default.
 
 ## Atomic Implementation Steps
 
-1. **Prove SQL-to-EF generation in isolation.** Create a temporary database using `sqlite3 -bail` and `.read schema.sql`, then use `dotnet ef dbcontext scaffold` to inspect generated mappings. Exclude migration-history tables. Establish stable entity names and preserve existing enum conversions, optional fields, and application behavior. Keep generated mappings separate from handwritten behavior. Acceptance: the current repositories can use the SQL-derived mappings without behavioral changes. Do not overwrite the current context or models as an experiment.
-2. **Add lean schema preparation scripts.** Add camelCase Windows and Bash entry points that recreate only a designated disposable schema database, generate the agreed EF files, and validate the result. Never target the application database for this stage. Acceptance: a supported SQL column change reaches its EF mapping with no duplicate handwritten schema edit; incompatible application references fail clearly during build.
-3. **Retain reviewed upgrade migrations.** Generate an EF migration from the SQL-derived model when a schema change is ready. Review renames, table rebuilds, conversions, and required-column backfills. Commit SQL, generated mappings, and the corresponding migration together. Ordinary builds must not create new migrations automatically. Acceptance: upgrading a database from the preceding version produces the schema declared in SQL and preserves records, notes, and application status.
-4. **Connect the build stages.** Prepare and validate the SQL-derived model, rebuild, apply reviewed upgrades through `updateDatabase.*`, then run tests. Keep a destructive `rebuildDatabase.*` operation separate and explicit. Acceptance: SQL is never regenerated; unsupported changes stop the workflow before updating application data.
-5. **Finish schema cleanup separately.** Apply the concise primary-key declarations and history-table naming changes as individual reviewed steps. Compare semantic schema metadata rather than exact SQL formatting. Move EF baseline bookkeeping out of the hand-maintained application schema if the chosen bootstrap design permits it.
+1. Establish ordered SQL upgrades and applied-version tracking compatible with existing databases. Review renames, table rebuilds, conversions, and required-value backfills explicitly.
+2. Change the native batch and Bash updaters to apply pending SQL and required data without compiling C#. Prevent application startup from also applying competing EF schema changes.
+3. Validate upgraded databases against the master schema and verify data preservation. The normal build must finish this database phase before compiling the application and running integration or end-to-end tests.
+4. Extract the data-access boundary incrementally, deciding shared model and interface ownership first. Preserve existing typed behavior and repository contracts.
+5. Apply the concise primary-key declarations and history-table naming cleanup in separate atomic changes. Compare schema semantics rather than generated SQL formatting.
 
-## Limits and Verification
+## Limits
 
-Scaffolding derives database mappings, not business intent. SQLite column types cannot fully encode C# enums or application validation. Custom mappings may still be needed. Renaming a column and replacing a column with a different one can have the same final schema but require different upgrade steps. These changes require an explicit migration decision.
-
-Tests must treat the SQL-created database as the expected schema, compare migrated databases against it, and exercise real repository reads and writes. Test both fresh creation and upgrades. Keep scraper redesign deferred; dashboard connectivity follows the database foundation.
+Editing a final CREATE TABLE definition cannot express every data-preserving transition. Upgrade SQL may be drafted with tooling, but rename intent and data transformations need review. Schema changes can require mapping or application changes; EF conventions must not dictate those changes. Keep scraper redesign deferred while the database foundation is completed.
