@@ -1,4 +1,4 @@
--- Current JobsDb SQLite schema, generated from EF migrations.
+-- Authoritative current JobsDb SQLite schema.
 -- Load into a new empty database; use migrations to upgrade existing data.
 
 BEGIN TRANSACTION;

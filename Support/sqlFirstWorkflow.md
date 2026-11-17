@@ -12,13 +12,13 @@ Follow the [layered architecture](Architecture.md). EF and generated persistence
 
 ## Current Implementation
 
-The existing application initialization and `updateDatabase.*` scripts still apply EF migrations. The existing `schema.sql` contains the equivalent current schema and EF history baseline. The transition below is planned, not yet implemented. Do not edit SQL and expect today's updater to detect or apply that edit.
+`createDatabase.*` now loads the master SQL directly into an explicitly named new database and refuses existing destinations. Application initialization and `updateDatabase.*` still apply EF migrations. The existing `schema.sql` contains the equivalent current schema and EF history baseline. The remaining transition steps below are not yet implemented. SQL edits reach fresh databases through creation scripts; today's updater does not detect those edits or derive upgrades.
 
 The proposed exporter has been removed. SQLite's `.schema` command is sufficient for inspecting a database, and `.read` loads SQL into a new database. Neither command infers a data-preserving upgrade from two schemas.
 
 ## Mapping Experiment Status
 
-The [isolated mapping experiment](sqlFirstMappingReview.md) identified storage-type differences. A Jobs-only generated context and `JobStorageMapper` now prove compatibility with the existing repository in both directions, including optional values, using EF's built-in conversions. This is an infrastructure proof; the application still uses `JobsDbContext`. Extend the approach to the remaining tables and add repeatable schema preparation before adopting generation in the build. The updater explicitly selects `JobsDbContext` while both contexts exist.
+The [isolated mapping experiment](sqlFirstMappingReview.md) identified storage-type differences. A Jobs-only generated context and `JobStorageMapper` now prove compatibility with the existing repository in both directions, including optional values, using EF's built-in conversions. This is an infrastructure proof; the application still uses `JobsDbContext`. Do not expand this parallel storage layer yet: typed EF mappings already work against SQL-created databases, while generated storage adds a second entity definition and explicit property mapping. Require a demonstrated regeneration benefit before accepting that duplication. The updater explicitly selects `JobsDbContext` while both contexts exist.
 
 ## Atomic Implementation Steps
 

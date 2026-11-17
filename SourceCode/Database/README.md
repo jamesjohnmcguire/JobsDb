@@ -2,15 +2,17 @@
 
 `schema.sql` is the authoritative current SQLite schema: tables, columns, defaults, primary keys, and indexes. Edit this file directly; do not regenerate it from EF models. It also records the applied EF migration baseline so databases created from SQL can subsequently use application initialization and migrations.
 
-From the repository root, create a new empty database with the SQLite command-line tool:
+With `sqlite3` on PATH, create a new database from the repository root:
 
-```sh
-sqlite3 -bail recreated.db ".read SourceCode/Database/schema.sql"
+```powershell
+.\DevelopmentTools\createDatabase.cmd review.db
 ```
+
+For Bash, use `bash DevelopmentTools/createDatabase.sh review.db`. The scripts require a new destination, refuse existing files, and read `schema.sql` directly. Relative destination paths resolve from your terminal's working directory; the parent directory must already exist. They can also be invoked by full path from another directory. No EF generation or compilation is needed.
 
 Use a new database file. This bootstrap script creates the schema; it does not reset or upgrade an existing database. It contains no scraped jobs, credentials, or sample search filters. No `staticData.sql` is currently needed.
 
-EF Core migrations currently remain responsible for upgrades. SQL edits alone are not yet propagated by the scripts. The [SQL-first transition plan](../../Support/sqlFirstWorkflow.md) defines how mappings and reviewed upgrade migrations will follow the SQL. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
+EF Core migrations currently remain responsible for upgrades. The creation scripts load SQL edits into new databases; the updater does not yet derive upgrades or C# mappings from those edits. The [SQL-first transition plan](../../Support/sqlFirstWorkflow.md) defines how mappings and reviewed upgrade migrations will follow the SQL. The database-schema tests compare the SQL-created schema and migration history with a migrated database, then verify repeated application initialization preserves existing data.
 
 Application tables use PascalCase and columns use camelCase. Maintain final table and index definitions here; keep historical upgrade steps in migrations.
 
