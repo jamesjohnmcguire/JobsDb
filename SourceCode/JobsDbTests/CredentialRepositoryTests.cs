@@ -25,8 +25,8 @@ internal class CredentialRepositoryTests
 	public void SetUp()
 	{
 		testDbPath = Path.Combine(Path.GetTempPath(), $"test_creds_{Guid.NewGuid()}.db");
+		DatabaseTestSchema.Create(testDbPath);
 		context = new JobsDbContext(testDbPath);
-		context.Database.EnsureCreated();
 		repository = new CredentialRepository(context);
 	}
 

@@ -61,11 +61,12 @@ internal sealed class DatabasePathTests
 	{
 		string databasePath = Path.Combine(
 			databaseDirectory, "jobs;extra setting.db");
+		DatabaseTestSchema.Create(databasePath);
 		using JobsDbContext context = new JobsDbContext(databasePath);
 
 		try
 		{
-			context.Initialize();
+			context.ValidateDatabase();
 
 			Assert.That(context.GetDatabasePath(), Is.EqualTo(databasePath));
 			Assert.That(File.Exists(databasePath), Is.True);
@@ -86,11 +87,12 @@ internal sealed class DatabasePathTests
 		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
 			new DbContextOptionsBuilder<JobsDbContext>();
 		optionsBuilder.UseSqlite(connectionStringBuilder.ConnectionString);
+		DatabaseTestSchema.Create(databasePath);
 		using JobsDbContext context = new JobsDbContext(optionsBuilder.Options);
 
 		try
 		{
-			context.Initialize();
+			context.ValidateDatabase();
 
 			Assert.That(context.GetDatabasePath(), Is.EqualTo(databasePath));
 			Assert.That(File.Exists(databasePath), Is.True);
@@ -107,6 +109,7 @@ internal sealed class DatabasePathTests
 		string originalPath = Path.Combine(databaseDirectory, "original.db");
 		string replacementPath = Path.Combine(
 			databaseDirectory, "replacement.db");
+		DatabaseTestSchema.Create(replacementPath);
 		using JobsDbContext context = new JobsDbContext(originalPath);
 		SqliteConnectionStringBuilder connectionStringBuilder =
 			new SqliteConnectionStringBuilder();
@@ -116,7 +119,7 @@ internal sealed class DatabasePathTests
 
 		try
 		{
-			context.Initialize();
+			context.ValidateDatabase();
 
 			Assert.That(
 				context.GetDatabasePath(), Is.EqualTo(replacementPath));
@@ -134,7 +137,6 @@ internal sealed class DatabasePathTests
 	{
 		using JobsDbContext context = new JobsDbContext(":memory:");
 		context.Database.OpenConnection();
-		context.Initialize();
 
 		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
 	}
@@ -147,7 +149,6 @@ internal sealed class DatabasePathTests
 		optionsBuilder.UseSqlite("Data Source=:memory:");
 		using JobsDbContext context = new JobsDbContext(optionsBuilder.Options);
 		context.Database.OpenConnection();
-		context.Initialize();
 
 		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
 	}

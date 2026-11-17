@@ -49,17 +49,6 @@ internal partial class MainWindow : Window
 		this.scraperService = scraperService;
 		this.context = context;
 
-		context.Initialize();
-
-		jobRepository = new JobRepository(context);
-		CredentialRepository credentialRepository = new(context);
-
-		scraperService = new ScraperService(context);
-
-		// Register scrapers (implement these separately)
-		// scraperService.RegisterScraper("LinkedIn", new LinkedInScraper(jobRepository, credentialRepository));
-		// scraperService.RegisterScraper("TokyoDev", new TokyoDevScraper(jobRepository, credentialRepository));
-
 		Loaded += MainWindow_Loaded;
 	}
 

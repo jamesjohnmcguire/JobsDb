@@ -32,25 +32,7 @@ using StorageJob = DigitalZenWorks.JobsDb.Library.Persistence.Generated.Job;
 internal sealed class DatabaseSchemaTests : BaseTestsSupport
 {
 	[Test]
-	public void Schema_MatchesMigratedDatabase()
-	{
-		using JobsDbContext migratedContext = CreateContext();
-		migratedContext.Initialize();
-
-		using JobsDbContext schemaContext = CreateContext();
-		LoadSchema(schemaContext);
-
-		List<string> expectedSchema = ReadSchema(migratedContext);
-		List<string> actualSchema = ReadSchema(schemaContext);
-
-		Assert.That(actualSchema, Is.EqualTo(expectedSchema));
-		Assert.That(
-			schemaContext.Database.GetAppliedMigrations(),
-			Is.EqualTo(migratedContext.Database.GetAppliedMigrations()));
-	}
-
-	[Test]
-	public void Schema_InitializePreservesExistingData()
+	public void Schema_ValidateDatabasePreservesExistingData()
 	{
 		using JobsDbContext schemaContext = CreateContext();
 		LoadSchema(schemaContext);
@@ -69,8 +51,8 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 
 		Assert.That(schemaContext.Database.GetPendingMigrations(), Is.Empty);
 
-		schemaContext.Initialize();
-		schemaContext.Initialize();
+		schemaContext.ValidateDatabase();
+		schemaContext.ValidateDatabase();
 
 		List<SearchFilter> savedFilters =
 			schemaContext.SearchFilters.AsNoTracking().ToList();
@@ -151,7 +133,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		context.SaveChanges();
 		context.ChangeTracker.Clear();
 
-		context.Initialize();
+		context.Database.Migrate();
 
 		Job savedJob = context.Jobs.Single();
 		SearchFilter savedFilter = context.SearchFilters.Single();
@@ -181,7 +163,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		}
 		else
 		{
-			context.Initialize();
+			context.Database.Migrate();
 		}
 
 		Job job = new Job
@@ -223,7 +205,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		context.SaveChanges();
 		context.ChangeTracker.Clear();
 
-		context.Initialize();
+		context.Database.Migrate();
 
 		Job savedJob = context.Jobs.Single();
 
@@ -253,7 +235,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 	public void OptionalDetailsRollback_RejectsMissingValues()
 	{
 		using JobsDbContext context = CreateContext();
-		context.Initialize();
+		context.Database.Migrate();
 
 		Job job = CopyJob(TestJob!);
 		job.Location = null;

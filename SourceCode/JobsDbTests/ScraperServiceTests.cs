@@ -28,8 +28,8 @@ internal class ScraperServiceTests
 	public void SetUp()
 	{
 		testDbPath = Path.Combine(Path.GetTempPath(), $"test_scraper_{Guid.NewGuid()}.db");
+		DatabaseTestSchema.Create(testDbPath);
 		context = new JobsDbContext(testDbPath);
-		context.Database.EnsureCreated();
 		service = new ScraperService(context);
 	}
 

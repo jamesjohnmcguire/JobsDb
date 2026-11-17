@@ -46,7 +46,7 @@ Replacing EF would still require implementing and testing another persistence ad
 
 The target data-access DLL owns EF contexts, mappings, repository implementations, and any generated storage code. The core library focuses on business logic and consumes ordinary typed models through interfaces. ORM configuration stays inside data access. Database upgrades are SQL operations independent of either DLL. Decide ownership of shared models and interfaces before extracting projects; avoid circular dependencies and prevent data-access preparation from requiring business-layer compilation.
 
-The current `MainWindow` receives a context, initializes the database, constructs infrastructure, and calls repositories directly. `App.OnStartup` also initializes the database. These are existing cleanup targets, not patterns to extend.
+Database readiness checks now live in the library; startup invokes them once and owns context disposal. `MainWindow` still receives an EF context and calls repositories directly. Introduce a focused library initialization entry point so thin clients only initialize, obtain services, bind presentation, and display errors. That component coordinates setup and lifetime; business rules stay in focused services.
 
 The console already has a thinner entry point: `JobsDbConsole/Program.cs` delegates live TokyoDev inspection to the library's `ScraperTester.TestTokyoDev`. Preserve that functioning path and reuse suitable library operations when extracting shared application services. This diagnostic path currently fetches and inspects HTML; it does not yet persist jobs. The dashboard and console should both consume shared services rather than depend on each other.
 

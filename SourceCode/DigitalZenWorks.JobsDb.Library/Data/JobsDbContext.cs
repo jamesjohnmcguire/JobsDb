@@ -7,8 +7,11 @@
 namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using Microsoft.Data.Sqlite;
@@ -56,15 +59,55 @@ public class JobsDbContext : DbContext
 	public DbSet<SearchFilter> SearchFilters { get; set; }
 
 	/// <summary>
-	/// Initialize the database by applying any pending migrations.
-	/// Creates the database file if it doesn't exist yet, and brings
-	/// an existing database up to date with the current model.
+	/// Checks that SQL upgrades and mapped queries are ready without changing
+	/// the database schema or creating a missing database.
 	/// </summary>
-	public void Initialize()
+	public void ValidateDatabase()
 	{
-		Database.Migrate();
-		string databasePath = GetDatabasePath();
-		Console.WriteLine($"Database initialized/migrated at: {databasePath}");
+		DbConnection connection = Database.GetDbConnection();
+
+		try
+		{
+			if (connection.State == ConnectionState.Open)
+			{
+				ValidateUpgradeHistory(connection);
+			}
+			else
+			{
+				SqliteConnectionStringBuilder settings =
+					new SqliteConnectionStringBuilder(
+						connection.ConnectionString);
+				settings.Pooling = false;
+
+				if (settings.Mode != SqliteOpenMode.Memory &&
+					settings.DataSource != ":memory:")
+				{
+					settings.Mode = SqliteOpenMode.ReadOnly;
+				}
+
+				using SqliteConnection validationConnection =
+					new SqliteConnection(settings.ConnectionString);
+				validationConnection.Open();
+				ValidateUpgradeHistory(validationConnection);
+			}
+
+			// Zero-row queries check mapped columns without loading user data.
+			Jobs.AsNoTracking().Take(0).Load();
+			Credentials.AsNoTracking().Take(0).Load();
+			ScraperLogs.AsNoTracking().Take(0).Load();
+			SearchFilters.AsNoTracking().Take(0).Load();
+		}
+		catch (Exception exception) when (
+			exception is SqliteException or InvalidDataException)
+		{
+			string databasePath = GetDatabasePath();
+			string message =
+				$"Database '{databasePath}' is not ready. " +
+				exception.Message + " Run DevelopmentTools/" +
+				"updateDatabase.cmd or updateDatabase.sh for this database " +
+				"before starting the app.";
+			throw new InvalidOperationException(message, exception);
+		}
 	}
 
 	/// <summary>
@@ -108,6 +151,56 @@ public class JobsDbContext : DbContext
 		}
 	}
 
+	private static void ValidateUpgradeHistory(DbConnection connection)
+	{
+		using DbCommand command = connection.CreateCommand();
+		command.CommandText = "SELECT MigrationId FROM __EFMigrationsHistory";
+		HashSet<string> appliedVersions =
+			new HashSet<string>(StringComparer.Ordinal);
+
+		using (DbDataReader reader = command.ExecuteReader())
+		{
+			while (reader.Read())
+			{
+				string version = reader.GetString(0);
+				appliedVersions.Add(version);
+			}
+		}
+
+		Stream? manifest = typeof(JobsDbContext).Assembly
+			.GetManifestResourceStream("JobsDb.UpgradeOrder");
+
+		if (manifest == null)
+		{
+			throw new InvalidDataException("The SQL upgrade list is missing.");
+		}
+
+		using StreamReader manifestReader = new StreamReader(manifest);
+		string? entry = manifestReader.ReadLine();
+
+		while (entry != null)
+		{
+			string[] fields = entry.Split(
+				' ', StringSplitOptions.RemoveEmptyEntries);
+
+			if (fields.Length != 2)
+			{
+				throw new InvalidDataException(
+					"The SQL upgrade list is invalid.");
+			}
+
+			string version = fields[0];
+
+			if (!appliedVersions.Contains(version))
+			{
+				throw new InvalidDataException(
+					$"Required SQL upgrade '{version}' has not been applied.");
+			}
+
+			entry = manifestReader.ReadLine();
+		}
+	}
+
 	private static DbContextOptions<JobsDbContext> CreateOptions(
 		string databasePath)
 	{
@@ -118,17 +211,16 @@ public class JobsDbContext : DbContext
 		if (databasePath != ":memory:")
 		{
 			dataSource = Path.GetFullPath(databasePath);
-			string? databaseDirectory = Path.GetDirectoryName(dataSource);
-
-			if (databaseDirectory != null)
-			{
-				Directory.CreateDirectory(databaseDirectory);
-			}
 		}
 
 		SqliteConnectionStringBuilder connectionStringBuilder =
 			new SqliteConnectionStringBuilder();
 		connectionStringBuilder.DataSource = dataSource;
+
+		if (databasePath != ":memory:")
+		{
+			connectionStringBuilder.Mode = SqliteOpenMode.ReadWrite;
+		}
 
 		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
 			new DbContextOptionsBuilder<JobsDbContext>();

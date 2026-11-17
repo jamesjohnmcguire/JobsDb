@@ -26,6 +26,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[SetUp]
 	public void SetUp()
 	{
+		DatabaseTestSchema.Create(TestDbPath!);
 		context = new JobsDbContext(TestDbPath);
 	}
 
@@ -37,10 +38,10 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	}
 
 	[Test]
-	public void Initialize_CreatesDatabase()
+	public void ValidateDatabase_UsesPreparedDatabase()
 	{
 		// Act
-		context.Initialize();
+		context.ValidateDatabase();
 
 		// Assert
 		Assert.That(File.Exists(TestDbPath), Is.True);
@@ -61,7 +62,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void Jobs_DbSet_IsNotNull()
 	{
 		// Act
-		context.Initialize();
+		context.ValidateDatabase();
 
 		// Assert
 		Assert.That(context.Jobs, Is.Not.Null);
@@ -71,7 +72,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void Credentials_DbSet_IsNotNull()
 	{
 		// Act
-		context.Initialize();
+		context.ValidateDatabase();
 
 		// Assert
 		Assert.That(context.Credentials, Is.Not.Null);
@@ -81,7 +82,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void ScraperLogs_DbSet_IsNotNull()
 	{
 		// Act
-		context.Initialize();
+		context.ValidateDatabase();
 
 		// Assert
 		Assert.That(context.ScraperLogs, Is.Not.Null);
@@ -91,7 +92,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void SearchFilters_DbSet_IsNotNull()
 	{
 		// Act
-		context.Initialize();
+		context.ValidateDatabase();
 
 		// Assert
 		Assert.That(context.SearchFilters, Is.Not.Null);
@@ -105,7 +106,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		string sourceJobIdentifier,
 		bool expectsDuplicate)
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		Job originalJob = CopyJob(TestJob!);
 		Job incomingJob = CopyJob(originalJob);
@@ -148,7 +149,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		string source,
 		bool expectsDuplicate)
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		ScraperCredential originalCredential = new ScraperCredential
 		{
@@ -200,7 +201,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[Test]
 	public void Job_StatusEnum_SavesAsString()
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		Job appliedJob = CopyJob(TestJob!);
 		appliedJob.Status = ApplicationStatus.Applied;
@@ -226,7 +227,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[Test]
 	public void Job_DateScraped_HasDefaultValue()
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		context.Jobs.Add(TestJob);
 		context.SaveChanges();
@@ -241,7 +242,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void SearchFilter_CreatedDate_HasDefaultValue()
 	{
 		// Arrange
-		context.Initialize();
+		context.ValidateDatabase();
 
 		SearchFilter filter = new SearchFilter
 		{
@@ -266,7 +267,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	public void ScraperCredential_IsActive_HasDefaultValue()
 	{
 		// Arrange
-		context.Initialize();
+		context.ValidateDatabase();
 
 		ScraperCredential cred = new ScraperCredential
 		{
@@ -300,7 +301,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		bool expectsUnique,
 		string[] expectedColumns)
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		using SqliteConnection databaseConnection = new SqliteConnection(
 			context.Database.GetConnectionString());
@@ -339,7 +340,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[Test]
 	public void Context_MultipleInstances_UseSameDatabase()
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		context.Jobs.Add(TestJob);
 		context.SaveChanges();
@@ -364,7 +365,7 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		string propertyName,
 		string columnName)
 	{
-		context.Initialize();
+		context.ValidateDatabase();
 
 		Job job = CopyJob(TestJob!);
 		context.Jobs.Add(job);

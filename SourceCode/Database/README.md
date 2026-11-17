@@ -1,6 +1,6 @@
 # Database Schema
 
-`schema.sql` is the authoritative current SQLite schema: tables, columns, defaults, primary keys, and indexes. Edit this file directly; do not regenerate it from EF models. It also records the applied EF migration baseline so databases created from SQL can subsequently use application initialization and migrations.
+`schema.sql` is the authoritative current SQLite schema: tables, columns, defaults, primary keys, and indexes. Edit this file directly; do not regenerate it from EF models. It also records the applied SQL upgrade baseline so databases created from SQL pass library readiness validation and accept subsequent SQL upgrades.
 
 With `sqlite3` on PATH, rebuild a development database from the repository root:
 
@@ -34,7 +34,7 @@ The default is `%LOCALAPPDATA%\JobsDb\jobsdb.db`. To select another database, pa
 
 Relative filenames resolve from `SourceCode/`, where the updater runs. Prefer absolute paths; an explicitly selected parent directory must already exist. EF command options such as `--connection` are no longer accepted. The normal build forwards the optional filename to this SQL phase, then rebuilds the solution and runs all tests, stopping at the first failure.
 
-These commands preserve records and do not import postings or install example filters. Application startup still has legacy EF initialization; removing that competing schema-management path is a separate follow-up.
+These commands preserve records and do not import postings or install example filters. Application startup calls library readiness validation once. It checks the SQL version manifest and mapped queries, reports missing or incompatible databases with an updater instruction, and performs no schema upgrades or database creation.
 
 ## Job Field Contract
 

@@ -26,8 +26,8 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	public void SetUp()
 	{
 		testDbPath = Path.Combine(Path.GetTempPath(), $"test_jobs_{Guid.NewGuid()}.db");
+		DatabaseTestSchema.Create(testDbPath);
 		context = new JobsDbContext(testDbPath);
-		context.Database.EnsureCreated();
 		repository = new JobRepository(context);
 	}
 

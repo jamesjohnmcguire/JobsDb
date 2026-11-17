@@ -31,4 +31,9 @@
 		<AdditionalFiles Include="../stylecop.json" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="../Database/Upgrades/upgradeOrder.txt"
+			LogicalName="JobsDb.UpgradeOrder" />
+	</ItemGroup>
+
 </Project>
