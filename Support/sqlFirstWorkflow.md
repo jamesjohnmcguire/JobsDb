@@ -16,16 +16,16 @@ EF Core may remain inside the [data-access layer](Architecture.md) as the ORM. B
 
 `rebuildDatabase.*` already loads the master SQL and optional static data into a temporary replacement before replacing an explicitly named development database. The `jobsdb.db` filename is reserved for application data. Rebuild remains separate from the normal build.
 
-The updater and application initialization still execute EF migrations. The current script edits make that compilation prerequisite explicit, but do not implement the accepted SQL-only update direction. Existing EF history and upgrade compatibility must be preserved during the transition.
+Native updaters now use SQLite directly: initialize an empty database from the master SQL, apply unrecorded upgrades, load optional repeatable static data, then check integrity and foreign keys. No application compilation is required. Existing EF history and version IDs remain compatible. Application initialization still calls EF migrations and must be changed to validate database readiness without owning upgrades.
 
-Reviewed SQL history is now checked in under `SourceCode/Database/Upgrades/`. `upgradeOrder.txt` pairs each existing migration ID with its camelCase SQL filename, preserving the installed history baseline. Each upgrade commits its version with its changes. The Jobs rebuild also preserves identifiers consumed by deleted postings. The native updater switch remains the next step.
+Reviewed SQL history is now checked in under `SourceCode/Database/Upgrades/`. `upgradeOrder.txt` pairs each existing migration ID with its camelCase SQL filename, preserving the installed history baseline. Each upgrade commits its version with its changes. The Jobs rebuild also preserves identifiers consumed by deleted postings. The native updaters now consume these files.
 
 The Jobs-only generated context and mapper remain an isolated compatibility proof. Do not expand the duplicate storage model by default.
 
 ## Atomic Implementation Steps
 
 1. Establish ordered SQL upgrades and applied-version tracking compatible with existing databases. Review renames, table rebuilds, conversions, and required-value backfills explicitly.
-2. Change the native batch and Bash updaters to apply pending SQL and required data without compiling C#. Prevent application startup from also applying competing EF schema changes.
+2. Remove competing EF schema changes from application startup now that native SQL updaters own upgrades. Keep startup readiness checks and resource ownership explicit.
 3. Validate upgraded databases against the master schema and verify data preservation. The normal build must finish this database phase before compiling the application and running integration or end-to-end tests.
 4. Extract the data-access boundary incrementally, deciding shared model and interface ownership first. Preserve existing typed behavior and repository contracts.
 5. Apply the concise primary-key declarations and history-table naming cleanup in separate atomic changes. Compare schema semantics rather than generated SQL formatting.
