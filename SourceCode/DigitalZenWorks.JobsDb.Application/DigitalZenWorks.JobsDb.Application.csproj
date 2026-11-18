@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<AssemblyName>JobsDb</AssemblyName>
@@ -35,6 +35,7 @@
 
 	<ItemGroup>
 		<AdditionalFiles Include="../stylecop.json" />
+		<InternalsVisibleTo Include="JobsDb.Application.Tests" />
 	</ItemGroup>
 
 </Project>

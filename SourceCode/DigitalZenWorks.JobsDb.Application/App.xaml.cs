@@ -38,7 +38,9 @@ internal partial class App : Application
 			return;
 		}
 
-		MainWindow mainWindow = new MainWindow(libraryManager);
+		JobsDashboardViewModel viewModel =
+			new JobsDashboardViewModel(libraryManager.JobQueries);
+		MainWindow mainWindow = new MainWindow(viewModel);
 		mainWindow.Show();
 	}
 

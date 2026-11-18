@@ -20,6 +20,7 @@
 	<Project Path="JobsDbConsole/JobsDbConsole.csproj" />
 	<Project Path="DigitalZenWorks.JobsDb.Library/DigitalZenWorks.JobsDb.Library.csproj" />
 	<Project Path="JobsDbTests/JobsDbTests.csproj" />
+	<Project Path="JobsDb.Application.Tests/JobsDb.Application.Tests.csproj" />
 	<Project Path="UtilitiesNet/UtilitiesNetLibrary/DigitalZenWorks.Common.Utilities.csproj" />
 	<Project Path="UtilitiesNet/UtilitiesNetTests/DigitalZenWorks.Common.Utilities.Tests.csproj" />
 
