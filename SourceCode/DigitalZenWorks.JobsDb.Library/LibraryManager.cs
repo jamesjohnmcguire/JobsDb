@@ -7,6 +7,7 @@
 namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
+using System.IO;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using DigitalZenWorks.JobsDb.Library.Services;
@@ -17,6 +18,7 @@ using DigitalZenWorks.JobsDb.Library.Services;
 public sealed class LibraryManager : IDisposable
 {
 	private readonly JobsDbContext context;
+	private readonly string databasePath;
 	private readonly IJobRepository jobRepository;
 	private readonly IJobQueryService jobQueries;
 	private readonly ICredentialRepository credentialRepository;
@@ -26,8 +28,10 @@ public sealed class LibraryManager : IDisposable
 	private LibraryManager(JobsDbContext context)
 	{
 		this.context = context;
+		databasePath = Path.GetFullPath(context.GetDatabasePath());
 		jobRepository = new JobRepository(context);
-		jobQueries = new JobQueryService(jobRepository);
+		DatabaseJobReader jobReader = new DatabaseJobReader(CreateReadContext);
+		jobQueries = new JobQueryService(jobReader);
 		credentialRepository = new CredentialRepository(context);
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
 	}
@@ -122,6 +126,12 @@ public sealed class LibraryManager : IDisposable
 		disposed = true;
 		context.Dispose();
 		GC.SuppressFinalize(this);
+	}
+
+	private JobsDbContext CreateReadContext()
+	{
+		ObjectDisposedException.ThrowIf(disposed, this);
+		return new JobsDbContext(databasePath);
 	}
 
 	private IJobRefreshService CreateRefreshService()

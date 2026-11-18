@@ -17,12 +17,12 @@ using DigitalZenWorks.JobsDb.Library.Repositories;
 /// </summary>
 internal sealed class JobQueryService : IJobQueryService
 {
-	private readonly IJobRepository jobRepository;
+	private readonly IJobReader jobReader;
 
-	public JobQueryService(IJobRepository jobRepository)
+	public JobQueryService(IJobReader jobReader)
 	{
-		ArgumentNullException.ThrowIfNull(jobRepository);
-		this.jobRepository = jobRepository;
+		ArgumentNullException.ThrowIfNull(jobReader);
+		this.jobReader = jobReader;
 	}
 
 	/// <inheritdoc/>
@@ -30,9 +30,9 @@ internal sealed class JobQueryService : IJobQueryService
 	{
 		if (includeArchived)
 		{
-			return jobRepository.GetAllAsync();
+			return jobReader.GetAllAsync();
 		}
 
-		return jobRepository.GetActiveJobsAsync();
+		return jobReader.GetActiveJobsAsync();
 	}
 }

@@ -10,13 +10,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Models;
 
-public interface IJobRepository
+public interface IJobRepository : IJobReader
 {
-	Task<List<Job>> GetAllAsync();
-
 	Task<List<Job>> GetByStatusAsync(ApplicationStatus status);
-
-	Task<List<Job>> GetActiveJobsAsync();
 
 	Task<Job> GetByIdAsync(int id);
 

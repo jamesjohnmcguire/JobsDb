@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Services;
 using NUnit.Framework;
 
 [TestFixture]
@@ -93,6 +94,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 	{
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
 		IJobRepository repository = manager.Jobs;
+		IJobQueryService queries = manager.JobQueries;
 		manager.Dispose();
 		manager.Dispose();
 
@@ -102,5 +104,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Refresh);
 		Assert.ThrowsAsync<ObjectDisposedException>(
 			async () => await repository.GetAllAsync().ConfigureAwait(false));
+		Assert.ThrowsAsync<ObjectDisposedException>(
+			async () => await queries.GetJobsAsync().ConfigureAwait(false));
 	}
 }

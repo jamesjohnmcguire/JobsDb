@@ -27,7 +27,7 @@ internal sealed class JobQueryServiceTests
 		Job archivedJob = new Job { Title = "Archived", IsArchived = true };
 		List<Job> activeJobs = new List<Job> { activeJob };
 		List<Job> allJobs = new List<Job> { activeJob, archivedJob };
-		Mock<IJobRepository> repository = new Mock<IJobRepository>(
+		Mock<IJobReader> repository = new Mock<IJobReader>(
 			MockBehavior.Strict);
 		repository.Setup(instance => instance.GetActiveJobsAsync())
 			.ReturnsAsync(activeJobs);
@@ -54,7 +54,7 @@ internal sealed class JobQueryServiceTests
 	{
 		InvalidOperationException failure =
 			new InvalidOperationException("Database unavailable");
-		Mock<IJobRepository> repository = new Mock<IJobRepository>();
+		Mock<IJobReader> repository = new Mock<IJobReader>();
 		repository.Setup(instance => instance.GetActiveJobsAsync())
 			.ThrowsAsync(failure);
 		IJobQueryService service = new JobQueryService(repository.Object);
