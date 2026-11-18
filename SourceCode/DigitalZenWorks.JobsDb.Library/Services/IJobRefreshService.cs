@@ -12,6 +12,7 @@ using DigitalZenWorks.JobsDb.Library.Scrapers;
 
 /// <summary>
 /// Refreshes persisted job listings through the library's sources.
+/// Only one refresh session may run at a time per library manager.
 /// </summary>
 public interface IJobRefreshService
 {

@@ -95,6 +95,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
 		IJobRepository repository = manager.Jobs;
 		IJobQueryService queries = manager.JobQueries;
+		IJobRefreshService refresh = manager.Refresh;
 		manager.Dispose();
 		manager.Dispose();
 
@@ -106,5 +107,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 			async () => await repository.GetAllAsync().ConfigureAwait(false));
 		Assert.ThrowsAsync<ObjectDisposedException>(
 			async () => await queries.GetJobsAsync().ConfigureAwait(false));
+		Assert.ThrowsAsync<ObjectDisposedException>(
+			async () => await refresh.RefreshJobsAsync().ConfigureAwait(false));
 	}
 }

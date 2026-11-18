@@ -30,7 +30,8 @@ public sealed class LibraryManager : IDisposable
 		this.context = context;
 		databasePath = Path.GetFullPath(context.GetDatabasePath());
 		jobRepository = new JobRepository(context);
-		DatabaseJobReader jobReader = new DatabaseJobReader(CreateReadContext);
+		DatabaseJobReader jobReader =
+			new DatabaseJobReader(CreateOperationContext);
 		jobQueries = new JobQueryService(jobReader);
 		credentialRepository = new CredentialRepository(context);
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
@@ -128,14 +129,12 @@ public sealed class LibraryManager : IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	private JobsDbContext CreateReadContext()
+	private static IJobRefreshService CreateScraperService(
+		JobsDbContext context)
 	{
-		ObjectDisposedException.ThrowIf(disposed, this);
-		return new JobsDbContext(databasePath);
-	}
-
-	private IJobRefreshService CreateRefreshService()
-	{
+		IJobRepository jobRepository = new JobRepository(context);
+		ICredentialRepository credentialRepository =
+			new CredentialRepository(context);
 		ConfigurationManager configurationManager =
 			new ConfigurationManager();
 		CookieManager cookieManager = new CookieManager();
@@ -155,5 +154,17 @@ public sealed class LibraryManager : IDisposable
 				cookieManager,
 				configurationManager));
 		return service;
+	}
+
+	private JobsDbContext CreateOperationContext()
+	{
+		ObjectDisposedException.ThrowIf(disposed, this);
+		return new JobsDbContext(databasePath);
+	}
+
+	private IJobRefreshService CreateRefreshService()
+	{
+		return new JobRefreshService(
+			CreateOperationContext, CreateScraperService);
 	}
 }
