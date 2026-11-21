@@ -6,6 +6,8 @@
 
 namespace DigitalZenWorks.JobsDb.Library.EmailImport;
 
+using DigitalZenWorks.JobsDb.Library.Models;
+using OpenQA.Selenium.DevTools.V149.Page;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using DigitalZenWorks.JobsDb.Library.Models;
+using static System.Collections.Specialized.BitVector32;
 
 /// <summary>
 /// Reads paired HTML/text body exports without modifying their source files.
@@ -75,6 +77,70 @@ public static class ExportedEmailReader
 		return results.OrderBy(
 			result => result.SourceName, StringComparer.OrdinalIgnoreCase)
 			.ToList();
+	}
+
+	private static Email CreateEmail(
+		DateTime sentOn,
+		MailAddress? sender,
+		string htmlBody,
+		string textBody,
+		bool isHtml)
+	{
+		Email email = new Email();
+		email.SentOn = sentOn;
+		email.SenderName = sender.DisplayName;
+		email.SenderAddress = sender.Address;
+
+		if (isHtml)
+		{
+			email.HtmlBody = htmlBody;
+		}
+		else
+		{
+			email.TextBody = textBody;
+		}
+
+		return email;
+	}
+
+	private static MailAddress? CreateSender(string senderLine)
+	{
+		MailAddress? sender = null;
+
+		string senderText = senderLine.Substring(7);
+		senderText = senderText.Trim();
+
+		if (!MailAddress.TryCreate(senderText, out sender))
+		{
+			throw new FormatException("Invalid Sender export address.");
+		}
+
+		return sender;
+	}
+
+	private static DateTime GetSentTime(string sentLine)
+	{
+		string timestamp = sentLine.Substring(5);
+		timestamp = timestamp.Trim();
+
+		bool result = DateTime.TryParseExact(
+			timestamp,
+			TimestampFormats,
+			CultureInfo.InvariantCulture,
+			DateTimeStyles.RoundtripKind,
+			out DateTime sentOn);
+
+		if (result == false)
+		{
+			throw new FormatException("Invalid Sent export timestamp.");
+		}
+
+		if (sentOn.Kind == DateTimeKind.Local)
+		{
+			sentOn = sentOn.ToUniversalTime();
+		}
+
+		return sentOn;
 	}
 
 	private static bool IsHtml(string extension)
@@ -177,8 +243,11 @@ public static class ExportedEmailReader
 			body = RemoveLineBreak(body);
 		}
 
-		using StringReader reader = new StringReader(metadata.TrimStart());
+		metadata = metadata.TrimStart();
+		using StringReader reader = new StringReader(metadata);
+
 		string? sentLine = reader.ReadLine();
+
 		if (sentLine == null ||
 			!sentLine.StartsWith("Sent:", StringComparison.OrdinalIgnoreCase))
 		{
@@ -186,47 +255,30 @@ public static class ExportedEmailReader
 		}
 
 		string? senderLine = reader.ReadLine();
-		if (senderLine == null ||
-			!senderLine.StartsWith(
-				"Sender:", StringComparison.OrdinalIgnoreCase))
+
+		if (senderLine == null || !senderLine.StartsWith(
+			"Sender:", StringComparison.OrdinalIgnoreCase))
 		{
 			throw new FormatException("Missing Sender export metadata.");
 		}
 
-		string timestamp = sentLine.Substring(5).Trim();
-		if (!DateTime.TryParseExact(
-			timestamp,
-			TimestampFormats,
-			CultureInfo.InvariantCulture,
-			DateTimeStyles.RoundtripKind,
-			out DateTime sentOn))
+		DateTime sentOn = GetSentTime(sentLine);
+
+		MailAddress? sender = CreateSender(senderLine);
+
+		string textBody = string.Empty;
+		if (isHtml == false)
 		{
-			throw new FormatException("Invalid Sent export timestamp.");
+			string text = reader.ReadToEnd();
+			textBody = RemoveLineBreak(text);
 		}
 
-		if (sentOn.Kind == DateTimeKind.Local)
-		{
-			sentOn = sentOn.ToUniversalTime();
-		}
-
-		string senderText = senderLine.Substring(7).Trim();
-		if (!MailAddress.TryCreate(senderText, out MailAddress? sender))
-		{
-			throw new FormatException("Invalid Sender export address.");
-		}
-
-		Email email = new Email();
-		email.SentOn = sentOn;
-		email.SenderName = sender.DisplayName;
-		email.SenderAddress = sender.Address;
-		if (isHtml)
-		{
-			email.HtmlBody = body;
-		}
-		else
-		{
-			email.TextBody = RemoveLineBreak(reader.ReadToEnd());
-		}
+		Email email = CreateEmail(
+			sentOn,
+			sender,
+			body,
+			textBody,
+			isHtml);
 
 		return email;
 	}
@@ -235,12 +287,12 @@ public static class ExportedEmailReader
 	{
 		if (text.StartsWith("\r\n", StringComparison.Ordinal))
 		{
-			return text.Substring(2);
+			text = text.Substring(2);
 		}
 
 		if (text.StartsWith('\n'))
 		{
-			return text.Substring(1);
+			text = text.Substring(1);
 		}
 
 		return text;
