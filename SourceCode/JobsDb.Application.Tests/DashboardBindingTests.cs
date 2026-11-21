@@ -17,6 +17,7 @@ using System.Windows.Threading;
 using DigitalZenWorks.JobsDb.Application;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
 using JobsDbTests;
 using NUnit.Framework;
 
@@ -56,8 +57,10 @@ internal sealed class DashboardBindingTests
 				SourceJobId = "2",
 				DatePosted = firstJob.DatePosted.AddDays(-1)
 			};
-			manager.Jobs.AddAsync(firstJob).GetAwaiter().GetResult();
-			manager.Jobs.AddAsync(secondJob).GetAwaiter().GetResult();
+			using JobsDbContext preparation = new JobsDbContext(databasePath);
+			JobRepository repository = new JobRepository(preparation);
+			repository.AddAsync(firstJob).GetAwaiter().GetResult();
+			repository.AddAsync(secondJob).GetAwaiter().GetResult();
 			JobsDashboardViewModel viewModel =
 				new JobsDashboardViewModel(manager.JobQueries);
 			viewModel.LoadJobsAsync().GetAwaiter().GetResult();

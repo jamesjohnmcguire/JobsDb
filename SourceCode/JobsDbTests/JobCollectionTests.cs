@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
+using DigitalZenWorks.JobsDb.Library.Repositories;
 using NUnit.Framework;
 
 [TestFixture]
@@ -34,6 +35,8 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 	public async Task GetJobsAsync_ReturnsOrderedCompleteCollection(
 		bool includeArchived)
 	{
+		using JobsDbContext writeContext = new JobsDbContext(TestDbPath!);
+		JobRepository repository = new JobRepository(writeContext);
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
 		Job olderJob = CreateJob("Older");
 		olderJob.DatePosted = olderJob.DatePosted.AddDays(-1);
@@ -41,10 +44,10 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 		archivedJob.IsArchived = true;
 		Job newerJob = CreateJob("Newer");
 		Job tiedJob = CreateJob("Tied");
-		await manager.Jobs.AddAsync(olderJob).ConfigureAwait(false);
-		await manager.Jobs.AddAsync(archivedJob).ConfigureAwait(false);
-		await manager.Jobs.AddAsync(newerJob).ConfigureAwait(false);
-		await manager.Jobs.AddAsync(tiedJob).ConfigureAwait(false);
+		await repository.AddAsync(olderJob).ConfigureAwait(false);
+		await repository.AddAsync(archivedJob).ConfigureAwait(false);
+		await repository.AddAsync(newerJob).ConfigureAwait(false);
+		await repository.AddAsync(tiedJob).ConfigureAwait(false);
 
 		List<Job> jobs = await manager.JobQueries.GetJobsAsync(includeArchived)
 			.ConfigureAwait(false);
@@ -67,22 +70,24 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 	[Test]
 	public async Task GetJobsAsync_DisplayChangesRequireExplicitSave()
 	{
+		using JobsDbContext writeContext = new JobsDbContext(TestDbPath!);
+		JobRepository repository = new JobRepository(writeContext);
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
 		Job originalJob = CreateJob("Original");
-		await manager.Jobs.AddAsync(originalJob).ConfigureAwait(false);
+		await repository.AddAsync(originalJob).ConfigureAwait(false);
 		List<Job> jobs =
 			await manager.JobQueries.GetJobsAsync().ConfigureAwait(false);
 		Job displayedJob = jobs[0];
 		displayedJob.Title = "Edited in display";
 		Job unrelatedJob = CreateJob("Unrelated");
-		await manager.Jobs.AddAsync(unrelatedJob).ConfigureAwait(false);
+		await repository.AddAsync(unrelatedJob).ConfigureAwait(false);
 
 		List<Job> reloadedJobs =
 			await manager.JobQueries.GetJobsAsync().ConfigureAwait(false);
 		Job unchangedJob = reloadedJobs.Find(job => job.Id == originalJob.Id)!;
 		Assert.That(unchangedJob.Title, Is.EqualTo("Original"));
 
-		await manager.Jobs.UpdateAsync(displayedJob).ConfigureAwait(false);
+		await repository.UpdateAsync(displayedJob).ConfigureAwait(false);
 		using LibraryManager reader = LibraryManager.Initialize(TestDbPath);
 		List<Job> savedJobs =
 			await reader.JobQueries.GetJobsAsync().ConfigureAwait(false);

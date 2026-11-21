@@ -35,7 +35,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 	[Test]
 	public async Task Initialize_PreparedDatabase_ProvidesPersistentJobs()
 	{
-		using (LibraryManager manager = LibraryManager.Initialize(TestDbPath))
+		using (JobsDbContext preparation = new JobsDbContext(TestDbPath!))
 		{
 			Job job = new Job
 			{
@@ -45,7 +45,8 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 				SourceUrl = "https://example.com/jobs/1",
 				SourceJobId = "1"
 			};
-			await manager.Jobs.AddAsync(job).ConfigureAwait(false);
+			JobRepository repository = new JobRepository(preparation);
+			await repository.AddAsync(job).ConfigureAwait(false);
 		}
 
 		using LibraryManager reader = LibraryManager.Initialize(TestDbPath);
@@ -53,9 +54,6 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 			await reader.JobQueries.GetJobsAsync().ConfigureAwait(false);
 		Assert.That(jobs, Has.Count.EqualTo(1));
 		Assert.That(jobs[0].Title, Is.EqualTo("Software Developer"));
-		Assert.That(
-			await reader.Credentials.GetAllActiveAsync().ConfigureAwait(false),
-			Is.Empty);
 	}
 
 	[Test]
@@ -86,25 +84,20 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 			() => LibraryManager.Initialize(TestDbPath));
 		DatabaseTestSchema.Create(TestDbPath!);
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
-		Assert.That(manager.Jobs, Is.InstanceOf<IJobRepository>());
+		Assert.That(manager.JobQueries, Is.InstanceOf<IJobQueryService>());
 	}
 
 	[Test]
 	public void Dispose_PreventsFurtherServiceAccess()
 	{
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
-		IJobRepository repository = manager.Jobs;
 		IJobQueryService queries = manager.JobQueries;
 		IJobRefreshService refresh = manager.Refresh;
 		manager.Dispose();
 		manager.Dispose();
 
-		Assert.Throws<ObjectDisposedException>(() => _ = manager.Jobs);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.JobQueries);
-		Assert.Throws<ObjectDisposedException>(() => _ = manager.Credentials);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Refresh);
-		Assert.ThrowsAsync<ObjectDisposedException>(
-			async () => await repository.GetAllAsync().ConfigureAwait(false));
 		Assert.ThrowsAsync<ObjectDisposedException>(
 			async () => await queries.GetJobsAsync().ConfigureAwait(false));
 		Assert.ThrowsAsync<ObjectDisposedException>(

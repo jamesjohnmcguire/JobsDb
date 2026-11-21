@@ -13,27 +13,21 @@ using DigitalZenWorks.JobsDb.Library.Scrapers;
 using DigitalZenWorks.JobsDb.Library.Services;
 
 /// <summary>
-/// Initializes library services and owns their database lifetime.
+/// Initializes library services and coordinates operation lifetimes.
 /// </summary>
 public sealed class LibraryManager : IDisposable
 {
-	private readonly JobsDbContext context;
 	private readonly string databasePath;
-	private readonly IJobRepository jobRepository;
 	private readonly IJobQueryService jobQueries;
-	private readonly ICredentialRepository credentialRepository;
 	private readonly Lazy<IJobRefreshService> refreshService;
 	private bool disposed;
 
 	private LibraryManager(JobsDbContext context)
 	{
-		this.context = context;
 		databasePath = Path.GetFullPath(context.GetDatabasePath());
-		jobRepository = new JobRepository(context);
 		DatabaseJobReader jobReader =
 			new DatabaseJobReader(CreateOperationContext);
 		jobQueries = new JobQueryService(jobReader);
-		credentialRepository = new CredentialRepository(context);
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
 	}
 
@@ -46,30 +40,6 @@ public sealed class LibraryManager : IDisposable
 		{
 			ObjectDisposedException.ThrowIf(disposed, this);
 			return jobQueries;
-		}
-	}
-
-	/// <summary>
-	/// Gets the job repository.
-	/// </summary>
-	public IJobRepository Jobs
-	{
-		get
-		{
-			ObjectDisposedException.ThrowIf(disposed, this);
-			return jobRepository;
-		}
-	}
-
-	/// <summary>
-	/// Gets the credential repository.
-	/// </summary>
-	public ICredentialRepository Credentials
-	{
-		get
-		{
-			ObjectDisposedException.ThrowIf(disposed, this);
-			return credentialRepository;
 		}
 	}
 
@@ -104,15 +74,10 @@ public sealed class LibraryManager : IDisposable
 			context = new JobsDbContext(databasePath);
 		}
 
-		try
+		using (context)
 		{
 			context.ValidateDatabase();
 			return new LibraryManager(context);
-		}
-		catch
-		{
-			context.Dispose();
-			throw;
 		}
 	}
 
@@ -125,7 +90,6 @@ public sealed class LibraryManager : IDisposable
 		}
 
 		disposed = true;
-		context.Dispose();
 		GC.SuppressFinalize(this);
 	}
 
