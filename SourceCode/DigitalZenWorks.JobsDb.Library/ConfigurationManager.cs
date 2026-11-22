@@ -16,98 +16,107 @@ using System.Text.Json.Serialization;
 /// </summary>
 public class ConfigurationManager
 {
-	private readonly string _configPath;
-	private AppConfiguration config;
 	private const string DefaultConfigFileName = "jobsdb_config.json";
 
-	public ConfigurationManager(string configPath = null)
-	{
-		if (string.IsNullOrEmpty(configPath))
+	private static readonly JsonSerializerOptions SerializationOptions =
+		new JsonSerializerOptions
 		{
-			var appDataFolder = Path.Combine(
-				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-				"JobsDb");
-			Directory.CreateDirectory(appDataFolder);
-			_configPath = Path.Combine(appDataFolder, DefaultConfigFileName);
-		}
-		else
-		{
-			_configPath = configPath;
-		}
+			WriteIndented = true,
+			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+		};
 
+	private readonly string configurationPath;
+	private AppConfiguration configuration = new AppConfiguration();
+
+	public ConfigurationManager(string? configPath = null)
+	{
+		configurationPath = ResolveConfigurationPath(configPath);
 		LoadConfiguration();
 	}
 
-	public AppConfiguration Config => config;
-
-	private void LoadConfiguration()
-	{
-		if (File.Exists(_configPath))
-		{
-			try
-			{
-				var json = File.ReadAllText(_configPath);
-				config = JsonSerializer.Deserialize<AppConfiguration>(json);
-				Console.WriteLine($"✓ Configuration loaded from: {_configPath}");
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"⚠ Error loading config: {ex.Message}");
-				config = CreateDefaultConfiguration();
-			}
-		}
-		else
-		{
-			Console.WriteLine($"ℹ No config file found. Creating default at: {_configPath}");
-			config = CreateDefaultConfiguration();
-			SaveConfiguration();
-		}
-	}
+	public AppConfiguration Config => configuration;
 
 	public void SaveConfiguration()
 	{
 		try
 		{
-			JsonSerializerOptions options = new JsonSerializerOptions
-			{
-				WriteIndented = true,
-				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-			};
-
-			var json = JsonSerializer.Serialize(config, options);
-			File.WriteAllText(_configPath, json);
-			Console.WriteLine($"✓ Configuration saved to: {_configPath}");
+			string json = JsonSerializer.Serialize(
+				configuration, SerializationOptions);
+			File.WriteAllText(configurationPath, json);
+			Console.WriteLine(
+				$"Configuration saved to: {configurationPath}");
 		}
-		catch (Exception ex)
+		catch (Exception exception) when (
+			exception is IOException or UnauthorizedAccessException)
 		{
-			Console.WriteLine($"❌ Error saving config: {ex.Message}");
+			Console.WriteLine(
+				$"Error saving configuration: {exception.Message}");
 		}
 	}
 
-	private AppConfiguration CreateDefaultConfiguration()
+	public string? GetDecryptedPassword(string source)
 	{
-		AppConfiguration appConfig = new AppConfiguration();
-
-		return appConfig;
-	}
-
-	public string GetDecryptedPassword(string source)
-	{
-		var credential = config.Credentials.Find(c => c.Source == source);
-		if (credential == null || string.IsNullOrEmpty(credential.Password))
+		CredentialConfig? credential = GetCredentialConfig(source);
+		if (string.IsNullOrEmpty(credential?.Password))
 		{
 			return null;
 		}
 
-		// Password is stored in plain text in JSON for simplicity
-		// It gets encrypted when stored in the database
+		// JSON passwords are plaintext; database storage encrypts them.
 		return credential.Password;
 	}
 
-	public CredentialConfig GetCredentialConfig(string source)
+	public CredentialConfig? GetCredentialConfig(string source)
 	{
-		CredentialConfig? credentialsConfig =
-			config.Credentials.Find(c => c.Source == source);
-		return credentialsConfig;
+		return configuration.Credentials?.Find(
+			credential => credential.Source == source);
+	}
+
+	private static string ResolveConfigurationPath(string? configPath)
+	{
+		if (!string.IsNullOrEmpty(configPath))
+		{
+			return configPath;
+		}
+
+		string localApplicationData = Environment.GetFolderPath(
+			Environment.SpecialFolder.LocalApplicationData);
+		string applicationDataFolder = Path.Combine(
+			localApplicationData, "JobsDb");
+		Directory.CreateDirectory(applicationDataFolder);
+		return Path.Combine(applicationDataFolder, DefaultConfigFileName);
+	}
+
+	private void LoadConfiguration()
+	{
+		if (!File.Exists(configurationPath))
+		{
+			Console.WriteLine(
+				$"Creating default configuration at: {configurationPath}");
+			SaveConfiguration();
+			return;
+		}
+
+		LoadExistingConfiguration();
+	}
+
+	private void LoadExistingConfiguration()
+	{
+		try
+		{
+			string json = File.ReadAllText(configurationPath);
+			AppConfiguration? loadedConfiguration =
+				JsonSerializer.Deserialize<AppConfiguration>(json);
+			configuration = loadedConfiguration ?? new AppConfiguration();
+			Console.WriteLine(
+				$"Configuration loaded from: {configurationPath}");
+		}
+		catch (Exception exception) when (
+			exception is IOException or UnauthorizedAccessException or
+				JsonException)
+		{
+			Console.WriteLine(
+				$"Error loading configuration: {exception.Message}");
+		}
 	}
 }

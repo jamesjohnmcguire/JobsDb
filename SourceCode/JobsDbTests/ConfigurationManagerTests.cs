@@ -14,152 +14,156 @@ using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
 [TestFixture]
-internal class ConfigurationManagerTests
+internal sealed class ConfigurationManagerTests
 {
-	private string testConfigPath;
+	private string testConfigurationPath = string.Empty;
 
 	[SetUp]
 	public void SetUp()
 	{
-		testConfigPath = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+		testConfigurationPath = Path.Combine(
+			Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
-		if (File.Exists(testConfigPath))
+		if (File.Exists(testConfigurationPath))
 		{
-			File.Delete(testConfigPath);
+			File.Delete(testConfigurationPath);
 		}
 	}
 
 	[Test]
 	public void Constructor_NoConfigFile_CreatesDefaultConfiguration()
 	{
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
+		ConfigurationManager manager = CreateManager();
 
 		Assert.That(manager.Config, Is.Not.Null);
 		Assert.That(manager.Config.Credentials, Is.Not.Null);
-		Assert.That(File.Exists(testConfigPath), Is.True);
+		Assert.That(File.Exists(testConfigurationPath), Is.True);
 	}
 
 	[Test]
 	public void Constructor_ExistingConfigFile_LoadsConfiguration()
 	{
-		// Arrange
-		AppConfiguration config = new AppConfiguration
-		{
-			MasterPassword = "CustomPassword",
-			Credentials = new System.Collections.Generic.List<CredentialConfig>
-			{
-				new CredentialConfig
-				{
-					Source = "LinkedIn",
-					Username = "test@example.com",
-					Password = "testpass",
-					IsActive = true
-				}
-			}
-		};
+		AppConfiguration configuration = new AppConfiguration();
+		configuration.MasterPassword = "CustomPassword";
+		configuration.Credentials = CreateCredentials();
+		string json = JsonSerializer.Serialize(configuration);
+		File.WriteAllText(testConfigurationPath, json);
 
-		var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-		File.WriteAllText(testConfigPath, json);
+		ConfigurationManager manager = CreateManager();
 
-		// Act
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
-
-		// Assert
-		Assert.That(manager.Config.MasterPassword, Is.EqualTo("CustomPassword"));
-		Assert.That(manager.Config.Credentials[0].Username, Is.EqualTo("test@example.com"));
+		Assert.That(
+			manager.Config.MasterPassword, Is.EqualTo("CustomPassword"));
+		Assert.That(
+			manager.Config.Credentials?[0].Username,
+			Is.EqualTo("test@example.com"));
 	}
 
 	[Test]
 	public void SaveConfiguration_ValidConfig_SavesToFile()
 	{
-		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
+		ConfigurationManager manager = CreateManager();
 		manager.Config.MasterPassword = "NewPassword";
 
-		// Act
 		manager.SaveConfiguration();
 
-		// Assert
-		Assert.That(File.Exists(testConfigPath), Is.True);
-
-		var json = File.ReadAllText(testConfigPath);
-		var loaded = JsonSerializer.Deserialize<AppConfiguration>(json);
-		Assert.That(loaded.MasterPassword, Is.EqualTo("NewPassword"));
+		string json = File.ReadAllText(testConfigurationPath);
+		AppConfiguration? loadedConfiguration =
+			JsonSerializer.Deserialize<AppConfiguration>(json);
+		Assert.That(
+			loadedConfiguration?.MasterPassword, Is.EqualTo("NewPassword"));
 	}
 
 	[Test]
 	public void GetDecryptedPassword_ExistingSource_ReturnsPassword()
 	{
-		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
-		manager.Config.Credentials.Add(new CredentialConfig
-		{
-			Source = "TestSource",
-			Username = "test@example.com",
-			Password = "MyPassword123",
-			IsActive = true
-		});
+		ConfigurationManager manager = CreateManager();
+		manager.Config.Credentials = CreateCredentials();
 
-		// Act
-		var password = manager.GetDecryptedPassword("TestSource");
+		string? password = manager.GetDecryptedPassword("TestSource");
 
-		// Assert
 		Assert.That(password, Is.EqualTo("MyPassword123"));
 	}
 
 	[Test]
 	public void GetDecryptedPassword_NonExistingSource_ReturnsNull()
 	{
-		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
+		ConfigurationManager manager = CreateManager();
 
-		// Act
-		var password = manager.GetDecryptedPassword("NonExistent");
+		string? password = manager.GetDecryptedPassword("NonExistent");
 
-		// Assert
 		Assert.That(password, Is.Null);
 	}
 
 	[Test]
 	public void GetCredentialConfig_ExistingSource_ReturnsConfig()
 	{
-		ConfigurationManager manager =
-			new ConfigurationManager(testConfigPath);
-		AppConfiguration appConfig = manager.Config;
-		List<CredentialConfig> credentialsList = appConfig.Credentials;
+		ConfigurationManager manager = CreateManager();
+		manager.Config.Credentials = CreateCredentials();
 
-		CredentialConfig credentials = new CredentialConfig
-		{
-			Source = "LinkedIn",
-			Username = "test@linkedin.com",
-			Password = "pass123",
-			IsActive = true
-		};
+		CredentialConfig? credential =
+			manager.GetCredentialConfig("TestSource");
 
-		credentialsList.Add(credentials);
-
-		CredentialConfig credConfig = manager.GetCredentialConfig("LinkedIn");
-
-		// Assert
-		Assert.That(credConfig, Is.Not.Null);
-		Assert.That(credConfig.Source, Is.EqualTo("LinkedIn"));
-		Assert.That(credConfig.Username, Is.EqualTo("test@linkedin.com"));
+		Assert.That(credential, Is.Not.Null);
+		Assert.That(credential?.Source, Is.EqualTo("TestSource"));
+		Assert.That(credential?.Username, Is.EqualTo("test@example.com"));
 	}
 
 	[Test]
 	public void GetCredentialConfig_NonExistingSource_ReturnsNull()
 	{
-		// Arrange
-		ConfigurationManager manager = new ConfigurationManager(testConfigPath);
+		ConfigurationManager manager = CreateManager();
 
-		// Act
-		var credConfig = manager.GetCredentialConfig("NonExistent");
+		CredentialConfig? credential =
+			manager.GetCredentialConfig("NonExistent");
 
-		// Assert
-		Assert.That(credConfig, Is.Null);
+		Assert.That(credential, Is.Null);
+	}
+
+	[TestCase("null")]
+	[TestCase("{")]
+	[TestCase("[]")]
+	public void Constructor_InvalidOrNullJson_KeepsDefaultsAndInput(
+		string json)
+	{
+		File.WriteAllText(testConfigurationPath, json);
+
+		ConfigurationManager manager = CreateManager();
+
+		Assert.That(manager.Config, Is.Not.Null);
+		Assert.That(manager.Config.Credentials, Is.Empty);
+		Assert.That(
+			File.ReadAllText(testConfigurationPath), Is.EqualTo(json));
+	}
+
+	[TestCase("{}")]
+	[TestCase("{\"Credentials\":null}")]
+	public void CredentialLookups_MissingCollection_ReturnNull(string json)
+	{
+		File.WriteAllText(testConfigurationPath, json);
+		ConfigurationManager manager = CreateManager();
+
+		Assert.That(manager.GetCredentialConfig("LinkedIn"), Is.Null);
+		Assert.That(manager.GetDecryptedPassword("LinkedIn"), Is.Null);
+	}
+
+	private static List<CredentialConfig> CreateCredentials()
+	{
+		CredentialConfig credential = new CredentialConfig();
+		credential.Source = "TestSource";
+		credential.Username = "test@example.com";
+		credential.Password = "MyPassword123";
+		credential.IsActive = true;
+		List<CredentialConfig> credentials = new List<CredentialConfig>();
+		credentials.Add(credential);
+		return credentials;
+	}
+
+	private ConfigurationManager CreateManager()
+	{
+		return new ConfigurationManager(testConfigurationPath);
 	}
 }

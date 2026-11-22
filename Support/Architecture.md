@@ -58,6 +58,12 @@ The console already has a thinner entry point: `JobsDbConsole/Program.cs` delega
 
 Keep each change reviewable. Establish logical boundaries first; split assemblies when enforcing dependency direction justifies it. Do not introduce generic repository frameworks, service buses, or a separate service process without a demonstrated requirement.
 
+## Maintenance Backlog
+
+- Replace LinkedIn's authenticated scraping flow with unauthenticated guest/public listing access. Remove the LinkedIn credential prerequisite and login/challenge handling as part of that focused change. Verify search coverage and stable posting identity against representative guest-page fixtures before retiring the existing path. Scraper redesign remains deferred.
+- Remove the hard-coded credential encryption password in LinkedInScraper with the guest-access change. Review any remaining credential storage separately; the tracked notes and tests use example account credentials.
+- Reduce build warnings in focused batches, starting with nullable-reference and resource-lifetime defects, then obsolete APIs and style. Keep warnings visible and review submodule cleanup separately. Configuration loading now retains defaults for null/invalid JSON, and credential lookups tolerate an absent collection.
+
 ## Dashboard Appearance Task
 
 Use `TimeTracker/SourceCode/Product/TimeTracker` as the visual reference: standard WPF controls, simple spacing, a menu, and a status bar. Its `App.xaml` sets `ThemeMode="Dark"` without a custom theme package. In a separate UI iteration, offer System, Light, and Dark choices and persist the selection as a presentation preference. Check grid selection, descriptions, links, and disabled controls in each theme.
