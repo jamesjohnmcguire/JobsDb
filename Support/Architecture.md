@@ -61,7 +61,7 @@ Keep each change reviewable. Establish logical boundaries first; split assemblie
 ## Maintenance Backlog
 
 - Replace LinkedIn's authenticated scraping flow with unauthenticated guest/public listing access. Remove the LinkedIn credential prerequisite and login/challenge handling as part of that focused change. Verify search coverage and stable posting identity against representative guest-page fixtures before retiring the existing path. Scraper redesign remains deferred.
-- Remove the hard-coded credential encryption password in LinkedInScraper with the guest-access change. Review any remaining credential storage separately; the tracked notes and tests use example account credentials.
+- Deferred, alongside LinkedIn scraper work: replace the hard-coded credential encryption password in LinkedInScraper with an externally supplied secret if credentials remain necessary, or remove that dependency when guest access eliminates it. Account for existing encrypted credentials before changing the encryption mechanism.
 - Reduce build warnings in focused batches, starting with nullable-reference and resource-lifetime defects, then obsolete APIs and style. Keep warnings visible and review submodule cleanup separately. Configuration loading now retains defaults for null/invalid JSON, and credential lookups tolerate an absent collection.
 
 ## Dashboard Appearance Task
