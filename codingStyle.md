@@ -8,7 +8,7 @@ These preferences are intended to be shared across projects. Extend this documen
 - Prefer straightforward statements and control flow. Avoid clever tricks, dense expressions, nested conditional expressions, and code compressed to save space.
 - Use braces for control-flow blocks. Make the execution order easy to follow.
 - Use intermediate variables when they clarify intent or separate meaningful steps. Do not introduce temporary variables that merely add noise.
-- Keep methods focused on a clearly named responsibility.
+- Keep methods small and focused on one responsibility. Extract clearly named helper methods to separate orchestration, parsing, validation, and object creation.
 
 ## Names
 
