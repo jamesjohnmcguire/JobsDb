@@ -35,6 +35,7 @@
 
 	<ItemGroup>
 		<AdditionalFiles Include="../stylecop.json" />
+		<ProjectReference Include="../JobsDb.CommandLine/JobsDb.CommandLine.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

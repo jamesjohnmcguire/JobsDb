@@ -16,7 +16,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference
-			Include="../DigitalZenWorks.JobsDb.Application/DigitalZenWorks.JobsDb.Application.csproj" />
+			Include="../JobsDbApplication/JobsDbApplication.csproj" />
 		<Compile Include="../JobsDbTests/DatabaseTestSchema.cs"
 			Link="DatabaseTestSchema.cs" />
 		<None Include="../Database/schema.sql"

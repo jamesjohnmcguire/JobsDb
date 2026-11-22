@@ -8,6 +8,7 @@ namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.IO;
+using DigitalZenWorks.JobsDb.Library.EmailImport;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using DigitalZenWorks.JobsDb.Library.Services;
@@ -19,6 +20,7 @@ public sealed class LibraryManager : IDisposable
 {
 	private readonly string databasePath;
 	private readonly IJobQueryService jobQueries;
+	private readonly IEmailImportService emailImports;
 	private readonly Lazy<IJobRefreshService> refreshService;
 	private bool disposed;
 
@@ -28,6 +30,8 @@ public sealed class LibraryManager : IDisposable
 		DatabaseJobReader jobReader =
 			new DatabaseJobReader(CreateOperationContext);
 		jobQueries = new JobQueryService(jobReader);
+		emailImports = new EmailImportService(
+			CreateOperationContext, new LinkedInEmailParser());
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
 	}
 
@@ -40,6 +44,16 @@ public sealed class LibraryManager : IDisposable
 		{
 			ObjectDisposedException.ThrowIf(disposed, this);
 			return jobQueries;
+		}
+	}
+
+	/// <summary>Gets the exported-email import service.</summary>
+	public IEmailImportService EmailImports
+	{
+		get
+		{
+			ObjectDisposedException.ThrowIf(disposed, this);
+			return emailImports;
 		}
 	}
 

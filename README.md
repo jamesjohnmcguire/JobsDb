@@ -18,3 +18,15 @@ Run these from the repository root, or invoke the scripts by their full path fro
 The full solution includes WPF and Access integration tests, so use Windows with the x64 Microsoft Access Database Engine used by CI. The Bash scripts can run under Git Bash on Windows. Build warnings remain visible.
 
 The build and database-update scripts target `%LOCALAPPDATA%\JobsDb\jobsdb.db` by default. An optional database filename passed to build is forwarded only to its database-update stage. For example: `.\DevelopmentTools\build.cmd "C:/Data/JobsDb/review.db"`. In Bash, use `bash DevelopmentTools/build.sh "C:/Data/JobsDb/review.db"`. The selected directory must already exist. See [database instructions](SourceCode/Database/README.md) for details. Required `staticData.sql` is loaded when present; data imports remain separate.
+
+## Run the Applications
+
+Prepare the application database with `DevelopmentTools/updateDatabase.cmd` before the first import. From the repository root:
+
+```text
+dotnet run --project SourceCode/JobsDb.CommandLine -- help
+dotnet run --project SourceCode/JobsDb.CommandLine -- import "Emails"
+dotnet run --project SourceCode/JobsDbApplication
+```
+
+The console executable is `jobsdb`; the desktop executable is `JobsDbApplication`. Import currently supports LinkedIn HTML digests. It leaves export files unchanged, reports ignored/failed/review-needed items, and deduplicates stored jobs across repeated runs. Email-body storage and full-posting enrichment remain later steps.

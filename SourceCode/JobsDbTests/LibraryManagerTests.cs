@@ -98,6 +98,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.JobQueries);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Refresh);
+		Assert.Throws<ObjectDisposedException>(() => _ = manager.EmailImports);
 		Assert.ThrowsAsync<ObjectDisposedException>(
 			async () => await queries.GetJobsAsync().ConfigureAwait(false));
 		Assert.ThrowsAsync<ObjectDisposedException>(

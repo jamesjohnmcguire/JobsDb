@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<AssemblyName>jobsdb</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference
+			Include="../DigitalZenWorks.JobsDb.Library/DigitalZenWorks.JobsDb.Library.csproj" />
+		<InternalsVisibleTo Include="JobsDbTests" />
+	</ItemGroup>
+</Project>
