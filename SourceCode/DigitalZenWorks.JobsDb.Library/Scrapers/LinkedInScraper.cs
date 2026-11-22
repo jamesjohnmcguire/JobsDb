@@ -17,6 +17,7 @@ using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Services;
+using DigitalZenWorks.JobsDb.Library.Utilities;
 using HtmlAgilityPack;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -352,7 +353,24 @@ public class LinkedInScraper : JobScraperBase
 		return null;
 	}
 
-	private Job ParseJobCard(HtmlNode card)
+	private static bool SetPostingIdentity(Job job, HtmlNode card)
+	{
+		IEnumerable<string> addresses = card.Descendants("a")
+			.Select(link => link.GetAttributeValue("href", string.Empty));
+		string fallback = card.GetAttributeValue("data-job-id", string.Empty);
+		string? identifier = LinkedInJobLinks.FindIdentifier(addresses, fallback);
+		if (identifier == null)
+		{
+			return false;
+		}
+
+		job.SourceJobId = identifier;
+		Uri destination = LinkedInJobLinks.GetCanonicalUrl(identifier);
+		job.SourceUrl = destination.AbsoluteUri;
+		return true;
+	}
+
+	private Job? ParseJobCard(HtmlNode card)
 	{
 		Job job = new Job
 		{
@@ -369,7 +387,7 @@ public class LinkedInScraper : JobScraperBase
 
 		if (titleNode != null)
 		{
-			job.Title = CleanText(titleNode.InnerText);
+			job.Title = HtmlText.Normalize(titleNode.InnerText);
 		}
 
 		// Extract company
@@ -380,7 +398,7 @@ public class LinkedInScraper : JobScraperBase
 
 		if (companyNode != null)
 		{
-			job.Company = CleanText(companyNode.InnerText);
+			job.Company = HtmlText.Normalize(companyNode.InnerText);
 		}
 
 		// Extract location
@@ -389,36 +407,12 @@ public class LinkedInScraper : JobScraperBase
 
 		if (locationNode != null)
 		{
-			job.Location = CleanText(locationNode.InnerText);
+			job.Location = HtmlText.Normalize(locationNode.InnerText);
 		}
 
-		// Extract job URL and ID
-		var linkNode = card.SelectSingleNode(".//a[@href]");
-		if (linkNode != null)
+		if (!SetPostingIdentity(job, card))
 		{
-			var href = linkNode.GetAttributeValue("href", string.Empty);
-			job.SourceUrl = href;
-
-			// Extract job ID from URL (pattern: /jobs/view/1234567890)
-			var jobIdMatch = System.Text.RegularExpressions.Regex.Match(href, @"/jobs/view/(\d+)");
-			if (jobIdMatch.Success)
-			{
-				job.SourceJobId = jobIdMatch.Groups[1].Value;
-			}
-			else
-			{
-				job.SourceJobId = Guid.NewGuid().ToString();
-			}
-		}
-		else
-		{
-			// Try data attribute
-			var jobId = card.GetAttributeValue("data-job-id", string.Empty);
-			if (!string.IsNullOrEmpty(jobId))
-			{
-				job.SourceJobId = jobId;
-				job.SourceUrl = $"https://www.linkedin.com/jobs/view/{jobId}";
-			}
+			return null;
 		}
 
 		// Extract posted date
@@ -465,7 +459,7 @@ public class LinkedInScraper : JobScraperBase
 
 			if (descNode != null)
 			{
-				job.Description = CleanText(descNode.InnerText);
+				job.Description = HtmlText.Normalize(descNode.InnerText);
 			}
 
 			// Extract job criteria (seniority, job type, etc.)
@@ -481,7 +475,7 @@ public class LinkedInScraper : JobScraperBase
 						var valueNode = node.SelectSingleNode(".//span[contains(@class, 'job-criteria__text')]");
 						if (valueNode != null)
 						{
-							job.JobType = CleanText(valueNode.InnerText);
+							job.JobType = HtmlText.Normalize(valueNode.InnerText);
 						}
 					}
 				}
@@ -558,20 +552,5 @@ public class LinkedInScraper : JobScraperBase
 		}
 
 		return now;
-	}
-
-	private static string CleanText(string text)
-	{
-		if (string.IsNullOrWhiteSpace(text))
-		{
-			return string.Empty;
-		}
-
-		return HtmlEntity.DeEntitize(text)
-			.Trim()
-			.Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-			.Replace("\r", string.Empty, StringComparison.InvariantCultureIgnoreCase)
-			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
-			.Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase);
 	}
 }
