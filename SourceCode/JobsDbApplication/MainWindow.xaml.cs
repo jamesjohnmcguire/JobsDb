@@ -31,6 +31,11 @@ internal sealed partial class MainWindow : Window
 		await viewModel.LoadJobsAsync().ConfigureAwait(true);
 	}
 
+	private void OpenPosting_Click(object sender, RoutedEventArgs e)
+	{
+		viewModel.OpenSelectedPosting();
+	}
+
 	private async void ReloadJobs_Click(object sender, RoutedEventArgs e)
 	{
 		await viewModel.LoadJobsAsync().ConfigureAwait(true);

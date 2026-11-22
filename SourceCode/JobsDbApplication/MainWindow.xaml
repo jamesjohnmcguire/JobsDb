@@ -52,8 +52,16 @@
 					<TextBlock DockPanel.Dock="Top" Margin="0,0,0,8"
 						FontWeight="SemiBold"
 						Text="{Binding SelectedJob.Title}" />
+					<Button x:Name="OpenPostingButton" DockPanel.Dock="Top"
+						Content="Open Posting" HorizontalAlignment="Left"
+						Padding="12,6" Margin="0,0,0,8"
+						IsEnabled="{Binding CanOpenPosting}"
+						Click="OpenPosting_Click" />
+					<TextBlock DockPanel.Dock="Top" Margin="0,0,0,8"
+						Text="{Binding SelectedJob.SourceUrl}"
+						TextWrapping="Wrap" />
 					<TextBox x:Name="JobDescription"
-						Text="{Binding SelectedJob.Description, Mode=OneWay}"
+						Text="{Binding SelectedDescription, Mode=OneWay}"
 						IsReadOnly="True" TextWrapping="Wrap"
 						VerticalScrollBarVisibility="Auto" />
 				</DockPanel>

@@ -7,6 +7,7 @@
 namespace JobsDb.Application.Tests;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -61,8 +62,9 @@ internal sealed class DashboardBindingTests
 			JobRepository repository = new JobRepository(preparation);
 			repository.AddAsync(firstJob).GetAwaiter().GetResult();
 			repository.AddAsync(secondJob).GetAwaiter().GetResult();
+			List<Uri> opened = new List<Uri>();
 			JobsDashboardViewModel viewModel =
-				new JobsDashboardViewModel(manager.JobQueries);
+				new JobsDashboardViewModel(manager.JobQueries, opened.Add);
 			viewModel.LoadJobsAsync().GetAwaiter().GetResult();
 			MainWindow window = new MainWindow(viewModel);
 			try
@@ -86,6 +88,14 @@ internal sealed class DashboardBindingTests
 				TextBlock title =
 					(TextBlock)grid.Columns[0].GetCellContent(grid.Items[0]);
 				Assert.That(title.Text, Is.EqualTo(firstJob.Title));
+
+				Button openPosting =
+					(Button)window.FindName("OpenPostingButton");
+				Assert.That(openPosting.IsEnabled, Is.True);
+				openPosting.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+				Assert.That(opened, Has.Count.EqualTo(1));
+				Assert.That(
+					opened[0].AbsoluteUri, Is.EqualTo(firstJob.SourceUrl));
 
 				grid.SelectedItem = grid.Items[1];
 				Dispatcher.CurrentDispatcher.Invoke(

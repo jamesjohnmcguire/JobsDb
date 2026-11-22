@@ -21,15 +21,18 @@ using DigitalZenWorks.JobsDb.Library.Services;
 internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 {
 	private readonly IJobQueryService jobQueries;
+	private readonly Action<Uri> openPosting;
 	private IReadOnlyList<Job> jobs = Array.Empty<Job>();
 	private Job? selectedJob;
 	private string statusMessage = "Ready";
 	private bool isLoading;
 
-	public JobsDashboardViewModel(IJobQueryService jobQueries)
+	public JobsDashboardViewModel(
+		IJobQueryService jobQueries, Action<Uri>? openPosting = null)
 	{
 		ArgumentNullException.ThrowIfNull(jobQueries);
 		this.jobQueries = jobQueries;
+		this.openPosting = openPosting ?? PostingLauncher.Open;
 	}
 
 	public event PropertyChangedEventHandler? PropertyChanged;
@@ -53,6 +56,24 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		{
 			selectedJob = value;
 			OnPropertyChanged();
+			OnPropertyChanged(nameof(CanOpenPosting));
+			OnPropertyChanged(nameof(SelectedDescription));
+		}
+	}
+
+	public bool CanOpenPosting
+	{
+		get
+		{
+			return GetSelectedPostingAddress() != null;
+		}
+	}
+
+	public string SelectedDescription
+	{
+		get
+		{
+			return GetSelectedDescription();
 		}
 	}
 
@@ -111,28 +132,8 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		{
 			List<Job> loadedJobs = await jobQueries.GetJobsAsync()
 				.ConfigureAwait(true);
-			int? selectedJobIdentifier = SelectedJob?.Id;
-			jobs = loadedJobs;
-			OnPropertyChanged(nameof(Jobs));
-			SelectedJob = loadedJobs.Find(
-				job => job.Id == selectedJobIdentifier);
-			if (SelectedJob == null && loadedJobs.Count > 0)
-			{
-				SelectedJob = loadedJobs[0];
-			}
-
-			if (loadedJobs.Count == 0)
-			{
-				StatusMessage = "No active jobs found.";
-			}
-			else if (loadedJobs.Count == 1)
-			{
-				StatusMessage = "Loaded 1 active job.";
-			}
-			else
-			{
-				StatusMessage = $"Loaded {loadedJobs.Count} active jobs.";
-			}
+			ApplyLoadedJobs(loadedJobs);
+			UpdateLoadedStatus();
 		}
 		catch (Exception exception)
 		{
@@ -142,6 +143,93 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		{
 			IsLoading = false;
 		}
+	}
+
+	public void OpenSelectedPosting()
+	{
+		Uri? address = GetSelectedPostingAddress();
+		if (address == null)
+		{
+			StatusMessage = "Select a job with a valid HTTP or HTTPS posting.";
+			return;
+		}
+
+		try
+		{
+			openPosting(address);
+			StatusMessage = "Opening selected posting.";
+		}
+		catch (Exception exception) when (
+			exception is Win32Exception or InvalidOperationException)
+		{
+			StatusMessage = "Unable to open posting: " + exception.Message;
+		}
+	}
+
+	private void ApplyLoadedJobs(List<Job> loadedJobs)
+	{
+		int? selectedJobIdentifier = SelectedJob?.Id;
+		jobs = loadedJobs;
+		OnPropertyChanged(nameof(Jobs));
+		SelectedJob = loadedJobs.Find(job => job.Id == selectedJobIdentifier);
+		SelectFirstJobIfNeeded(loadedJobs);
+	}
+
+	private void SelectFirstJobIfNeeded(List<Job> loadedJobs)
+	{
+		if (SelectedJob == null && loadedJobs.Count > 0)
+		{
+			SelectedJob = loadedJobs[0];
+		}
+	}
+
+	private void UpdateLoadedStatus()
+	{
+		if (jobs.Count == 0)
+		{
+			StatusMessage = "No active jobs found.";
+		}
+		else if (jobs.Count == 1)
+		{
+			StatusMessage = "Loaded 1 active job.";
+		}
+		else
+		{
+			StatusMessage = $"Loaded {jobs.Count} active jobs.";
+		}
+	}
+
+	private Uri? GetSelectedPostingAddress()
+	{
+		if (!Uri.TryCreate(
+			SelectedJob?.SourceUrl, UriKind.Absolute, out Uri? address))
+		{
+			return null;
+		}
+
+		bool isWebAddress = address.Scheme == Uri.UriSchemeHttps ||
+			address.Scheme == Uri.UriSchemeHttp;
+		if (!isWebAddress || address.UserInfo.Length > 0)
+		{
+			return null;
+		}
+
+		return address;
+	}
+
+	private string GetSelectedDescription()
+	{
+		if (SelectedJob == null)
+		{
+			return "Select a job to review.";
+		}
+
+		if (string.IsNullOrWhiteSpace(SelectedJob.Description))
+		{
+			return "No description saved yet. Open the posting for details.";
+		}
+
+		return SelectedJob.Description;
 	}
 
 	private void OnPropertyChanged(
