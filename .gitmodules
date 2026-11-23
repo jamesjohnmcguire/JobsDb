@@ -7,3 +7,6 @@
 [submodule "SourceCode/UtilitiesNet"]
 	path = SourceCode/UtilitiesNet
 	url = https://github.com/jamesjohnmcguire/UtilitiesNet
+[submodule "SourceCode/LoggingFoundation"]
+	path = SourceCode/LoggingFoundation
+	url = https://github.com/jamesjohnmcguire/LoggingFoundation
