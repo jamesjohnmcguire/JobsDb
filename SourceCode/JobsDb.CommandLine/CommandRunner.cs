@@ -14,6 +14,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
+using Serilog;
+using Serilog.Events;
 
 /// <summary>
 /// Dispatches manual and scheduled command-line invocations.
@@ -23,13 +25,24 @@ internal sealed class CommandRunner
 	private readonly TextWriter output;
 	private readonly TextWriter error;
 	private readonly Func<LibraryManager> initialize;
+	private readonly ILogger? logger;
 
 	public CommandRunner(
-		TextWriter output, TextWriter error, Func<LibraryManager> initialize)
+		TextWriter output,
+		TextWriter error,
+		Func<LibraryManager> initialize,
+		ILogger? logger = null)
 	{
 		this.output = output;
 		this.error = error;
 		this.initialize = initialize;
+		this.logger = logger;
+	}
+
+	public static bool IsImportCommand(string[] args)
+	{
+		return args.Length == 2 &&
+			args[0].Equals("import", StringComparison.OrdinalIgnoreCase);
 	}
 
 	public async Task<int> RunAsync(string[] args)
@@ -42,8 +55,7 @@ internal sealed class CommandRunner
 			return 0;
 		}
 
-		if (args.Length == 2 &&
-			args[0].Equals("import", StringComparison.OrdinalIgnoreCase))
+		if (IsImportCommand(args))
 		{
 			return await ImportAsync(args[1]).ConfigureAwait(false);
 		}
@@ -68,6 +80,7 @@ internal sealed class CommandRunner
 	{
 		try
 		{
+			logger?.Information("Email import started.");
 			using LibraryManager library = initialize();
 			IReadOnlyList<EmailImportResult> results =
 				await library.EmailImports.ImportDirectoryAsync(directory)
@@ -84,6 +97,9 @@ internal sealed class CommandRunner
 		}
 		catch (Exception exception)
 		{
+			logger?.Error(
+				"Email import stopped with {ErrorType}.",
+				exception.GetType().Name);
 			await error.WriteLineAsync(exception.Message).ConfigureAwait(false);
 			return 1;
 		}
@@ -99,8 +115,9 @@ internal sealed class CommandRunner
 		int added = results.Sum(result => result.Added);
 		int updated = results.Sum(result => result.Updated);
 		int unchanged = results.Sum(result => result.Unchanged);
-		output.WriteLine(
-			$"Jobs: {added} added, {updated} updated, {unchanged} unchanged.");
+		string totals =
+			$"Jobs: {added} added, {updated} updated, {unchanged} unchanged.";
+		WriteSummary(totals, LogEventLevel.Information);
 		WriteMessageCounts(results);
 	}
 
@@ -131,6 +148,20 @@ internal sealed class CommandRunner
 			result => result.Status == EmailImportStatus.Failed);
 		string counts = $"Messages: {ignored} ignored, " +
 			$"{review} need review, {failed} failed.";
-		output.WriteLine(counts);
+		LogEventLevel level = failed > 0
+			? LogEventLevel.Error
+			: LogEventLevel.Information;
+		WriteSummary(counts, level);
+	}
+
+	private void WriteSummary(string summary, LogEventLevel level)
+	{
+		if (logger == null)
+		{
+			output.WriteLine(summary);
+			return;
+		}
+
+		logger.Write(level, "{ImportSummary}", summary);
 	}
 }

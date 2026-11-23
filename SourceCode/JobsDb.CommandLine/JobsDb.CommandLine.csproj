@@ -8,6 +8,8 @@
 	<ItemGroup>
 		<ProjectReference
 			Include="../DigitalZenWorks.JobsDb.Library/DigitalZenWorks.JobsDb.Library.csproj" />
+		<ProjectReference
+			Include="../LoggingFoundation/LoggingService/LoggingService.csproj" />
 		<InternalsVisibleTo Include="JobsDbTests" />
 	</ItemGroup>
 </Project>
