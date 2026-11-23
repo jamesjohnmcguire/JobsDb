@@ -13,6 +13,17 @@ if [ "$resultCode" -eq 0 ]; then
 fi
 
 if [ "$resultCode" -eq 0 ]; then
+	printf 'Publishing jobsdb...\n'
+	dotnet publish JobsDb.CommandLine/JobsDb.CommandLine.csproj --configuration Release --runtime win-x64 --self-contained -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded --output JobsDb.CommandLine/Release/win-x64
+	resultCode=$?
+fi
+
+if [ "$resultCode" -eq 0 ]; then
+	mv -f -- 'JobsDb.CommandLine/Release/win-x64/jobsdb.exe' '../DevelopmentTools/jobsdb.exe'
+	resultCode=$?
+fi
+
+if [ "$resultCode" -eq 0 ]; then
 	printf 'Running all tests...\n'
 	bash ../DevelopmentTools/test.sh
 	resultCode=$?

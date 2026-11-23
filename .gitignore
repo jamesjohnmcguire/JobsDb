@@ -21,3 +21,4 @@ bld/
 TestResult.xml
 
 SourceCode/Database/jobs.db
+/DevelopmentTools/jobsdb.exe
