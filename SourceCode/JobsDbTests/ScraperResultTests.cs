@@ -15,7 +15,7 @@ using NUnit.Framework;
 /// Covers default and assigned acquisition result values.
 /// </summary>
 [TestFixture]
-internal class ScraperResultTests
+internal sealed class ScraperResultTests
 {
 	/// <summary>
 	/// Checks that an empty acquisition result has the expected defaults.

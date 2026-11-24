@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Covers the scraper settings model and its defaults.
 /// </summary>
 [TestFixture]
-internal class ScraperSettingsConfigTests
+internal sealed class ScraperSettingsConfigTests
 {
 	/// <summary>
 	/// Checks that configured preferences can be assigned and read back.

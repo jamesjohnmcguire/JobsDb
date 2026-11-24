@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Covers the configurable default search criteria.
 /// </summary>
 [TestFixture]
-internal class SearchDefaultsConfigTests
+internal sealed class SearchDefaultsConfigTests
 {
 	/// <summary>
 	/// Checks that the model retains the assigned search defaults.

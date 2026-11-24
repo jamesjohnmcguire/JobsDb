@@ -22,7 +22,7 @@ using NUnit.Framework;
 /// Covers scraper registration, execution, and persisted run logs.
 /// </summary>
 [TestFixture]
-internal class ScraperServiceTests
+internal sealed class ScraperServiceTests
 {
 	private JobsDbContext context;
 	private ScraperService service;

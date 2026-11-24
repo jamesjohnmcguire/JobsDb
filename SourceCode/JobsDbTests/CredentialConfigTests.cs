@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Covers values stored in the credential settings model.
 /// </summary>
 [TestFixture]
-internal class CredentialConfigTests
+internal sealed class CredentialConfigTests
 {
 	/// <summary>
 	/// Checks that the model retains the assigned account settings.

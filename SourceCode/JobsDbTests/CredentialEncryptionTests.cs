@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Covers the current credential encryption format.
 /// </summary>
 [TestFixture]
-internal class CredentialEncryptionTests
+internal sealed class CredentialEncryptionTests
 {
 	private const string MasterPassword = "TestPassword123!";
 

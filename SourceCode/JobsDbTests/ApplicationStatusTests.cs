@@ -14,7 +14,7 @@ using NUnit.Framework;
 /// Covers the application's status values and their names.
 /// </summary>
 [TestFixture]
-internal class ApplicationStatusTests
+internal sealed class ApplicationStatusTests
 {
 	/// <summary>
 	/// Checks the complete set of application status values.

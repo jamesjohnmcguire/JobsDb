@@ -13,7 +13,7 @@ using DigitalZenWorks.JobsDb.Library.Scrapers;
 /// <summary>
 /// Runs the TokyoDev page inspection from the console.
 /// </summary>
-internal class Program
+internal sealed class Program
 {
 	private static async Task Main(string[] args)
 	{

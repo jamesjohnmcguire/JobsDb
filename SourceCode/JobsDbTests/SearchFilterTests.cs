@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Covers defaults and assigned values for saved search filters.
 /// </summary>
 [TestFixture]
-internal class SearchFilterTests
+internal sealed class SearchFilterTests
 {
 	/// <summary>
 	/// Checks the active state and fields of a new search filter.

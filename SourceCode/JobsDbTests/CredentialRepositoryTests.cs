@@ -18,7 +18,7 @@ using NUnit.Framework;
 /// Covers SQLite storage and lookup of source credentials.
 /// </summary>
 [TestFixture]
-internal class CredentialRepositoryTests
+internal sealed class CredentialRepositoryTests
 {
 	private JobsDbContext context;
 	private CredentialRepository repository;

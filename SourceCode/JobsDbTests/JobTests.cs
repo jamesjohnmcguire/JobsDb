@@ -14,7 +14,7 @@ using NUnit.Framework;
 /// Covers the job model's default values and application fields.
 /// </summary>
 [TestFixture]
-internal class JobTests
+internal sealed class JobTests
 {
 	/// <summary>
 	/// Checks the initial application and archive state of a new job.

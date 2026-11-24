@@ -14,7 +14,7 @@ using NUnit.Framework;
 /// Covers defaults and usage timestamps on stored credentials.
 /// </summary>
 [TestFixture]
-internal class ScraperCredentialTests
+internal sealed class ScraperCredentialTests
 {
 	/// <summary>
 	/// Checks that a new scraper credential is active.

@@ -14,7 +14,7 @@ using NUnit.Framework;
 /// Covers the JSON representation of application settings.
 /// </summary>
 [TestFixture]
-internal class AppConfigurationTests
+internal sealed class AppConfigurationTests
 {
 	/// <summary>
 	/// Checks that settings can be assigned on a new configuration.
