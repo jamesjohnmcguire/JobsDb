@@ -50,7 +50,7 @@ internal sealed class JobQueryServiceTests
 	}
 
 	[Test]
-	public void GetJobsAsync_FailedRead_DoesNotReturnAnEmptyCollection()
+	public async Task GetJobsAsync_FailedRead_DoesNotReturnAnEmptyCollection()
 	{
 		InvalidOperationException failure =
 			new InvalidOperationException("Database unavailable");
@@ -60,8 +60,9 @@ internal sealed class JobQueryServiceTests
 		IJobQueryService service = new JobQueryService(repository.Object);
 
 		InvalidOperationException? exception =
-			Assert.ThrowsAsync<InvalidOperationException>(
-				async () => await service.GetJobsAsync().ConfigureAwait(false));
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => service.GetJobsAsync())
+				.ConfigureAwait(false);
 
 		Assert.That(exception, Is.SameAs(failure));
 	}

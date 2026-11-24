@@ -88,7 +88,7 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 	}
 
 	[Test]
-	public void Dispose_PreventsFurtherServiceAccess()
+	public async Task Dispose_PreventsFurtherServiceAccess()
 	{
 		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
 		IJobQueryService queries = manager.JobQueries;
@@ -99,9 +99,9 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.JobQueries);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.Refresh);
 		Assert.Throws<ObjectDisposedException>(() => _ = manager.EmailImports);
-		Assert.ThrowsAsync<ObjectDisposedException>(
-			async () => await queries.GetJobsAsync().ConfigureAwait(false));
-		Assert.ThrowsAsync<ObjectDisposedException>(
-			async () => await refresh.RefreshJobsAsync().ConfigureAwait(false));
+		await Assert.ThrowsAsync<ObjectDisposedException>(
+			() => queries.GetJobsAsync()).ConfigureAwait(false);
+		await Assert.ThrowsAsync<ObjectDisposedException>(
+			() => refresh.RefreshJobsAsync()).ConfigureAwait(false);
 	}
 }

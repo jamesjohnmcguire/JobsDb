@@ -94,9 +94,10 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		try
 		{
 			Assert.That(firstRefresh.IsCompleted, Is.False);
-			Assert.ThrowsAsync<InvalidOperationException>(
-				async () => await RunRefreshAsync(service, secondAllSources)
-					.WaitAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false));
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => RunRefreshAsync(service, secondAllSources)
+					.WaitAsync(TimeSpan.FromSeconds(10)))
+				.ConfigureAwait(false);
 			Assert.That(contexts, Has.Count.EqualTo(1));
 			Assert.That(contexts[0].Jobs.Count(), Is.Zero);
 		}
@@ -144,8 +145,8 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 				return acquisition.Object;
 			});
 
-		Assert.ThrowsAsync<InvalidOperationException>(
-			async () => await service.RefreshJobsAsync().ConfigureAwait(false));
+		await Assert.ThrowsAsync<InvalidOperationException>(
+			() => service.RefreshJobsAsync()).ConfigureAwait(false);
 		AssertDisposed(contexts[0]);
 
 		await service.RefreshJobsAsync().ConfigureAwait(false);
@@ -175,8 +176,8 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 			},
 			context => acquisition.Object);
 
-		Assert.ThrowsAsync<InvalidOperationException>(
-			async () => await service.RefreshJobsAsync().ConfigureAwait(false));
+		await Assert.ThrowsAsync<InvalidOperationException>(
+			() => service.RefreshJobsAsync()).ConfigureAwait(false);
 		failCreation = false;
 
 		await service.RefreshJobsAsync().ConfigureAwait(false);

@@ -73,7 +73,7 @@ internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 	}
 
 	[Test]
-	public void Read_FailureStillDisposesContext()
+	public async Task Read_FailureStillDisposesContext()
 	{
 		using (JobsDbContext preparation = new JobsDbContext(TestDbPath!))
 		{
@@ -83,8 +83,8 @@ internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 		using JobsDbContext context = new JobsDbContext(TestDbPath!);
 		DatabaseJobReader reader = new DatabaseJobReader(() => context);
 
-		Assert.ThrowsAsync<SqliteException>(
-			async () => await reader.GetAllAsync().ConfigureAwait(false));
+		await Assert.ThrowsAsync<SqliteException>(
+			() => reader.GetAllAsync()).ConfigureAwait(false);
 		Assert.Throws<ObjectDisposedException>(() => context.Jobs.Count());
 	}
 
