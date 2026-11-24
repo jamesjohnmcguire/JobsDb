@@ -6,6 +6,8 @@ The WPF dashboard and console are thin clients. The library owns initialization,
 
 Business logic depends on typed models and focused interfaces. The target data-access DLL owns SQLite connections, EF mappings, persistence models, and repository implementations. Keep EF tracking and query types inside data access. Use one context per operation and keep network waits outside write transactions. Extract assemblies incrementally once shared model and interface ownership is clear.
 
+Reuse shared submodule code where it fits. Fix or add generally useful functionality in the owning submodule. Keep JobsDb-specific policy and EF integration in this repository.
+
 ## Data Flow
 
 ```mermaid

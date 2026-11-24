@@ -4,7 +4,6 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Database and data access
 
-- [ ] **Test** — Compare SQLite schema semantics for a fresh database and one built through SQL upgrades. Replace the existing SQL text comparison while retaining migration-history and data-preservation checks.
 - [ ] **Refactor** — Use `"id" INTEGER PRIMARY KEY AUTOINCREMENT` in the master schema and verify equivalent key behavior on fresh and upgraded databases.
 - [ ] **Refactor** — Rename `__EFMigrationsHistory` to `MigrationsHistory` in a separate change. Preserve version records and align the updater, runtime validation, and EF tooling.
 - [ ] **Refactor** — Extract the data-access DLL. Decide ownership of shared models and interfaces first, then move EF contexts, mappings, and repository implementations behind them.
