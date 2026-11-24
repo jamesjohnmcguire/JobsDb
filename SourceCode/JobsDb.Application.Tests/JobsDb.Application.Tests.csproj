@@ -6,21 +6,17 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-		<PackageReference Include="NUnit" Version="4.6.1" />
-		<PackageReference Include="NUnit.Analyzers" Version="4.14.0">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+		<PackageReference Include="NUnit" Version="5.0.0" />
+		<PackageReference Include="NUnit.Analyzers" Version="4.15.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
-		<PackageReference Include="Moq" Version="4.20.72" />
+		<PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
+		<PackageReference Include="Moq" Version="4.21.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference
-			Include="../JobsDbApplication/JobsDbApplication.csproj" />
-		<Compile Include="../JobsDbTests/DatabaseTestSchema.cs"
-			Link="DatabaseTestSchema.cs" />
-		<None Include="../Database/schema.sql"
-			Link="Database/schema.sql"
-			CopyToOutputDirectory="PreserveNewest" />
+		<ProjectReference Include="../JobsDbApplication/JobsDbApplication.csproj" />
+		<Compile Include="../JobsDbTests/DatabaseTestSchema.cs" Link="DatabaseTestSchema.cs" />
+		<None Include="../Database/schema.sql" Link="Database/schema.sql" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 </Project>
