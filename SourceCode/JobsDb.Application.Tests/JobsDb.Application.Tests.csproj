@@ -1,11 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<Nullable>enable</Nullable>
 		<TargetFramework>net11.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<Nullable>enable</Nullable>
-		<IsPackable>false</IsPackable>
 	</PropertyGroup>
+
 	<ItemGroup>
+		<PackageReference Include="Coverlet.Collector" Version="10.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
 		<PackageReference Include="NUnit" Version="5.0.0" />
 		<PackageReference Include="NUnit.Analyzers" Version="4.15.0">
@@ -13,10 +20,28 @@
 		</PackageReference>
 		<PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
 		<PackageReference Include="Moq" Version="4.21.0" />
+		<PackageReference Include="Roslynator.Analyzers" Version="5.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.3.180">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="../JobsDbApplication/JobsDbApplication.csproj" />
-		<Compile Include="../JobsDbTests/DatabaseTestSchema.cs" Link="DatabaseTestSchema.cs" />
-		<None Include="../Database/schema.sql" Link="Database/schema.sql" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="../JobsDbTests/DatabaseTestSchema.cs"
+			Link="DatabaseTestSchema.cs" />
+		<None Include="../Database/schema.sql"
+			Link="Database/schema.sql"
+			CopyToOutputDirectory="PreserveNewest" />
+		<AdditionalFiles Include="../stylecop.json" />
+	</ItemGroup>
+
 </Project>

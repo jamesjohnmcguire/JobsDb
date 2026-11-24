@@ -1,15 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<AssemblyName>jobsdb</AssemblyName>
+		<Nullable>enable</Nullable>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net11.0</TargetFramework>
-		<Nullable>enable</Nullable>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference
 			Include="../DigitalZenWorks.JobsDb.Library/DigitalZenWorks.JobsDb.Library.csproj" />
 		<ProjectReference
 			Include="../LoggingFoundation/LoggingService/LoggingService.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<InternalsVisibleTo Include="JobsDbTests" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="../stylecop.json" />
+	</ItemGroup>
+
 </Project>

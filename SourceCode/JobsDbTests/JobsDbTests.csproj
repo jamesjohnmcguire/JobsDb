@@ -2,12 +2,13 @@
 
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
 		<Nullable>enable</Nullable>
 		<TargetFramework>net11.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="10.1.1">
+		<PackageReference Include="Coverlet.Collector" Version="10.1.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -30,15 +31,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DigitalZenWorks.JobsDb.Library\DigitalZenWorks.JobsDb.Library.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AdditionalFiles Include="../stylecop.json" />
+		<ProjectReference Include="../DigitalZenWorks.JobsDb.Library/DigitalZenWorks.JobsDb.Library.csproj" />
 		<ProjectReference Include="../JobsDb.CommandLine/JobsDb.CommandLine.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<AdditionalFiles Include="../stylecop.json" />
 		<None Include="../Database/schema.sql" Link="Database/schema.sql" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="../Database/Upgrades/*" Link="Database/Upgrades/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
