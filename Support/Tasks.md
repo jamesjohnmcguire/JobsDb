@@ -10,6 +10,8 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Dashboard
 
+- [ ] **Feature** - Size the listing viewport to show whole rows at the bottom when resizing the window or dragging the splitter.
+
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
 - [ ] **Feature** - Hide the Location column when the dashboard grid is narrow. Keep the location accessible in the selected posting details.
 - [ ] **Feature** — Save application status, notes, and archive state through library operations. Provide a way to view archived jobs.
@@ -26,6 +28,7 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Acquisition and credentials
 
+- [ ] **Design** - Move scrapers to opt-in plugins. Define the provider contract, discovery, version compatibility, and failure handling. Keep validation and persistence in JobsDb, and provide a small example for third-party providers.
 - [ ] **Bug** — Remove random source IDs from TokyoDev acquisition. Use a stable posting ID or canonical URL and report listings whose identity cannot be established.
 - [ ] **Bug** — Preserve known details during partial scraper refreshes. Report per-item failures and partial success accurately before exposing refresh in the dashboard.
 - [ ] **Refactor** — Consolidate TokyoDev parsing where the HTTP and Selenium paths can share tested logic. Preserve the existing console diagnostics.

@@ -12,8 +12,10 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Threading;
 using DigitalZenWorks.JobsDb.Application;
 using DigitalZenWorks.JobsDb.Library;
@@ -43,7 +45,8 @@ internal sealed class DashboardBindingTests
 				Title = "Software Developer",
 				Company = "Example Company",
 				Location = "Tokyo",
-				Description = "Build maintainable software and useful tools.",
+				Description = "See (https://example.com/team) for details. " +
+					"More at https://example.com/about.",
 				Source = "TestSource",
 				SourceUrl = "https://example.com/jobs/1",
 				SourceJobId = "1",
@@ -92,25 +95,20 @@ internal sealed class DashboardBindingTests
 					() => { }, DispatcherPriority.ApplicationIdle);
 
 				DataGrid grid = (DataGrid)window.FindName("JobsGrid");
-				TextBox description =
-					(TextBox)window.FindName("JobDescription");
+				RichTextBox description =
+					(RichTextBox)window.FindName("JobDescription");
 				TextBlock status = (TextBlock)window.FindName("StatusText");
 				Assert.That(grid.Items.Count, Is.EqualTo(2));
 				Assert.That(grid.IsReadOnly, Is.True);
-				Assert.That(description.Text, Is.EqualTo(firstJob.Description));
+				Assert.That(
+					ReadDescription(description),
+					Is.EqualTo(firstJob.Description));
 				Assert.That(status.Text, Is.EqualTo("Inbox: 2 postings."));
 				TextBlock title =
 					(TextBlock)grid.Columns[0].GetCellContent(grid.Items[0]);
 				Assert.That(title.Text, Is.EqualTo(firstJob.Title));
 
-				Button openPosting =
-					(Button)window.FindName("OpenPostingButton");
-				Assert.That(openPosting.IsEnabled, Is.True);
-				openPosting.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-				Assert.That(opened, Has.Count.EqualTo(1));
-				Assert.That(
-					opened[0].AbsoluteUri, Is.EqualTo(firstJob.SourceUrl));
-
+				CheckPostingLinks(window, description, opened, firstJob);
 
 				grid.SelectedItem = grid.Items[1];
 				Dispatcher.CurrentDispatcher.Invoke(
@@ -118,7 +116,8 @@ internal sealed class DashboardBindingTests
 				Assert.That(
 					viewModel.SelectedJob!.Id, Is.EqualTo(secondJob.Id));
 				Assert.That(
-					description.Text, Is.EqualTo(secondJob.Description));
+					ReadDescription(description),
+					Is.EqualTo(secondJob.Description));
 				viewModel.LoadJobsAsync().GetAwaiter().GetResult();
 				Dispatcher.CurrentDispatcher.Invoke(
 					() => { }, DispatcherPriority.ApplicationIdle);
@@ -225,6 +224,46 @@ internal sealed class DashboardBindingTests
 		dashboard.UpdateLayout();
 		SolidColorBrush background = (SolidColorBrush)dashboard.Background;
 		return background.Color;
+	}
+
+	private static string ReadDescription(RichTextBox description)
+	{
+		TextRange text = new TextRange(
+			description.Document.ContentStart, description.Document.ContentEnd);
+		return text.Text.TrimEnd('\r', '\n');
+	}
+
+	private static void CheckPostingLinks(
+		MainWindow window, RichTextBox description, List<Uri> opened, Job job)
+	{
+		Hyperlink source = (Hyperlink)window.FindName("PostingAddressLink");
+		Assert.That(source.IsEnabled, Is.True);
+		source.RaiseEvent(new RoutedEventArgs(Hyperlink.ClickEvent));
+		Assert.That(opened, Has.Count.EqualTo(1));
+		Assert.That(opened[0].AbsoluteUri, Is.EqualTo(job.SourceUrl));
+
+		Assert.That(description.IsDocumentEnabled, Is.True);
+		Paragraph paragraph =
+			(Paragraph)description.Document.Blocks.FirstBlock;
+		Inline? candidate = paragraph.Inlines.FirstInline?.NextInline;
+		Assert.That(candidate, Is.TypeOf<Hyperlink>());
+		Hyperlink link = (Hyperlink)candidate!;
+		Assert.That(
+			link.NavigateUri.AbsoluteUri,
+			Is.EqualTo("https://example.com/team"));
+		Inline? finalContent = paragraph.Inlines.LastInline?.PreviousInline;
+		Assert.That(finalContent, Is.TypeOf<Hyperlink>());
+		Hyperlink lastLink = (Hyperlink)finalContent!;
+		Assert.That(
+			lastLink.NavigateUri.AbsoluteUri,
+			Is.EqualTo("https://example.com/about"));
+		RequestNavigateEventArgs request = new RequestNavigateEventArgs(
+			link.NavigateUri, string.Empty);
+		request.RoutedEvent = Hyperlink.RequestNavigateEvent;
+		link.RaiseEvent(request);
+		Assert.That(request.Handled, Is.True);
+		Assert.That(opened, Has.Count.EqualTo(2));
+		Assert.That(opened[1], Is.EqualTo(link.NavigateUri));
 	}
 
 	private static void CheckPriorityButton(

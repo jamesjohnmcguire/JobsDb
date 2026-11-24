@@ -23,7 +23,8 @@
 							<Grid x:Name="PriorityFace"
 								Background="Transparent">
 								<Ellipse x:Name="PriorityCircle"
-									Fill="{TemplateBinding Background}" StrokeThickness="1"
+									Fill="{TemplateBinding Background}"
+									StrokeThickness="0"
 									Stroke="{TemplateBinding Foreground}" />
 								<ContentPresenter x:Name="PriorityLetter"
 									HorizontalAlignment="Center"
@@ -31,15 +32,13 @@
 							</Grid>
 							<ControlTemplate.Triggers>
 								<Trigger Property="Tag" Value="Selected">
-									<Setter TargetName="PriorityCircle"
-										Property="StrokeThickness" Value="2" />
 									<Setter TargetName="PriorityLetter"
 										Property="TextElement.FontWeight"
 										Value="Bold" />
 								</Trigger>
 								<Trigger Property="IsMouseOver" Value="True">
-									<Setter TargetName="PriorityCircle"
-										Property="StrokeThickness" Value="2" />
+									<Setter TargetName="PriorityFace"
+										Property="Opacity" Value="0.85" />
 								</Trigger>
 								<Trigger Property="IsKeyboardFocused"
 									Value="True">
@@ -61,11 +60,11 @@
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="5">
 						<Setter Property="Tag" Value="Selected" />
-						<Setter Property="Background" Value="#70B6FF" />
+						<Setter Property="Background" Value="#329BFF" />
 					</DataTrigger>
 					<DataTrigger Binding="{Binding Priority}" Value="4">
 						<Setter Property="Tag" Value="Selected" />
-						<Setter Property="Background" Value="#70B6FF" />
+						<Setter Property="Background" Value="#329BFF" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
@@ -75,7 +74,7 @@
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="3">
 						<Setter Property="Tag" Value="Selected" />
-						<Setter Property="Background" Value="#69D58D" />
+						<Setter Property="Background" Value="#32D66E" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
@@ -85,11 +84,11 @@
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="1">
 						<Setter Property="Tag" Value="Selected" />
-						<Setter Property="Background" Value="#F5D65B" />
+						<Setter Property="Background" Value="#FFD32A" />
 					</DataTrigger>
 					<DataTrigger Binding="{Binding Priority}" Value="2">
 						<Setter Property="Tag" Value="Selected" />
-						<Setter Property="Background" Value="#F5D65B" />
+						<Setter Property="Background" Value="#FFD32A" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
@@ -184,26 +183,34 @@
 				ResizeBehavior="PreviousAndNext" />
 			<GroupBox Grid.Row="4" Header="Selected Job" Padding="8">
 				<DockPanel>
-					<DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-						<Button x:Name="OpenPostingButton"
-							DockPanel.Dock="Right"
-							Content="Open Posting" Padding="12,6"
-							Margin="12,0,0,0"
-							IsEnabled="{Binding CanOpenPosting}"
-							Click="OpenPosting_Click" />
-						<TextBlock FontWeight="SemiBold"
-							VerticalAlignment="Center"
-							Text="{Binding SelectedJob.Title}"
-							TextTrimming="CharacterEllipsis" />
-					</DockPanel>
 					<TextBlock DockPanel.Dock="Top" Margin="0,0,0,8"
-						Text="{Binding SelectedJob.SourceUrl}"
-						ToolTip="{Binding SelectedJob.SourceUrl}"
+						FontWeight="SemiBold"
+						Text="{Binding SelectedJob.Title}"
 						TextTrimming="CharacterEllipsis" />
-					<TextBox x:Name="JobDescription"
-						Text="{Binding SelectedDescription, Mode=OneWay}"
-						IsReadOnly="True" TextWrapping="Wrap"
-						VerticalScrollBarVisibility="Auto" />
+					<TextBlock DockPanel.Dock="Top" Margin="0,0,0,8"
+						ToolTip="{Binding SelectedJob.SourceUrl}"
+						TextTrimming="CharacterEllipsis">
+						<Hyperlink x:Name="PostingAddressLink"
+							Foreground="{DynamicResource
+								AccentTextFillColorPrimaryBrush}"
+							IsEnabled="{Binding CanOpenPosting}"
+							Click="OpenPosting_Click">
+							<Run Text="{Binding SelectedJob.SourceUrl,
+								Mode=OneWay}" />
+						</Hyperlink>
+					</TextBlock>
+					<RichTextBox x:Name="JobDescription" IsReadOnly="True"
+						IsDocumentEnabled="True"
+						VerticalScrollBarVisibility="Auto">
+						<FlowDocument PagePadding="0"
+							FontFamily="{Binding FontFamily,
+								ElementName=JobDescription}"
+							FontSize="{Binding FontSize,
+								ElementName=JobDescription}">
+							<Paragraph x:Name="DescriptionParagraph"
+								Margin="0" />
+						</FlowDocument>
+					</RichTextBox>
 				</DockPanel>
 			</GroupBox>
 		</Grid>

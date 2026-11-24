@@ -7,6 +7,7 @@
 namespace DigitalZenWorks.JobsDb.Application;
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,7 +42,33 @@ internal sealed partial class MainWindow : Window
 		ApplyTheme(theme);
 		ThemeSelector.SelectedValue = theme;
 		ThemeSelector.SelectionChanged += ThemeSelector_SelectionChanged;
+		viewModel.PropertyChanged += ViewModel_PropertyChanged;
+		UpdateDescription();
 		Loaded += MainWindow_Loaded;
+	}
+
+	/// <inheritdoc/>
+	protected override void OnClosed(EventArgs e)
+	{
+		viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+		base.OnClosed(e);
+	}
+
+	private void ViewModel_PropertyChanged(
+		object? sender, PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == nameof(viewModel.SelectedDescription))
+		{
+			UpdateDescription();
+		}
+	}
+
+	private void UpdateDescription()
+	{
+		PostingDescription.Format(
+			DescriptionParagraph.Inlines,
+			viewModel.SelectedDescription,
+			viewModel.OpenPosting);
 	}
 
 	// WPF marks runtime Fluent theme selection as experimental.

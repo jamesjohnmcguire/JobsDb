@@ -127,7 +127,8 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	{
 		get
 		{
-			return GetSelectedPostingAddress() != null;
+			Uri? address = PostingLauncher.GetWebAddress(SelectedJob?.SourceUrl);
+			return address != null;
 		}
 	}
 
@@ -241,17 +242,26 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	/// </summary>
 	public void OpenSelectedPosting()
 	{
-		Uri? address = GetSelectedPostingAddress();
+		Uri? address = PostingLauncher.GetWebAddress(SelectedJob?.SourceUrl);
 		if (address == null)
 		{
 			StatusMessage = "Select a job with a valid HTTP or HTTPS posting.";
 			return;
 		}
 
+		OpenPosting(address);
+	}
+
+	/// <summary>
+	/// Opens a validated web address in the default browser.
+	/// </summary>
+	/// <param name="address">The selected web link.</param>
+	public void OpenPosting(Uri address)
+	{
 		try
 		{
 			openPosting(address);
-			StatusMessage = "Opening selected posting.";
+			StatusMessage = "Opening posting link.";
 		}
 		catch (Exception exception) when (
 			exception is Win32Exception or InvalidOperationException)
@@ -365,24 +375,6 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		string tab = selectedReviewTab == 1 ? "Reviewed" : "Inbox";
 		string label = visibleJobs.Count == 1 ? "posting" : "postings";
 		StatusMessage = $"{tab}: {visibleJobs.Count} {label}.";
-	}
-
-	private Uri? GetSelectedPostingAddress()
-	{
-		if (!Uri.TryCreate(
-			SelectedJob?.SourceUrl, UriKind.Absolute, out Uri? address))
-		{
-			return null;
-		}
-
-		bool isWebAddress = address.Scheme == Uri.UriSchemeHttps ||
-			address.Scheme == Uri.UriSchemeHttp;
-		if (!isWebAddress || address.UserInfo.Length > 0)
-		{
-			return null;
-		}
-
-		return address;
 	}
 
 	private string GetSelectedDescription()

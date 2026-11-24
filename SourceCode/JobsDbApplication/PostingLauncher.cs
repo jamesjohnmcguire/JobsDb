@@ -13,6 +13,28 @@ using System.Diagnostics;
 internal static class PostingLauncher
 {
 	/// <summary>
+	/// Validates an absolute web address for browser navigation.
+	/// </summary>
+	/// <param name="text">The untrusted address from a posting.</param>
+	/// <returns>The address, or null if it cannot be opened.</returns>
+	public static Uri? GetWebAddress(string? text)
+	{
+		if (!Uri.TryCreate(text, UriKind.Absolute, out Uri? address))
+		{
+			return null;
+		}
+
+		bool isWebAddress = address.Scheme == Uri.UriSchemeHttps ||
+			address.Scheme == Uri.UriSchemeHttp;
+		if (!isWebAddress || address.UserInfo.Length > 0)
+		{
+			return null;
+		}
+
+		return address;
+	}
+
+	/// <summary>
 	/// Passes the posting address to the system's default browser.
 	/// </summary>
 	/// <param name="address">The validated absolute posting address.</param>
