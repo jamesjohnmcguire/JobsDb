@@ -446,14 +446,47 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		using JobsDbContext expectedContext = CreateContext();
 		LoadSchema(expectedContext);
 
-		List<string> expectedSchema = ReadSchema(expectedContext);
-		List<string> actualSchema = ReadSchema(upgradedContext);
-
-		Assert.That(actualSchema, Is.EqualTo(expectedSchema));
+		JobsDbSchemaMetadata.AssertMatches(
+			(SqliteConnection)upgradedContext.Database.GetDbConnection(),
+			(SqliteConnection)expectedContext.Database.GetDbConnection());
 		Assert.That(
 			upgradedContext.Database.GetAppliedMigrations(),
 			Is.EqualTo(expectedContext.Database.GetAppliedMigrations()));
 		Assert.That(upgradedContext.Database.GetPendingMigrations(), Is.Empty);
+	}
+
+	/// <summary>
+	/// Checks equivalence of row ID declarations and detects lost generation.
+	/// </summary>
+	/// <param name="keyDefinition">The column declaration to compare.</param>
+	/// <param name="matches">Whether it preserves the column behavior.</param>
+	[TestCase("INTEGER PRIMARY KEY AUTOINCREMENT", true)]
+	[TestCase("INTEGER PRIMARY KEY", false)]
+	[TestCase("INTEGER", false)]
+	public void ColumnMetadata_DistinguishesAutomaticKeyPolicy(
+		string keyDefinition, bool matches)
+	{
+		using JobsDbContext expectedContext = CreateContext();
+		const string expectedSql =
+			"CREATE TABLE Sample (id INTEGER NOT NULL " +
+			"CONSTRAINT PK_Sample PRIMARY KEY AUTOINCREMENT);";
+		ExecuteSql(expectedContext, expectedSql);
+		using JobsDbContext actualContext = CreateContext();
+		ExecuteSql(actualContext, $"CREATE TABLE Sample (id {keyDefinition});");
+
+		List<object[]> expectedColumns = JobsDbSchemaMetadata.ReadColumns(
+			(SqliteConnection)expectedContext.Database.GetDbConnection());
+		List<object[]> actualColumns = JobsDbSchemaMetadata.ReadColumns(
+			(SqliteConnection)actualContext.Database.GetDbConnection());
+
+		if (matches)
+		{
+			Assert.That(actualColumns, Is.EqualTo(expectedColumns));
+		}
+		else
+		{
+			Assert.That(actualColumns, Is.Not.EqualTo(expectedColumns));
+		}
 	}
 
 	/// <summary>
