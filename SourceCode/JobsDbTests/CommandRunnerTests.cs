@@ -14,9 +14,19 @@ using DigitalZenWorks.JobsDb.Library;
 using JobsDb.CommandLine;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers command dispatch, import outcomes, and exit codes.
+/// </summary>
 [TestFixture]
 internal sealed class CommandRunnerTests : EmailImportTestSupport
 {
+	/// <summary>
+	/// Verifies that help works without opening a database.
+	/// </summary>
+	/// <param name="command">
+	/// The help command or an empty argument list.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase("")]
 	[TestCase("help")]
 	public async Task Help_DoesNotInitializeDatabase(string command)
@@ -41,6 +51,11 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Verifies that invalid or incomplete commands report a usage error.
+	/// </summary>
+	/// <param name="command">The invalid or incomplete command.</param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase("unknown")]
 	[TestCase("import")]
 	public async Task InvalidArguments_ReturnUsageError(string command)
@@ -59,6 +74,10 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(error.ToString(), Does.Contain("Invalid command"));
 	}
 
+	/// <summary>
+	/// Verifies that the CLI saves listings and reports unchanged reimports.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Import_SavesJobsAndReportsRepeatRuns()
 	{
@@ -80,6 +99,10 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Verifies that a missing import directory produces a failure exit code.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Import_MissingDirectoryReturnsFailure()
 	{
@@ -97,6 +120,11 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(error.ToString(), Is.Not.Empty);
 	}
 
+	/// <summary>
+	/// Checks that unsupported messages are reported without a failed exit
+	/// code.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Import_IgnoredMessagesReturnSuccessWithReason()
 	{
@@ -115,6 +143,10 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that a failed message yields an error while valid jobs are saved.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Import_ItemFailureReturnsFailureAndKeepsValidJobs()
 	{

@@ -6,15 +6,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DigitalZenWorks.JobsDb.Library.Persistence.Generated;
 
+/// <summary>
+/// Maps the SQLite Jobs table for the scaffolded persistence model.
+/// </summary>
 public partial class JobStorageContext : DbContext
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="JobStorageContext"/> class.
+    /// </summary>
+    /// <param name="options">
+    /// The database options for the scaffolded context.
+    /// </param>
     public JobStorageContext(DbContextOptions<JobStorageContext> options)
         : base(options)
     {
     }
 
+    /// <summary>
+    /// Gets or sets the mapped storage rows for job listings.
+    /// </summary>
     public virtual DbSet<Job> Jobs { get; set; }
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Job>(entity =>

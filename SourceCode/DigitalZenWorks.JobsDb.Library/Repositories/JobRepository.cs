@@ -14,15 +14,25 @@ using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Models;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Reads and writes job listings in the JobsDb database.
+/// </summary>
 public class JobRepository : IJobRepository
 {
 	private readonly JobsDbContext context;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="JobRepository"/> class.
+	/// </summary>
+	/// <param name="context">
+	/// The database context supplied by the caller.
+	/// </param>
 	public JobRepository(JobsDbContext context)
 	{
 		this.context = context;
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<Job>> GetAllAsync()
 	{
 		return await context.Jobs
@@ -32,6 +42,7 @@ public class JobRepository : IJobRepository
 			.ToListAsync().ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<Job>> GetByStatusAsync(ApplicationStatus status)
 	{
 		return await context.Jobs
@@ -40,6 +51,7 @@ public class JobRepository : IJobRepository
 			.ToListAsync().ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<Job>> GetActiveJobsAsync()
 	{
 		return await context.Jobs
@@ -50,17 +62,20 @@ public class JobRepository : IJobRepository
 			.ToListAsync().ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<Job> GetByIdAsync(int id)
 	{
 		return await context.Jobs.FindAsync(id).ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<Job> GetBySourceIdAsync(string source, string sourceJobId)
 	{
 		return await context.Jobs
 			.FirstOrDefaultAsync(j => j.Source == source && j.SourceJobId == sourceJobId).ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<Job> AddAsync(Job job)
 	{
 		job.DateScraped = DateTime.UtcNow;
@@ -69,6 +84,7 @@ public class JobRepository : IJobRepository
 		return job;
 	}
 
+	/// <inheritdoc/>
 	public async Task<Job> UpdateAsync(Job job)
 	{
 		Job? trackedJob = context.Jobs.Local.FirstOrDefault(
@@ -87,6 +103,7 @@ public class JobRepository : IJobRepository
 		return job;
 	}
 
+	/// <inheritdoc/>
 	public async Task<bool> DeleteAsync(int id)
 	{
 		var job = await GetByIdAsync(id).ConfigureAwait(false);
@@ -100,12 +117,14 @@ public class JobRepository : IJobRepository
 		return true;
 	}
 
+	/// <inheritdoc/>
 	public async Task<bool> ExistsAsync(string source, string sourceJobId)
 	{
 		return await context.Jobs
 			.AnyAsync(j => j.Source == source && j.SourceJobId == sourceJobId).ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<Job>> SearchAsync(string searchTerm)
 	{
 		if (string.IsNullOrWhiteSpace(searchTerm))

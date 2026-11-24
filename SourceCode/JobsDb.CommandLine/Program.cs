@@ -13,6 +13,9 @@ using DigitalZenWorks.JobsDb.Library;
 using LoggingService;
 using Serilog;
 
+/// <summary>
+/// Configures import logging and runs the requested JobsDb command.
+/// </summary>
 internal static class Program
 {
 	private static async Task<int> Main(string[] args)

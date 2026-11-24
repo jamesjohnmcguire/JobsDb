@@ -17,11 +17,17 @@ using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers database ownership, overlap, and retry during acquisition.
+/// </summary>
 [TestFixture]
 internal sealed class JobRefreshServiceTests : BaseTestsSupport
 {
 	private readonly List<JobsDbContext> contexts = new List<JobsDbContext>();
 
+	/// <summary>
+	/// Prepares the refresh database and resets tracked contexts.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -29,6 +35,9 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		DatabaseTestSchema.Create(TestDbPath!);
 	}
 
+	/// <summary>
+	/// Disposes any remaining contexts and removes the test database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -41,6 +50,13 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		cleanup.Database.EnsureDeleted();
 	}
 
+	/// <summary>
+	/// Checks that refresh persists writes and disposes its context.
+	/// </summary>
+	/// <param name="allSources">
+	/// Whether to refresh all sources or one source.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task Refresh_CompletesWritesAndDisposesSession(bool allSources)
@@ -69,6 +85,16 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		AssertDisposed(contexts[0]);
 	}
 
+	/// <summary>
+	/// Checks that overlapping refreshes are rejected.
+	/// </summary>
+	/// <param name="firstAllSources">
+	/// Whether the first refresh requests all sources.
+	/// </param>
+	/// <param name="secondAllSources">
+	/// Whether the overlapping refresh requests all sources.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false, false)]
 	[TestCase(false, true)]
 	[TestCase(true, false)]
@@ -113,6 +139,13 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		AssertDisposed(contexts[1]);
 	}
 
+	/// <summary>
+	/// Checks that a failed refresh disposes its session and permits retry.
+	/// </summary>
+	/// <param name="failDuringRegistration">
+	/// Whether to fail while constructing the acquisition service.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task Refresh_FailureDisposesSessionAndAllowsRetry(
@@ -156,6 +189,10 @@ internal sealed class JobRefreshServiceTests : BaseTestsSupport
 		AssertDisposed(contexts[1]);
 	}
 
+	/// <summary>
+	/// Checks that a context creation failure does not prevent a later refresh.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Refresh_ContextCreationFailureAllowsRetry()
 	{

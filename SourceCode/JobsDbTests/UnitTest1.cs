@@ -8,13 +8,22 @@ namespace JobsDbTests;
 
 using NUnit.Framework;
 
+/// <summary>
+/// Provides a basic NUnit discovery and execution check.
+/// </summary>
 internal class Tests
 {
+	/// <summary>
+	/// Runs before the smoke test.
+	/// </summary>
 	[SetUp]
 	public void Setup()
 	{
 	}
 
+	/// <summary>
+	/// Confirms that the fixture can execute under NUnit.
+	/// </summary>
 	[Test]
 	public void Test1()
 	{

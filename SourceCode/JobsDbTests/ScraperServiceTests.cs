@@ -18,6 +18,9 @@ using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers scraper registration, execution, and persisted run logs.
+/// </summary>
 [TestFixture]
 internal class ScraperServiceTests
 {
@@ -25,6 +28,9 @@ internal class ScraperServiceTests
 	private ScraperService service;
 	private string testDbPath;
 
+	/// <summary>
+	/// Prepares the database context and scraper service for the test.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -34,6 +40,9 @@ internal class ScraperServiceTests
 		service = new ScraperService(context);
 	}
 
+	/// <summary>
+	/// Disposes the test context and removes the database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -46,6 +55,9 @@ internal class ScraperServiceTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that a registered scraper appears in the source list.
+	/// </summary>
 	[Test]
 	public void RegisterScraper_ValidScraper_IsRegistered()
 	{
@@ -63,6 +75,10 @@ internal class ScraperServiceTests
 		Assert.That(sources, Contains.Item("TestSource"));
 	}
 
+	/// <summary>
+	/// Checks that running an unknown source returns a failed result.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task RunScraperAsync_UnregisteredSource_ReturnsErrorResult()
 	{
@@ -74,6 +90,10 @@ internal class ScraperServiceTests
 		Assert.That(result.ErrorMessage, Does.Contain("No scraper registered"));
 	}
 
+	/// <summary>
+	/// Checks that running a registered source executes it and saves a log.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task RunScraperAsync_RegisteredScraper_ExecutesAndLogsResult()
 	{
@@ -98,6 +118,10 @@ internal class ScraperServiceTests
 		Assert.That(logs[0].Success, Is.True);
 	}
 
+	/// <summary>
+	/// Checks that a refresh runs all registered scrapers.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task RunAllScrapersAsync_MultipleScrapers_RunsAll()
 	{
@@ -120,6 +144,9 @@ internal class ScraperServiceTests
 		Assert.That(results.All(r => r.Success), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that source enumeration includes each registered scraper.
+	/// </summary>
 	[Test]
 	public void GetRegisteredSources_MultipleScrapers_ReturnsAllSources()
 	{
@@ -143,6 +170,13 @@ internal class ScraperServiceTests
 		Assert.That(sources, Contains.Item("TokyoDev"));
 	}
 
+	/// <summary>
+	/// Checks that refresh waits until records have been persisted.
+	/// </summary>
+	/// <param name="refreshAll">
+	/// Whether the refresh runs all sources or one source.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task Refresh_WaitsForPersistedResults(bool refreshAll)

@@ -9,9 +9,15 @@ namespace JobsDbTests;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers defaults and assigned values for saved search filters.
+/// </summary>
 [TestFixture]
 internal class SearchFilterTests
 {
+	/// <summary>
+	/// Checks the active state and fields of a new search filter.
+	/// </summary>
 	[Test]
 	public void SearchFilter_NewInstance_HasDefaultValues()
 	{
@@ -23,6 +29,9 @@ internal class SearchFilterTests
 		Assert.That(filter.IsActive, Is.False);
 	}
 
+	/// <summary>
+	/// Checks that the saved filter retains the assigned criteria.
+	/// </summary>
 	[Test]
 	public void SearchFilter_SetProperties_ValuesAreSet()
 	{

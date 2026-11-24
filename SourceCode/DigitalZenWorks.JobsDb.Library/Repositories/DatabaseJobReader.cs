@@ -18,6 +18,12 @@ internal sealed class DatabaseJobReader : IJobReader
 {
 	private readonly Func<JobsDbContext> createContext;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="DatabaseJobReader"/> class.
+	/// </summary>
+	/// <param name="createContext">
+	/// Creates a database context for each read.
+	/// </param>
 	public DatabaseJobReader(Func<JobsDbContext> createContext)
 	{
 		ArgumentNullException.ThrowIfNull(createContext);

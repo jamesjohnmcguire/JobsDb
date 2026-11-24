@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </summary>
 public class ScraperCredentialConfiguration : IEntityTypeConfiguration<ScraperCredential>
 {
+	/// <inheritdoc/>
 	public void Configure(EntityTypeBuilder<ScraperCredential> entity)
 	{
 		entity.HasIndex(e => e.Source).IsUnique();

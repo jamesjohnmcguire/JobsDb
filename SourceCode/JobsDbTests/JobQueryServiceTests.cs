@@ -15,9 +15,19 @@ using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the query service's collection selection and error propagation.
+/// </summary>
 [TestFixture]
 internal sealed class JobQueryServiceTests
 {
+	/// <summary>
+	/// Checks that the service chooses the requested reader operation.
+	/// </summary>
+	/// <param name="includeArchived">
+	/// Whether the query requests archived listings.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task GetJobsAsync_SelectsRequestedCollection(
@@ -49,6 +59,10 @@ internal sealed class JobQueryServiceTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that the service propagates the reader's original exception.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetJobsAsync_FailedRead_DoesNotReturnAnEmptyCollection()
 	{

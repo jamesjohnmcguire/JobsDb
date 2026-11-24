@@ -10,9 +10,15 @@ using System;
 using DigitalZenWorks.JobsDb.Library.Models;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the job model's default values and application fields.
+/// </summary>
 [TestFixture]
 internal class JobTests
 {
+	/// <summary>
+	/// Checks the initial application and archive state of a new job.
+	/// </summary>
 	[Test]
 	public void Job_NewInstance_HasDefaultValues()
 	{
@@ -25,6 +31,9 @@ internal class JobTests
 		Assert.That(job.IsArchived, Is.False);
 	}
 
+	/// <summary>
+	/// Checks that the model retains assigned listing and application fields.
+	/// </summary>
 	[Test]
 	public void Job_SetProperties_ValuesAreSet()
 	{
@@ -55,6 +64,9 @@ internal class JobTests
 		Assert.That(job.Priority, Is.EqualTo(5));
 	}
 
+	/// <summary>
+	/// Checks that the salary bounds and currency can be set.
+	/// </summary>
 	[Test]
 	public void Job_SetSalaryRange_ValuesAreSet()
 	{
@@ -72,6 +84,9 @@ internal class JobTests
 		Assert.That(job.SalaryCurrency, Is.EqualTo("JPY"));
 	}
 
+	/// <summary>
+	/// Checks that the application date can be recorded on an applied job.
+	/// </summary>
 	[Test]
 	public void Job_MarkAsApplied_DateAppliedIsSet()
 	{
@@ -89,6 +104,9 @@ internal class JobTests
 		Assert.That(job.DateApplied.Value, Is.EqualTo(appliedDate).Within(TimeSpan.FromSeconds(1)));
 	}
 
+	/// <summary>
+	/// Checks that a job can be marked archived.
+	/// </summary>
 	[Test]
 	public void Job_Archive_IsArchivedIsTrue()
 	{

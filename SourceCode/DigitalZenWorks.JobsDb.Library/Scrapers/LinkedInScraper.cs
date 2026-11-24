@@ -36,6 +36,19 @@ public class LinkedInScraper : JobScraperBase
 	private const string LinkedInLoginUrl = "https://www.linkedin.com/login";
 	private const string MasterPassword = "JobsDb2024!"; // Should match CredentialsWindow
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LinkedInScraper"/> class.
+	/// </summary>
+	/// <param name="jobRepository">The repository for stored listings.</param>
+	/// <param name="credentialRepository">
+	/// The repository for stored source credentials.
+	/// </param>
+	/// <param name="cookieManager">
+	/// The cookie manager, or null to use the default.
+	/// </param>
+	/// <param name="configManager">
+	/// The configuration manager, or null to use the default.
+	/// </param>
 	public LinkedInScraper(
 		IJobRepository jobRepository,
 		ICredentialRepository credentialRepository,
@@ -47,6 +60,7 @@ public class LinkedInScraper : JobScraperBase
 		this.configManager = configManager ?? new ConfigurationManager();
 	}
 
+	/// <inheritdoc/>
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -211,6 +225,7 @@ public class LinkedInScraper : JobScraperBase
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 	}
 
+	/// <inheritdoc/>
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
 	{
 		try

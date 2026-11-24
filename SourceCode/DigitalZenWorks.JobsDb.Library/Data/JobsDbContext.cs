@@ -50,12 +50,24 @@ public class JobsDbContext : DbContext
 	{
 	}
 
+	/// <summary>
+	/// Gets or sets the mapped job listings.
+	/// </summary>
 	public DbSet<Job> Jobs { get; set; }
 
+	/// <summary>
+	/// Gets or sets the mapped scraper credentials.
+	/// </summary>
 	public DbSet<ScraperCredential> Credentials { get; set; }
 
+	/// <summary>
+	/// Gets or sets the mapped acquisition logs.
+	/// </summary>
 	public DbSet<ScraperLog> ScraperLogs { get; set; }
 
+	/// <summary>
+	/// Gets or sets the mapped saved search filters.
+	/// </summary>
 	public DbSet<SearchFilter> SearchFilters { get; set; }
 
 	/// <summary>
@@ -113,6 +125,7 @@ public class JobsDbContext : DbContext
 	/// <summary>
 	/// Gets the configured SQLite data source, including in-memory names.
 	/// </summary>
+	/// <returns>The SQLite connection's data source.</returns>
 	public string GetDatabasePath()
 	{
 		DbConnection connection = Database.GetDbConnection();
@@ -128,6 +141,7 @@ public class JobsDbContext : DbContext
 		return connectionStringBuilder.DataSource;
 	}
 
+	/// <inheritdoc/>
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		ArgumentNullException.ThrowIfNull(modelBuilder);

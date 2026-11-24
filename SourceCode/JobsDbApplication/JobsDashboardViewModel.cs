@@ -27,6 +27,14 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	private string statusMessage = "Ready";
 	private bool isLoading;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="JobsDashboardViewModel"/>
+	/// class.
+	/// </summary>
+	/// <param name="jobQueries">The service supplying stored listings.</param>
+	/// <param name="openPosting">
+	/// The browser action, or null to use the default launcher.
+	/// </param>
 	public JobsDashboardViewModel(
 		IJobQueryService jobQueries, Action<Uri>? openPosting = null)
 	{
@@ -35,8 +43,12 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		this.openPosting = openPosting ?? PostingLauncher.Open;
 	}
 
+	/// <inheritdoc/>
 	public event PropertyChangedEventHandler? PropertyChanged;
 
+	/// <summary>
+	/// Gets the active listings displayed by the dashboard.
+	/// </summary>
 	public IReadOnlyList<Job> Jobs
 	{
 		get
@@ -45,6 +57,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets or sets the listing selected in the dashboard.
+	/// </summary>
 	public Job? SelectedJob
 	{
 		get
@@ -61,6 +76,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets a value indicating whether the selected posting can be opened.
+	/// </summary>
 	public bool CanOpenPosting
 	{
 		get
@@ -69,6 +87,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets the selected description or an appropriate placeholder.
+	/// </summary>
 	public string SelectedDescription
 	{
 		get
@@ -77,6 +98,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets the latest status shown in the dashboard.
+	/// </summary>
 	public string StatusMessage
 	{
 		get
@@ -91,6 +115,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets a value indicating whether a job load is in progress.
+	/// </summary>
 	public bool IsLoading
 	{
 		get
@@ -106,6 +133,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Gets a value indicating whether the dashboard can reload jobs.
+	/// </summary>
 	public bool CanLoad
 	{
 		get
@@ -114,6 +144,12 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Reloads active listings and updates the selection and status.
+	/// </summary>
+	/// <returns>
+	/// A task that completes when the load succeeds or the failure is reported.
+	/// </returns>
 	[SuppressMessage(
 		"Design",
 		"CA1031",
@@ -145,6 +181,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
+	/// <summary>
+	/// Opens the selected posting and reports the outcome in the status line.
+	/// </summary>
 	public void OpenSelectedPosting()
 	{
 		Uri? address = GetSelectedPostingAddress();

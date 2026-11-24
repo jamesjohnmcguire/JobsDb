@@ -16,6 +16,12 @@ internal sealed partial class MainWindow : Window
 {
 	private readonly JobsDashboardViewModel viewModel;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MainWindow"/> class.
+	/// </summary>
+	/// <param name="viewModel">
+	/// The source of the dashboard's data and actions.
+	/// </param>
 	internal MainWindow(JobsDashboardViewModel viewModel)
 	{
 		ArgumentNullException.ThrowIfNull(viewModel);

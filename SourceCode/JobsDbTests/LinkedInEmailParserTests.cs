@@ -11,9 +11,16 @@ using DigitalZenWorks.JobsDb.Library.EmailImport;
 using DigitalZenWorks.JobsDb.Library.Models;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers listing extraction and ignored outcomes for LinkedIn email.
+/// </summary>
 [TestFixture]
 internal sealed class LinkedInEmailParserTests
 {
+	/// <summary>
+	/// Checks extraction from a supported sender without changing the email.
+	/// </summary>
+	/// <param name="sender">The sender address for the exported digest.</param>
 	[TestCase("jobalerts-noreply@linkedin.com")]
 	[TestCase("JOBALERTS-NOREPLY@LINKEDIN.COM")]
 	public void Parse_ExtractsCardAndPreservesOriginalEmail(string sender)
@@ -47,6 +54,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(email.IsAggregate, Is.False);
 	}
 
+	/// <summary>
+	/// Checks that repeated postings and non-posting links are excluded.
+	/// </summary>
 	[Test]
 	public void Parse_DeduplicatesPostingsAndIgnoresLogoLinks()
 	{
@@ -63,6 +73,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Messages[0], Does.Contain("Duplicate posting 123"));
 	}
 
+	/// <summary>
+	/// Checks that listing details stay with the card that supplied them.
+	/// </summary>
 	[Test]
 	public void Parse_KeepsCardDetailsSeparate()
 	{
@@ -84,6 +97,10 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Candidates[1].Location, Is.EqualTo("New York"));
 	}
 
+	/// <summary>
+	/// Checks that unsupported destinations produce no candidates.
+	/// </summary>
+	/// <param name="address">The unsupported link to place in the card.</param>
 	[TestCase("https://linkedin.com.example.org/jobs/view/123/")]
 	[TestCase("https://example.org/jobs/view/123/")]
 	[TestCase("http://www.linkedin.com/jobs/view/123/")]
@@ -103,6 +120,10 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Messages, Is.Not.Empty);
 	}
 
+	/// <summary>
+	/// Checks that an absent or empty HTML body reports an ignored outcome.
+	/// </summary>
+	/// <param name="html">The unavailable or empty HTML body.</param>
 	[TestCase(null)]
 	[TestCase("")]
 	public void Parse_TextOnlyEmailHasAnExplicitIgnoredOutcome(string? html)
@@ -115,6 +136,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Messages[0], Does.Contain("HTML body"));
 	}
 
+	/// <summary>
+	/// Checks that messages from other providers are ignored.
+	/// </summary>
 	[Test]
 	public void Parse_DoesNotClaimOtherProviders()
 	{
@@ -131,6 +155,10 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Candidates, Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that missing details do not stop extraction of a review
+	/// candidate.
+	/// </summary>
 	[Test]
 	public void Parse_MissingDetailsRemainCandidatesForReview()
 	{
@@ -148,6 +176,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Messages, Has.Count.EqualTo(2));
 	}
 
+	/// <summary>
+	/// Checks that an incomplete card does not inherit another card's details.
+	/// </summary>
 	[Test]
 	public void Parse_DoesNotBorrowDetailsFromAnotherCard()
 	{
@@ -167,6 +198,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Candidates[1].Company, Is.EqualTo("Known Company"));
 	}
 
+	/// <summary>
+	/// Checks that an unrecognized template returns an ignored reason.
+	/// </summary>
 	[Test]
 	public void Parse_ChangedTemplateIsIgnoredWithReason()
 	{
@@ -186,6 +220,9 @@ internal sealed class LinkedInEmailParserTests
 		Assert.That(result.Messages, Is.Not.Empty);
 	}
 
+	/// <summary>
+	/// Checks that an ambiguous table of listings is ignored.
+	/// </summary>
 	[Test]
 	public void Parse_AmbiguousSharedTableIsIgnored()
 	{

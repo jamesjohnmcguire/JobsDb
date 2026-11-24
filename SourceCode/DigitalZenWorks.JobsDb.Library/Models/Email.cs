@@ -40,7 +40,7 @@ public class Email
 	public string? TextBody { get; set; }
 
 	/// <summary>
-	/// Gets or sets whether this email contains a collection of job listings.
+	/// Gets or sets a value indicating whether the email is a job digest.
 	/// This flag does not indicate whether processing has succeeded.
 	/// </summary>
 	public bool IsAggregate { get; set; }

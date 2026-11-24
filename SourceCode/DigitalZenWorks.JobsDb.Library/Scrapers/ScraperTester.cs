@@ -21,6 +21,9 @@ public class ScraperTester : IDisposable
 {
 	private readonly HttpClient httpClient;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ScraperTester"/> class.
+	/// </summary>
 	public ScraperTester()
 	{
 		httpClient = new HttpClient();
@@ -33,6 +36,9 @@ public class ScraperTester : IDisposable
 	/// Fetches a page and saves it locally for inspection
 	/// Also prints out potential selectors to use.
 	/// </summary>
+	/// <param name="url">The page address to inspect.</param>
+	/// <param name="outputFile">The path where the page HTML is saved.</param>
+	/// <returns>A task that completes after the page is inspected.</returns>
 	public async Task AnalyzePageStructure(string url, string outputFile = "page_analysis.html")
 	{
 		Console.WriteLine($"Fetching: {url}");
@@ -185,6 +191,14 @@ public class ScraperTester : IDisposable
 	/// <summary>
 	/// Test a specific XPath selector and show what it returns.
 	/// </summary>
+	/// <param name="url">The page address to inspect.</param>
+	/// <param name="xpath">
+	/// The XPath expression to evaluate against the page.
+	/// </param>
+	/// <param name="maxResults">The maximum number of matches to print.</param>
+	/// <returns>
+	/// A task that completes after the matching nodes are reported.
+	/// </returns>
 	public async Task TestSelector(string url, string xpath, int maxResults = 5)
 	{
 		var html = await httpClient.GetStringAsync(url).ConfigureAwait(false);
@@ -226,6 +240,9 @@ public class ScraperTester : IDisposable
 	/// <summary>
 	/// Quick test specifically for TokyoDev.
 	/// </summary>
+	/// <returns>
+	/// A task that completes after the TokyoDev page is inspected.
+	/// </returns>
 	public async Task TestTokyoDev()
 	{
 		Console.WriteLine("=== TOKYODEV STRUCTURE TEST ===");

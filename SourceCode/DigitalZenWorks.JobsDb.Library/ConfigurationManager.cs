@@ -28,14 +28,27 @@ public class ConfigurationManager
 	private readonly string configurationPath;
 	private AppConfiguration configuration = new AppConfiguration();
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ConfigurationManager"/>
+	/// class.
+	/// </summary>
+	/// <param name="configPath">
+	/// The JSON file path, or null to use the default application path.
+	/// </param>
 	public ConfigurationManager(string? configPath = null)
 	{
 		configurationPath = ResolveConfigurationPath(configPath);
 		LoadConfiguration();
 	}
 
+	/// <summary>
+	/// Gets the loaded settings or defaults when loading failed.
+	/// </summary>
 	public AppConfiguration Config => configuration;
 
+	/// <summary>
+	/// Writes the current settings to the configured JSON file.
+	/// </summary>
 	public void SaveConfiguration()
 	{
 		try
@@ -54,6 +67,13 @@ public class ConfigurationManager
 		}
 	}
 
+	/// <summary>
+	/// Reads the plaintext password supplied by the local JSON configuration.
+	/// </summary>
+	/// <param name="source">The source whose credential is requested.</param>
+	/// <returns>
+	/// The configured password, or null when no password is configured.
+	/// </returns>
 	public string? GetDecryptedPassword(string source)
 	{
 		CredentialConfig? credential = GetCredentialConfig(source);
@@ -66,6 +86,11 @@ public class ConfigurationManager
 		return credential.Password;
 	}
 
+	/// <summary>
+	/// Looks up credential settings by source name.
+	/// </summary>
+	/// <param name="source">The source whose credential is requested.</param>
+	/// <returns>The matching settings, or null if none exist.</returns>
 	public CredentialConfig? GetCredentialConfig(string source)
 	{
 		return configuration.Credentials?.Find(

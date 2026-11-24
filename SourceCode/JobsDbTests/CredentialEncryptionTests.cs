@@ -9,11 +9,17 @@ namespace JobsDbTests;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the current credential encryption format.
+/// </summary>
 [TestFixture]
 internal class CredentialEncryptionTests
 {
 	private const string MasterPassword = "TestPassword123!";
 
+	/// <summary>
+	/// Verifies that encryption produces ciphertext from plaintext.
+	/// </summary>
 	[Test]
 	public void Encrypt_ValidText_ReturnsEncryptedString()
 	{
@@ -29,6 +35,9 @@ internal class CredentialEncryptionTests
 		Assert.That(encrypted, Is.Not.EqualTo(plainText));
 	}
 
+	/// <summary>
+	/// Verifies that a credential round-trips with the same password.
+	/// </summary>
 	[Test]
 	public void Decrypt_EncryptedText_ReturnsOriginalString()
 	{
@@ -43,6 +52,9 @@ internal class CredentialEncryptionTests
 		Assert.That(decrypted, Is.EqualTo(plainText));
 	}
 
+	/// <summary>
+	/// Records the current deterministic ciphertext behavior.
+	/// </summary>
 	[Test]
 	public void Encrypt_SameTextTwice_ProducesSameResult()
 	{
@@ -57,6 +69,9 @@ internal class CredentialEncryptionTests
 		Assert.That(encrypted1, Is.EqualTo(encrypted2));
 	}
 
+	/// <summary>
+	/// Verifies that decrypting the fixture with a wrong password fails.
+	/// </summary>
 	[Test]
 	public void Decrypt_WrongPassword_ThrowsException()
 	{
@@ -71,6 +86,9 @@ internal class CredentialEncryptionTests
 		});
 	}
 
+	/// <summary>
+	/// Checks that encrypting empty input returns an empty string.
+	/// </summary>
 	[Test]
 	public void Encrypt_EmptyString_ReturnsEmptyString()
 	{
@@ -81,6 +99,9 @@ internal class CredentialEncryptionTests
 		Assert.That(result, Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that decrypting empty input returns an empty string.
+	/// </summary>
 	[Test]
 	public void Decrypt_EmptyString_ReturnsEmptyString()
 	{

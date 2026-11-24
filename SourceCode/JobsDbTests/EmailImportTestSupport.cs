@@ -11,10 +11,19 @@ using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
 using NUnit.Framework;
 
+/// <summary>
+/// Prepares a database and local message fixtures for import tests.
+/// </summary>
 internal abstract class EmailImportTestSupport : BaseTestsSupport
 {
+	/// <summary>
+	/// Gets the temporary input directory for the current batch.
+	/// </summary>
 	protected string ImportDirectory { get; private set; } = string.Empty;
 
+	/// <summary>
+	/// Creates the test database and input directory.
+	/// </summary>
 	[SetUp]
 	public void SetUpImport()
 	{
@@ -23,6 +32,9 @@ internal abstract class EmailImportTestSupport : BaseTestsSupport
 		Directory.CreateDirectory(ImportDirectory);
 	}
 
+	/// <summary>
+	/// Removes the temporary database and message exports.
+	/// </summary>
 	[TearDown]
 	public void TearDownImport()
 	{
@@ -36,6 +48,17 @@ internal abstract class EmailImportTestSupport : BaseTestsSupport
 		Directory.Delete(ImportDirectory);
 	}
 
+	/// <summary>
+	/// Builds a LinkedIn listing card for an HTML email fixture.
+	/// </summary>
+	/// <param name="identifier">
+	/// The listing identifier embedded in the link.
+	/// </param>
+	/// <param name="title">The listing title shown in the card.</param>
+	/// <param name="company">
+	/// The company shown in the card, or null to omit it.
+	/// </param>
+	/// <returns>The HTML for one listing card.</returns>
 	protected static string CreateCard(
 		string identifier, string title, string? company)
 	{
@@ -51,17 +74,35 @@ internal abstract class EmailImportTestSupport : BaseTestsSupport
 		return html + "</td></tr></table>";
 	}
 
+	/// <summary>
+	/// Opens the library against the test database.
+	/// </summary>
+	/// <returns>The initialized library manager.</returns>
 	protected LibraryManager CreateLibrary()
 	{
 		return LibraryManager.Initialize(TestDbPath);
 	}
 
+	/// <summary>
+	/// Creates the import service for the test database.
+	/// </summary>
+	/// <returns>The importer configured with the LinkedIn parser.</returns>
 	protected EmailImportService CreateImportService()
 	{
 		return new EmailImportService(
 			() => new JobsDbContext(TestDbPath!), new LinkedInEmailParser());
 	}
 
+	/// <summary>
+	/// Writes an HTML export with sender and timestamp metadata.
+	/// </summary>
+	/// <param name="filename">
+	/// The filename within the test import directory.
+	/// </param>
+	/// <param name="html">The HTML message body.</param>
+	/// <param name="sender">
+	/// The sender address to put in the export metadata.
+	/// </param>
 	protected void WriteMessage(
 		string filename,
 		string html,

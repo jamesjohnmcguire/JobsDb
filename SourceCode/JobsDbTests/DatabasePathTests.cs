@@ -13,11 +13,17 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers database source resolution and reporting.
+/// </summary>
 [TestFixture]
 internal sealed class DatabasePathTests
 {
 	private string databaseDirectory = string.Empty;
 
+	/// <summary>
+	/// Creates a directory for temporary database paths.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -26,12 +32,18 @@ internal sealed class DatabasePathTests
 		Directory.CreateDirectory(databaseDirectory);
 	}
 
+	/// <summary>
+	/// Removes the temporary database directory.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
 		Directory.Delete(databaseDirectory, true);
 	}
 
+	/// <summary>
+	/// Checks that design-time and runtime contexts use the same default path.
+	/// </summary>
 	[Test]
 	public void Factory_UsesRuntimeDatabasePath()
 	{
@@ -45,6 +57,9 @@ internal sealed class DatabasePathTests
 			Is.EqualTo(runtimeContext.GetDatabasePath()));
 	}
 
+	/// <summary>
+	/// Checks that a relative filename resolves to an absolute path.
+	/// </summary>
 	[Test]
 	public void Constructor_RelativePath_ResolvesAbsolutePath()
 	{
@@ -56,6 +71,9 @@ internal sealed class DatabasePathTests
 		Assert.That(context.GetDatabasePath(), Is.EqualTo(expectedPath));
 	}
 
+	/// <summary>
+	/// Checks that a semicolon remains part of the SQLite filename.
+	/// </summary>
 	[Test]
 	public void Constructor_SemicolonInPath_CreatesLiteralFilename()
 	{
@@ -77,6 +95,9 @@ internal sealed class DatabasePathTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that context options supply the reported database path.
+	/// </summary>
 	[Test]
 	public void OptionsConstructor_UsesConfiguredDatabasePath()
 	{
@@ -103,6 +124,9 @@ internal sealed class DatabasePathTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that path reporting follows a connection string override.
+	/// </summary>
 	[Test]
 	public void GetDatabasePath_ReflectsConnectionOverride()
 	{
@@ -132,6 +156,9 @@ internal sealed class DatabasePathTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that the path constructor reports the in-memory source.
+	/// </summary>
 	[Test]
 	public void Constructor_InMemoryDatabase_ReportsMemorySource()
 	{
@@ -141,6 +168,9 @@ internal sealed class DatabasePathTests
 		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
 	}
 
+	/// <summary>
+	/// Checks that the options constructor reports the in-memory source.
+	/// </summary>
 	[Test]
 	public void OptionsConstructor_InMemoryDatabase_ReportsMemorySource()
 	{
@@ -153,6 +183,12 @@ internal sealed class DatabasePathTests
 		Assert.That(context.GetDatabasePath(), Is.EqualTo(":memory:"));
 	}
 
+	/// <summary>
+	/// Checks that a blank database path is rejected.
+	/// </summary>
+	/// <param name="databasePath">
+	/// The blank path passed to the constructor.
+	/// </param>
 	[TestCase("")]
 	[TestCase(" ")]
 	[TestCase("\t")]
@@ -164,6 +200,9 @@ internal sealed class DatabasePathTests
 		});
 	}
 
+	/// <summary>
+	/// Checks that a null database path is rejected.
+	/// </summary>
 	[Test]
 	public void Constructor_RejectsNullPath()
 	{

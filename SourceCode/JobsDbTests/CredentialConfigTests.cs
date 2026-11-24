@@ -9,9 +9,15 @@ namespace JobsDbTests;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers values stored in the credential settings model.
+/// </summary>
 [TestFixture]
 internal class CredentialConfigTests
 {
+	/// <summary>
+	/// Checks that the model retains the assigned account settings.
+	/// </summary>
 	[Test]
 	public void CredentialConfig_SetProperties_ValuesAreSet()
 	{

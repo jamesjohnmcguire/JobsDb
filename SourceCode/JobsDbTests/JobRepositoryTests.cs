@@ -15,6 +15,9 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers job persistence and query behavior against SQLite.
+/// </summary>
 [TestFixture]
 internal sealed class JobRepositoryTests : BaseTestsSupport
 {
@@ -22,6 +25,9 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	private JobRepository repository;
 	private string testDbPath;
 
+	/// <summary>
+	/// Prepares a database and job repository for the test.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -31,6 +37,9 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		repository = new JobRepository(context);
 	}
 
+	/// <summary>
+	/// Disposes the context and removes the temporary database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -49,6 +58,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks that insertion assigns an identifier and acquisition timestamp.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task AddAsync_ValidJob_AddsToDatabase()
 	{
@@ -61,6 +74,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(jobs.Count, Is.EqualTo(1));
 	}
 
+	/// <summary>
+	/// Checks that a saved job can be found by its database identifier.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetByIdAsync_ExistingJob_ReturnsJob()
 	{
@@ -76,6 +93,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(result.Title, Is.EqualTo(job.Title));
 	}
 
+	/// <summary>
+	/// Checks that lookup of an unknown identifier returns null.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetByIdAsync_NonExistingJob_ReturnsNull()
 	{
@@ -86,6 +107,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(result, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that a job can be found using its source and posting identifier.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetBySourceIdAsync_ExistingJob_ReturnsJob()
 	{
@@ -100,6 +125,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(result.SourceJobId, Is.EqualTo(job.SourceJobId));
 	}
 
+	/// <summary>
+	/// Checks that changing a job persists the updated values.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task UpdateAsync_ExistingJob_UpdatesDatabase()
 	{
@@ -118,6 +147,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(updated.Status, Is.EqualTo(ApplicationStatus.Applied));
 	}
 
+	/// <summary>
+	/// Checks that deleting an existing job removes it from the database.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task DeleteAsync_ExistingJob_RemovesFromDatabase()
 	{
@@ -131,6 +164,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(deleted, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that deleting an unknown identifier returns false.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task DeleteAsync_NonExistingJob_ReturnsFalse()
 	{
@@ -141,6 +178,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(result, Is.False);
 	}
 
+	/// <summary>
+	/// Checks that a status query returns only matching jobs.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetByStatusAsync_FiltersByStatus_ReturnsMatchingJobs()
 	{
@@ -166,6 +207,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(appliedJobs.All(j => j.Status == ApplicationStatus.Applied), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that the active query excludes archived jobs.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetActiveJobsAsync_ExcludesArchived_ReturnsOnlyActive()
 	{
@@ -191,6 +236,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(activeJobs.All(j => !j.IsArchived), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that search matches terms in a job title.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task SearchAsync_ByTitle_ReturnsMatchingJobs()
 	{
@@ -216,6 +265,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(results.All(j => j.Title.Contains("Senior", StringComparison.InvariantCultureIgnoreCase)), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that search matches terms in a company name.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task SearchAsync_ByCompany_ReturnsMatchingJobs()
 	{
@@ -241,6 +294,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(results[0].Company, Is.EqualTo("Microsoft"));
 	}
 
+	/// <summary>
+	/// Checks that existence lookup recognizes a stored source posting.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ExistsAsync_ExistingJob_ReturnsTrue()
 	{
@@ -254,6 +311,10 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 		Assert.That(exists, Is.True);
 	}
 
+	/// <summary>
+	/// Checks that existence lookup returns false for an unknown posting.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ExistsAsync_NonExistingJob_ReturnsFalse()
 	{

@@ -19,6 +19,12 @@ internal sealed class JobQueryService : IJobQueryService
 {
 	private readonly IJobReader jobReader;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="JobQueryService"/> class.
+	/// </summary>
+	/// <param name="jobReader">
+	/// The reader supplying stored job collections.
+	/// </param>
 	public JobQueryService(IJobReader jobReader)
 	{
 		ArgumentNullException.ThrowIfNull(jobReader);

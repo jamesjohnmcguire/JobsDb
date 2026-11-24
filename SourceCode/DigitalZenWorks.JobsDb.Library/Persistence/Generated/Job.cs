@@ -5,47 +5,113 @@ using System.Collections.Generic;
 
 namespace DigitalZenWorks.JobsDb.Library.Persistence.Generated;
 
+/// <summary>
+/// Represents a row in the SQLite Jobs table for the scaffolded context.
+/// </summary>
 public partial class Job
 {
+    /// <summary>
+    /// Gets or sets the SQLite row identifier.
+    /// </summary>
     public int Id { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored company name.
+    /// </summary>
     public string Company { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the application date stored as text.
+    /// </summary>
     public string? DateApplied { get; set; }
 
+    /// <summary>
+    /// Gets or sets the posting date stored as text.
+    /// </summary>
     public string DatePosted { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the acquisition timestamp stored as text.
+    /// </summary>
     public string DateScraped { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the stored posting description.
+    /// </summary>
     public string? Description { get; set; }
 
+    /// <summary>
+    /// Gets or sets the integer archive flag stored by SQLite.
+    /// </summary>
     public int IsArchived { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored employment type.
+    /// </summary>
     public string? JobType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored work location.
+    /// </summary>
     public string? Location { get; set; }
 
+    /// <summary>
+    /// Gets or sets the user's stored notes.
+    /// </summary>
     public string? Notes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored priority rating.
+    /// </summary>
     public int? Priority { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored work arrangement.
+    /// </summary>
     public string? RemoteType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored posting requirements.
+    /// </summary>
     public string? Requirements { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored salary currency.
+    /// </summary>
     public string? SalaryCurrency { get; set; }
 
+    /// <summary>
+    /// Gets or sets the upper salary bound stored as text.
+    /// </summary>
     public string? SalaryMax { get; set; }
 
+    /// <summary>
+    /// Gets or sets the lower salary bound stored as text.
+    /// </summary>
     public string? SalaryMin { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stored source name.
+    /// </summary>
     public string Source { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the source-specific posting identifier.
+    /// </summary>
     public string SourceJobId { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the stored posting address.
+    /// </summary>
     public string SourceUrl { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the application status stored as text.
+    /// </summary>
     public string Status { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the stored posting title.
+    /// </summary>
     public string Title { get; set; } = null!;
 }

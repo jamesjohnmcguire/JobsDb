@@ -21,6 +21,9 @@ public class CookieManager
 {
 	private readonly string cookiesFolder;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="CookieManager"/> class.
+	/// </summary>
 	public CookieManager()
 	{
 		cookiesFolder = Path.Combine(
@@ -34,6 +37,12 @@ public class CookieManager
 	/// <summary>
 	/// Save all cookies from the current browser session.
 	/// </summary>
+	/// <param name="driver">
+	/// The browser session whose cookies are saved.
+	/// </param>
+	/// <param name="source">
+	/// The source name used to identify the cookie file.
+	/// </param>
 	public void SaveCookies(IWebDriver driver, string source)
 	{
 		try
@@ -69,6 +78,15 @@ public class CookieManager
 	/// <summary>
 	/// Load previously saved cookies into the browser.
 	/// </summary>
+	/// <param name="driver">
+	/// The browser session to receive the saved cookies.
+	/// </param>
+	/// <param name="source">
+	/// The source name used to identify the cookie file.
+	/// </param>
+	/// <returns>
+	/// True if at least one cookie was loaded, otherwise false.
+	/// </returns>
 	public bool LoadCookies(IWebDriver driver, string source)
 	{
 		try
@@ -147,6 +165,9 @@ public class CookieManager
 	/// <summary>
 	/// Delete saved cookies for a source (forces re-login).
 	/// </summary>
+	/// <param name="source">
+	/// The source name used to identify the cookie file.
+	/// </param>
 	public void ClearCookies(string source)
 	{
 		try
@@ -167,6 +188,12 @@ public class CookieManager
 	/// <summary>
 	/// Check if we have valid saved cookies.
 	/// </summary>
+	/// <param name="source">
+	/// The source name used to identify the cookie file.
+	/// </param>
+	/// <returns>
+	/// True if the file exists and is no more than seven days old.
+	/// </returns>
 	public bool HasValidCookies(string source)
 	{
 		var cookiePath = GetCookiePath(source);

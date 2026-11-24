@@ -16,8 +16,20 @@ using System.Net;
 /// </summary>
 internal static class LinkedInJobLinks
 {
+	/// <summary>
+	/// The source name used to store LinkedIn listings.
+	/// </summary>
 	public const string SourceName = "LinkedIn";
 
+	/// <summary>
+	/// Reads a numeric posting identifier from a supported LinkedIn job URL.
+	/// </summary>
+	/// <param name="address">
+	/// The absolute or root-relative posting address.
+	/// </param>
+	/// <returns>
+	/// The posting identifier, or null if the address is unsupported.
+	/// </returns>
 	public static string? GetIdentifier(string address)
 	{
 		string decoded = WebUtility.HtmlDecode(address);
@@ -40,6 +52,14 @@ internal static class LinkedInJobLinks
 		return ReadPostingPath(destination.AbsolutePath);
 	}
 
+	/// <summary>
+	/// Creates a LinkedIn posting URL from its numeric identifier.
+	/// </summary>
+	/// <param name="identifier">The numeric posting identifier.</param>
+	/// <returns>The canonical HTTPS address of the listing.</returns>
+	/// <exception cref="ArgumentException">
+	/// The identifier is empty or contains a non-digit.
+	/// </exception>
 	public static Uri GetCanonicalUrl(string identifier)
 	{
 		if (!IsValidIdentifier(identifier))
@@ -54,6 +74,18 @@ internal static class LinkedInJobLinks
 		return new Uri(address);
 	}
 
+	/// <summary>
+	/// Finds the first supported posting identifier, then checks the fallback.
+	/// </summary>
+	/// <param name="addresses">
+	/// The candidate posting addresses in priority order.
+	/// </param>
+	/// <param name="fallbackIdentifier">
+	/// The raw identifier to check if no address matches.
+	/// </param>
+	/// <returns>
+	/// A validated posting identifier, or null if no candidate matches.
+	/// </returns>
 	public static string? FindIdentifier(
 		IEnumerable<string> addresses, string fallbackIdentifier)
 	{
@@ -74,6 +106,13 @@ internal static class LinkedInJobLinks
 		return null;
 	}
 
+	/// <summary>
+	/// Tests whether a posting identifier consists of ASCII digits.
+	/// </summary>
+	/// <param name="identifier">The identifier to validate.</param>
+	/// <returns>
+	/// True if the identifier contains one or more digits, otherwise false.
+	/// </returns>
 	public static bool IsValidIdentifier(string identifier)
 	{
 		return !string.IsNullOrEmpty(identifier) &&

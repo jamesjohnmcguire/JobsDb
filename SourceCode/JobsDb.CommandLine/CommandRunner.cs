@@ -27,6 +27,15 @@ internal sealed class CommandRunner
 	private readonly Func<LibraryManager> initialize;
 	private readonly ILogger? logger;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="CommandRunner"/> class.
+	/// </summary>
+	/// <param name="output">The writer for command output.</param>
+	/// <param name="error">The writer for command errors.</param>
+	/// <param name="initialize">
+	/// Creates the library manager for an import.
+	/// </param>
+	/// <param name="logger">The optional logger for import summaries.</param>
 	public CommandRunner(
 		TextWriter output,
 		TextWriter error,
@@ -39,12 +48,24 @@ internal sealed class CommandRunner
 		this.logger = logger;
 	}
 
+	/// <summary>
+	/// Checks whether the arguments specify an import and its input folder.
+	/// </summary>
+	/// <param name="args">The command-line arguments.</param>
+	/// <returns>True if the arguments identify an import command.</returns>
 	public static bool IsImportCommand(string[] args)
 	{
 		return args.Length == 2 &&
 			args[0].Equals("import", StringComparison.OrdinalIgnoreCase);
 	}
 
+	/// <summary>
+	/// Runs the requested command and reports the result.
+	/// </summary>
+	/// <param name="args">The command-line arguments.</param>
+	/// <returns>
+	/// Zero for success, one for an import failure, or two for invalid usage.
+	/// </returns>
 	public async Task<int> RunAsync(string[] args)
 	{
 		if (args.Length == 0 ||

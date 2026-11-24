@@ -14,6 +14,13 @@ using HtmlAgilityPack;
 /// </summary>
 internal static class HtmlText
 {
+	/// <summary>
+	/// Decodes HTML entities and collapses whitespace in extracted text.
+	/// </summary>
+	/// <param name="text">The extracted text, which may be null.</param>
+	/// <returns>
+	/// The normalized text, or an empty string when no text was supplied.
+	/// </returns>
 	public static string Normalize(string? text)
 	{
 		if (string.IsNullOrWhiteSpace(text))

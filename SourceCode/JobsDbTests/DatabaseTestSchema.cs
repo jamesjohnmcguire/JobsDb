@@ -12,8 +12,17 @@ using System.IO;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 
+/// <summary>
+/// Prepares test databases from the checked-in master schema.
+/// </summary>
 internal static class DatabaseTestSchema
 {
+	/// <summary>
+	/// Creates a test database using the master schema.
+	/// </summary>
+	/// <param name="databasePath">
+	/// The SQLite database filename to create.
+	/// </param>
 	public static void Create(string databasePath)
 	{
 		SqliteConnectionStringBuilder settings =
@@ -26,6 +35,12 @@ internal static class DatabaseTestSchema
 		Load(connection);
 	}
 
+	/// <summary>
+	/// Loads the master schema on a database connection.
+	/// </summary>
+	/// <param name="connection">
+	/// The connection on which to execute the schema.
+	/// </param>
 	[SuppressMessage(
 		"Security",
 		"CA2100",

@@ -20,6 +20,12 @@ internal sealed class ScraperService : IJobRefreshService
 	private readonly Dictionary<string, JobScraperBase> scrapers;
 	private readonly JobsDbContext context;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ScraperService"/> class.
+	/// </summary>
+	/// <param name="context">
+	/// The database context for this refresh session.
+	/// </param>
 	public ScraperService(JobsDbContext context)
 	{
 		this.context = context;
@@ -41,6 +47,10 @@ internal sealed class ScraperService : IJobRefreshService
 	/// <summary>
 	/// Register a scraper for a specific source.
 	/// </summary>
+	/// <param name="source">The name used to select this scraper.</param>
+	/// <param name="scraper">
+	/// The acquisition implementation for the source.
+	/// </param>
 	public void RegisterScraper(string source, JobScraperBase scraper)
 	{
 		scrapers[source] = scraper;
@@ -49,6 +59,11 @@ internal sealed class ScraperService : IJobRefreshService
 	/// <summary>
 	/// Run a specific scraper by source name.
 	/// </summary>
+	/// <param name="source">The name of a registered source.</param>
+	/// <param name="filter">Optional criteria to pass to the scraper.</param>
+	/// <returns>
+	/// The run result, including a failure for an unregistered source.
+	/// </returns>
 	public async Task<ScraperResult> RunScraperAsync(string source, SearchFilter filter = null)
 	{
 		if (!scrapers.ContainsKey(source))
@@ -86,6 +101,7 @@ internal sealed class ScraperService : IJobRefreshService
 	/// <summary>
 	/// Run all registered scrapers.
 	/// </summary>
+	/// <returns>One run result for each registered source.</returns>
 	public async Task<List<ScraperResult>> RunAllScrapersAsync()
 	{
 		List<ScraperResult> results = new List<ScraperResult>();
@@ -102,6 +118,7 @@ internal sealed class ScraperService : IJobRefreshService
 	/// <summary>
 	/// Get list of registered scraper sources.
 	/// </summary>
+	/// <returns>The names of registered sources.</returns>
 	public List<string> GetRegisteredSources()
 	{
 		return scrapers.Keys.ToList();

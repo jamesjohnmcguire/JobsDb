@@ -28,9 +28,15 @@ using StorageContext = DigitalZenWorks.JobsDb.Library.Persistence.Generated.
 	JobStorageContext;
 using StorageJob = DigitalZenWorks.JobsDb.Library.Persistence.Generated.Job;
 
+/// <summary>
+/// Covers schema compatibility, upgrades, and typed persistence.
+/// </summary>
 [TestFixture]
 internal sealed class DatabaseSchemaTests : BaseTestsSupport
 {
+	/// <summary>
+	/// Checks that readiness validation preserves existing data.
+	/// </summary>
 	[Test]
 	public void Schema_ValidateDatabasePreservesExistingData()
 	{
@@ -61,6 +67,10 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(savedFilters[0].Name, Is.EqualTo("Preserved Filter"));
 	}
 
+	/// <summary>
+	/// Checks that an application table uses camelCase column names.
+	/// </summary>
+	/// <param name="tableName">The application table to inspect.</param>
 	[TestCase("Jobs")]
 	[TestCase("Credentials")]
 	[TestCase("ScraperLogs")]
@@ -93,6 +103,9 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(columnNames, Is.Not.Empty);
 	}
 
+	/// <summary>
+	/// Checks that the column naming migration preserves existing records.
+	/// </summary>
 	[Test]
 	public void CamelCaseMigration_PreservesExistingRecords()
 	{
@@ -150,6 +163,12 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(context.Database.GetPendingMigrations(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that missing optional listing details are stored as NULL.
+	/// </summary>
+	/// <param name="useSchemaScript">
+	/// Whether to initialize from SQL instead of migrations.
+	/// </param>
 	[TestCase(false)]
 	[TestCase(true)]
 	public void Job_MissingOptionalDetails_SavesNullValues(
@@ -190,6 +209,10 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(savedJob.Notes, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that optional details migrations preserve records on upgrade and
+	/// rollback.
+	/// </summary>
 	[Test]
 	public void OptionalDetailsMigration_PreservesRecordsInBothDirections()
 	{
@@ -231,6 +254,9 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			restoredJob.Description, Is.EqualTo(existingJob.Description));
 	}
 
+	/// <summary>
+	/// Checks that rollback rejects rows with missing details.
+	/// </summary>
 	[Test]
 	public void OptionalDetailsRollback_RejectsMissingValues()
 	{
@@ -259,6 +285,14 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			Does.Contain("20261116222114_AllowOptionalJobDetails"));
 	}
 
+	/// <summary>
+	/// Checks that repository round-trips preserve application types.
+	/// </summary>
+	/// <param name="isArchived">The archive state to persist.</param>
+	/// <param name="applicationStatus">
+	/// The application status to persist.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false, ApplicationStatus.Applied)]
 	[TestCase(true, ApplicationStatus.Accepted)]
 	public async Task Schema_JobRepositoryPreservesTypedValues(
@@ -320,6 +354,13 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(updatedJob.IsArchived, Is.EqualTo(isArchived));
 	}
 
+	/// <summary>
+	/// Checks that the scaffolded mapper and typed repository agree.
+	/// </summary>
+	/// <param name="includeOptionalValues">
+	/// Whether the fixture includes optional job details.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task Schema_StorageMapperWorksWithExistingRepository(
@@ -394,6 +435,9 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(updatedJob, Is.EqualTo(savedJob).UsingPropertiesComparer());
 	}
 
+	/// <summary>
+	/// Checks that SQL upgrades reach the master schema and version history.
+	/// </summary>
 	[Test]
 	public void SqlUpgrades_MatchMasterSchema()
 	{
@@ -412,6 +456,12 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(upgradedContext.Database.GetPendingMigrations(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that native upgrades preserve data from an EF-prepared database.
+	/// </summary>
+	/// <param name="previousVersion">
+	/// The EF version from which to start.
+	/// </param>
 	[TestCase("20260723233159_InitialCreate")]
 	[TestCase("20261116204352_UseCamelCaseColumns")]
 	public void SqlUpgrades_PreserveExistingEfDatabase(string previousVersion)
@@ -436,6 +486,12 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(context.Database.GetPendingMigrations(), Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that SQL upgrades retain identifiers consumed by prior inserts.
+	/// </summary>
+	/// <param name="retainJob">
+	/// Whether a listing remains after the consumed identifier.
+	/// </param>
 	[TestCase(false)]
 	[TestCase(true)]
 	public void SqlUpgrades_PreserveConsumedIdentifiers(bool retainJob)
@@ -466,6 +522,9 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(newJob.Id, Is.GreaterThan(500));
 	}
 
+	/// <summary>
+	/// Checks that rerunning the updater on a current database preserves rows.
+	/// </summary>
 	[Test]
 	public void SqlUpgrades_CurrentDatabasePreservesData()
 	{
@@ -487,6 +546,9 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 		Assert.That(ReadSchema(context), Is.EqualTo(expectedSchema));
 	}
 
+	/// <summary>
+	/// Checks that a failed upgrade rolls back its schema, data, and version.
+	/// </summary>
 	[Test]
 	public void SqlUpgrade_FailureRollsBackSchemaDataAndHistory()
 	{

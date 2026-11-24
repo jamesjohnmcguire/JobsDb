@@ -33,6 +33,20 @@ public class TokyoDevScraperSelenium : JobScraperBase
 	private const string BaseUrl = "https://www.tokyodev.com";
 	private const string JobsUrl = "https://www.tokyodev.com/jobs";
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TokyoDevScraperSelenium"/>
+	/// class.
+	/// </summary>
+	/// <param name="jobRepository">The repository for stored listings.</param>
+	/// <param name="credentialRepository">
+	/// The repository for stored source credentials.
+	/// </param>
+	/// <param name="cookieManager">
+	/// The cookie manager, or null to use the default.
+	/// </param>
+	/// <param name="configManager">
+	/// The configuration manager, or null to use the default.
+	/// </param>
 	public TokyoDevScraperSelenium(
 		IJobRepository jobRepository,
 		ICredentialRepository credentialRepository,
@@ -44,6 +58,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		this.configManager = configManager ?? new ConfigurationManager();
 	}
 
+	/// <inheritdoc/>
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -373,6 +388,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase);
 	}
 
+	/// <inheritdoc/>
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
 	{
 		// TokyoDev doesn't require login for public job listings

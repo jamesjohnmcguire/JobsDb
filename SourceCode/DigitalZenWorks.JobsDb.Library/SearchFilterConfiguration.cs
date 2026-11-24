@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </summary>
 public class SearchFilterConfiguration : IEntityTypeConfiguration<SearchFilter>
 {
+	/// <inheritdoc/>
 	public void Configure(EntityTypeBuilder<SearchFilter> entity)
 	{
 		entity.HasIndex(e => e.IsActive);

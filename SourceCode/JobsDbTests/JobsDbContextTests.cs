@@ -18,11 +18,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers EF mappings and SQLite constraints used by JobsDb.
+/// </summary>
 [TestFixture]
 internal sealed class JobsDbContextTests : BaseTestsSupport
 {
 	private JobsDbContext context;
 
+	/// <summary>
+	/// Prepares the SQLite schema and creates the test context.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -30,6 +36,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		context = new JobsDbContext(TestDbPath);
 	}
 
+	/// <summary>
+	/// Deletes the test database and disposes the context.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -43,6 +52,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks that validation accepts a prepared database.
+	/// </summary>
 	[Test]
 	public void ValidateDatabase_UsesPreparedDatabase()
 	{
@@ -54,6 +66,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.Database.CanConnect(), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that the context reports the configured database path.
+	/// </summary>
 	[Test]
 	public void GetDatabasePath_ReturnsCorrectPath()
 	{
@@ -64,6 +79,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(path, Is.EqualTo(TestDbPath));
 	}
 
+	/// <summary>
+	/// Checks that the context exposes the mapped jobs table.
+	/// </summary>
 	[Test]
 	public void Jobs_DbSet_IsNotNull()
 	{
@@ -74,6 +92,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.Jobs, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Checks that the context exposes the mapped credentials table.
+	/// </summary>
 	[Test]
 	public void Credentials_DbSet_IsNotNull()
 	{
@@ -84,6 +105,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.Credentials, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Checks that the context exposes the mapped acquisition logs table.
+	/// </summary>
 	[Test]
 	public void ScraperLogs_DbSet_IsNotNull()
 	{
@@ -94,6 +118,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.ScraperLogs, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Checks that the context exposes the mapped search filters table.
+	/// </summary>
 	[Test]
 	public void SearchFilters_DbSet_IsNotNull()
 	{
@@ -104,6 +131,16 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(context.SearchFilters, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Checks unique job identity across source and posting identifier.
+	/// </summary>
+	/// <param name="source">The source for the second listing.</param>
+	/// <param name="sourceJobIdentifier">
+	/// The identifier for the second listing.
+	/// </param>
+	/// <param name="expectsDuplicate">
+	/// Whether the pairing duplicates the first listing.
+	/// </param>
 	[TestCase("Test", "123", true)]
 	[TestCase("AnotherSource", "123", false)]
 	[TestCase("Test", "456", false)]
@@ -149,6 +186,13 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks that only one credential can be stored for a source.
+	/// </summary>
+	/// <param name="source">The source for the second credential.</param>
+	/// <param name="expectsDuplicate">
+	/// Whether the source duplicates the first credential.
+	/// </param>
 	[TestCase("LinkedIn", true)]
 	[TestCase("TokyoDev", false)]
 	public void ScraperCredential_Source_EnforcesUniqueness(
@@ -204,6 +248,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks the application status string stored in SQLite.
+	/// </summary>
 	[Test]
 	public void Job_StatusEnum_SavesAsString()
 	{
@@ -230,6 +277,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(statusReader.GetString(1), Is.EqualTo("text"));
 	}
 
+	/// <summary>
+	/// Checks that SQLite supplies an acquisition timestamp by default.
+	/// </summary>
 	[Test]
 	public void Job_DateScraped_HasDefaultValue()
 	{
@@ -244,6 +294,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.DateScraped, Is.Not.EqualTo(default(DateTime)));
 	}
 
+	/// <summary>
+	/// Checks that SQLite supplies a creation date for a new filter.
+	/// </summary>
 	[Test]
 	public void SearchFilter_CreatedDate_HasDefaultValue()
 	{
@@ -269,6 +322,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.CreatedDate, Is.Not.EqualTo(default(DateTime)));
 	}
 
+	/// <summary>
+	/// Checks that a credential is active by default.
+	/// </summary>
 	[Test]
 	public void ScraperCredential_IsActive_HasDefaultValue()
 	{
@@ -294,6 +350,16 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(saved.IsActive, Is.True);
 	}
 
+	/// <summary>
+	/// Checks indexed columns and uniqueness in the SQLite schema.
+	/// </summary>
+	/// <param name="indexName">The index to inspect.</param>
+	/// <param name="expectsUnique">
+	/// Whether the index must enforce uniqueness.
+	/// </param>
+	/// <param name="expectedColumns">
+	/// The expected index columns in order.
+	/// </param>
 	[TestCase("IX_Jobs_company", false, new[] { "company" })]
 	[TestCase("IX_Jobs_datePosted", false, new[] { "datePosted" })]
 	[TestCase("IX_Jobs_isArchived", false, new[] { "isArchived" })]
@@ -343,6 +409,9 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		Assert.That(actualColumns, Is.EqualTo(expectedColumns));
 	}
 
+	/// <summary>
+	/// Checks that separate contexts see the same stored data.
+	/// </summary>
 	[Test]
 	public void Context_MultipleInstances_UseSameDatabase()
 	{
@@ -362,6 +431,13 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks the SQLite constraint for a required listing field.
+	/// </summary>
+	/// <param name="propertyName">The mapped property to set to null.</param>
+	/// <param name="columnName">
+	/// The database column expected to reject null.
+	/// </param>
 	[TestCase(nameof(Job.Title), "title")]
 	[TestCase(nameof(Job.Company), "company")]
 	[TestCase(nameof(Job.Source), "source")]

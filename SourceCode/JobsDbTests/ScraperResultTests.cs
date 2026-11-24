@@ -11,9 +11,15 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers default and assigned acquisition result values.
+/// </summary>
 [TestFixture]
 internal class ScraperResultTests
 {
+	/// <summary>
+	/// Checks that an empty acquisition result has the expected defaults.
+	/// </summary>
 	[Test]
 	public void ScraperResult_NewInstance_HasDefaultValues()
 	{
@@ -30,6 +36,9 @@ internal class ScraperResultTests
 		Assert.That(result.Jobs.Count, Is.EqualTo(0));
 	}
 
+	/// <summary>
+	/// Checks that the outcome retains assigned counts and error details.
+	/// </summary>
 	[Test]
 	public void ScraperResult_SetProperties_ValuesAreSet()
 	{

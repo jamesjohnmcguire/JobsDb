@@ -17,12 +17,22 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using HtmlAgilityPack;
 
+/// <summary>
+/// Retrieves TokyoDev listings through HTTP requests.
+/// </summary>
 public class TokyoDevScraper : JobScraperBase, IDisposable
 {
 	private readonly HttpClient httpClient;
 	private const string BaseUrl = "https://www.tokyodev.com";
 	private const string JobsUrl = "https://www.tokyodev.com/jobs";
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TokyoDevScraper"/> class.
+	/// </summary>
+	/// <param name="jobRepository">The repository for stored listings.</param>
+	/// <param name="credentialRepository">
+	/// The repository for stored source credentials.
+	/// </param>
 	public TokyoDevScraper(
 		IJobRepository jobRepository,
 		ICredentialRepository credentialRepository)
@@ -34,6 +44,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 	}
 
+	/// <inheritdoc/>
 	public override async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -297,6 +308,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 	}
 
+	/// <inheritdoc/>
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)
 	{
 		// TokyoDev typically doesn't require login for job listings

@@ -9,9 +9,15 @@ namespace JobsDbTests;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the scraper settings model and its defaults.
+/// </summary>
 [TestFixture]
 internal class ScraperSettingsConfigTests
 {
+	/// <summary>
+	/// Checks that configured preferences can be assigned and read back.
+	/// </summary>
 	[Test]
 	public void ScraperSettingsConfig_SetProperties_ValuesAreSet()
 	{
@@ -35,6 +41,9 @@ internal class ScraperSettingsConfigTests
 		Assert.That(config.SaveDebugHtml, Is.True);
 	}
 
+	/// <summary>
+	/// Checks the default browser and timing settings.
+	/// </summary>
 	[Test]
 	public void ScraperSettingsConfig_DefaultValues_AreReasonable()
 	{

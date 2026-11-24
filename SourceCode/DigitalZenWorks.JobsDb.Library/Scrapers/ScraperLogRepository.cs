@@ -12,15 +12,26 @@ using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Stores acquisition run logs in the JobsDb database.
+/// </summary>
 public class ScraperLogRepository : IScraperLogRepository
 {
 	private readonly JobsDbContext context;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ScraperLogRepository"/>
+	/// class.
+	/// </summary>
+	/// <param name="context">
+	/// The database context supplied by the caller.
+	/// </param>
 	public ScraperLogRepository(JobsDbContext context)
 	{
 		this.context = context;
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<ScraperLog>> GetRecentLogsAsync(int count = 50)
 	{
 		return await context.ScraperLogs
@@ -29,6 +40,7 @@ public class ScraperLogRepository : IScraperLogRepository
 			.ToListAsync().ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<List<ScraperLog>> GetLogsBySourceAsync(string source, int count = 50)
 	{
 		return await context.ScraperLogs
@@ -38,6 +50,7 @@ public class ScraperLogRepository : IScraperLogRepository
 			.ToListAsync().ConfigureAwait(false);
 	}
 
+	/// <inheritdoc/>
 	public async Task<ScraperLog> AddAsync(ScraperLog log)
 	{
 		context.ScraperLogs.Add(log);

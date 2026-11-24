@@ -18,9 +18,16 @@ using DigitalZenWorks.JobsDb.Library.Repositories;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers email import, job updates, and per-message transactions.
+/// </summary>
 [TestFixture]
 internal sealed class EmailImportServiceTests : EmailImportTestSupport
 {
+	/// <summary>
+	/// Checks that an import is repeatable and visible to job queries.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ImportDirectory_IsRepeatableAndVisibleToQueries()
 	{
@@ -47,6 +54,10 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(jobs[0].Title, Is.EqualTo("Developer"));
 	}
 
+	/// <summary>
+	/// Checks that an import preserves richer details and application data.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ImportDirectory_PreservesRicherAndApplicationData()
 	{
@@ -82,6 +93,10 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(stored.DatePosted, Is.EqualTo(originalDate));
 	}
 
+	/// <summary>
+	/// Checks that ignored, failed, and review items are reported separately.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ImportDirectory_ReportsIgnoredFailedAndReviewItems()
 	{
@@ -114,6 +129,10 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(reader.Jobs.Count(), Is.EqualTo(1));
 	}
 
+	/// <summary>
+	/// Checks that an absent incoming location preserves the stored location.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ImportDirectory_MissingLocationPreservesStoredValue()
 	{
@@ -136,6 +155,10 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(reader.Jobs.Single().Location, Is.EqualTo("Keep location"));
 	}
 
+	/// <summary>
+	/// Checks that a failed message rolls back and later messages still import.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task ImportDirectory_RollsBackFailedMessageAndContinues()
 	{

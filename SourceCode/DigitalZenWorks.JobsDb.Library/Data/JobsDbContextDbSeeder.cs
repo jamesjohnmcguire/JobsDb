@@ -17,6 +17,12 @@ using DigitalZenWorks.JobsDb.Library.Scrapers;
 /// </summary>
 public static class JobsDbContextDbSeeder
 {
+	/// <summary>
+	/// Adds the built-in example search filters if they are missing.
+	/// </summary>
+	/// <param name="context">
+	/// The database context in which to save the examples.
+	/// </param>
 	public static void Seed(JobsDbContext context)
 	{
 		SeedDefaultSearchFilters(context);

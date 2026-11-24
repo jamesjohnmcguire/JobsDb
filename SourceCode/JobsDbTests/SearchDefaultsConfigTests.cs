@@ -9,9 +9,15 @@ namespace JobsDbTests;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the configurable default search criteria.
+/// </summary>
 [TestFixture]
 internal class SearchDefaultsConfigTests
 {
+	/// <summary>
+	/// Checks that the model retains the assigned search defaults.
+	/// </summary>
 	[Test]
 	public void SearchDefaultsConfig_SetProperties_ValuesAreSet()
 	{

@@ -19,15 +19,24 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers readiness checks and their effects on the database connection.
+/// </summary>
 [TestFixture]
 internal sealed class DatabaseReadinessTests : BaseTestsSupport
 {
+	/// <summary>
+	/// Prepares the database used by the readiness tests.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
 		DatabaseTestSchema.Create(TestDbPath!);
 	}
 
+	/// <summary>
+	/// Removes the readiness test database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -35,6 +44,12 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		cleanupContext.Database.EnsureDeleted();
 	}
 
+	/// <summary>
+	/// Checks that validation does not create a missing database.
+	/// </summary>
+	/// <param name="useOptions">
+	/// Whether to supply the path through EF options.
+	/// </param>
 	[TestCase(false)]
 	[TestCase(true)]
 	public void MissingDatabase_IsNotCreated(bool useOptions)
@@ -69,6 +84,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks that validation does not create a missing parent directory.
+	/// </summary>
 	[Test]
 	public void MissingDirectory_IsNotCreated()
 	{
@@ -82,6 +100,12 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(Directory.Exists(directoryPath), Is.False);
 	}
 
+	/// <summary>
+	/// Checks that validation leaves an unprepared database unchanged.
+	/// </summary>
+	/// <param name="containsUserData">
+	/// Whether the database contains an unrelated table.
+	/// </param>
 	[TestCase(false)]
 	[TestCase(true)]
 	public void UnpreparedDatabase_IsUnchanged(bool containsUserData)
@@ -115,6 +139,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(ReadDatabaseBytes(), Is.EqualTo(expectedBytes));
 	}
 
+	/// <summary>
+	/// Checks that validation rejects an older schema without upgrading it.
+	/// </summary>
 	[Test]
 	public void OlderDatabase_IsNotUpgraded()
 	{
@@ -138,6 +165,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(ReadDatabaseBytes(), Is.EqualTo(expectedBytes));
 	}
 
+	/// <summary>
+	/// Checks that a newer SQL version with a compatible schema is accepted.
+	/// </summary>
 	[Test]
 	public void NewerSqlVersion_IsAccepted()
 	{
@@ -152,6 +182,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 			Does.Contain("20261117090000_FutureSqlUpgrade"));
 	}
 
+	/// <summary>
+	/// Checks that validation reports a missing table without creating it.
+	/// </summary>
 	[Test]
 	public void MissingMappedTable_IsNotRecreated()
 	{
@@ -167,6 +200,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(ReadDatabaseBytes(), Is.EqualTo(expectedBytes));
 	}
 
+	/// <summary>
+	/// Checks that validation reports a missing column without adding it.
+	/// </summary>
 	[Test]
 	public void MissingMappedColumn_IsNotAdded()
 	{
@@ -183,6 +219,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(ReadDatabaseBytes(), Is.EqualTo(expectedBytes));
 	}
 
+	/// <summary>
+	/// Checks that validation leaves a current database and its records intact.
+	/// </summary>
 	[Test]
 	public void CurrentDatabase_PreservesSchemaAndData()
 	{
@@ -203,6 +242,9 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 			context.Jobs.Single(), Is.EqualTo(job).UsingPropertiesComparer());
 	}
 
+	/// <summary>
+	/// Checks that validation leaves a previously closed connection closed.
+	/// </summary>
 	[Test]
 	public void ClosedContextConnection_RemainsClosed()
 	{
@@ -214,6 +256,12 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 		Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
 	}
 
+	/// <summary>
+	/// Checks that validation leaves a caller-owned connection open.
+	/// </summary>
+	/// <param name="prepareDatabase">
+	/// Whether to prepare the caller's database before validation.
+	/// </param>
 	[TestCase(false)]
 	[TestCase(true)]
 	public void CallerConnection_RemainsOpen(bool prepareDatabase)

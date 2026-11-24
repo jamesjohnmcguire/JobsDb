@@ -8,6 +8,9 @@ namespace DigitalZenWorks.JobsDb.Library;
 
 using System.Collections.Generic;
 
+/// <summary>
+/// Holds the JSON settings for JobsDb.
+/// </summary>
 public class AppConfiguration
 {
 	/// <summary>
@@ -20,11 +23,23 @@ public class AppConfiguration
 		ScraperSettings = new ScraperSettingsConfig();
 	}
 
+	/// <summary>
+	/// Gets or sets the password configured for credential encryption.
+	/// </summary>
 	public string? MasterPassword { get; set; }
 
+	/// <summary>
+	/// Gets or sets the per-source credential settings.
+	/// </summary>
 	public List<CredentialConfig>? Credentials { get; set; }
 
+	/// <summary>
+	/// Gets or sets the default search criteria.
+	/// </summary>
 	public SearchDefaultsConfig? SearchDefaults { get; set; }
 
+	/// <summary>
+	/// Gets or sets the scraper settings.
+	/// </summary>
 	public ScraperSettingsConfig? ScraperSettings { get; set; }
 }

@@ -13,11 +13,17 @@ using System.Linq;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers local email export pairing, metadata, and read outcomes.
+/// </summary>
 [TestFixture]
 internal sealed class ExportedEmailReaderTests
 {
 	private string directoryPath = string.Empty;
 
+	/// <summary>
+	/// Creates the temporary directory for email exports.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -26,6 +32,9 @@ internal sealed class ExportedEmailReaderTests
 		Directory.CreateDirectory(directoryPath);
 	}
 
+	/// <summary>
+	/// Removes the export fixtures and their directory.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -37,6 +46,12 @@ internal sealed class ExportedEmailReaderTests
 		Directory.Delete(directoryPath);
 	}
 
+	/// <summary>
+	/// Checks that paired exports preserve both bodies.
+	/// </summary>
+	/// <param name="newline">
+	/// The line ending to use in the export files.
+	/// </param>
 	[TestCase("\n")]
 	[TestCase("\r\n")]
 	public void ReadDirectory_PairsBodiesAndPreservesContent(string newline)
@@ -74,6 +89,11 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(unchanged, Is.EqualTo(originalText));
 	}
 
+	/// <summary>
+	/// Checks that a single supported body file can be read.
+	/// </summary>
+	/// <param name="extension">The body file extension.</param>
+	/// <param name="isHtml">Whether the file contains HTML.</param>
 	[TestCase(".HTML", true)]
 	[TestCase(".TXT", false)]
 	public void ReadDirectory_AcceptsOneBody(string extension, bool isHtml)
@@ -109,6 +129,10 @@ internal sealed class ExportedEmailReaderTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that timestamps with known offsets normalize to UTC.
+	/// </summary>
+	/// <param name="timestamp">The timestamp with an explicit offset.</param>
 	[TestCase("2026-11-17T09:00:00Z")]
 	[TestCase("2026-11-17T18:00:00+09:00")]
 	public void ReadDirectory_NormalizesKnownOffsetsToUtc(string timestamp)
@@ -126,6 +150,15 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(result.Email.SentOn.Kind, Is.EqualTo(DateTimeKind.Utc));
 	}
 
+	/// <summary>
+	/// Checks that conflicting headers in paired exports are reported.
+	/// </summary>
+	/// <param name="timestamp">
+	/// The timestamp supplied by the alternate export.
+	/// </param>
+	/// <param name="sender">
+	/// The sender supplied by the alternate export.
+	/// </param>
 	[TestCase("2026-11-18T01:16:34", "Jobs <jobs@example.com>")]
 	[TestCase("2026-11-17T01:16:34", "Jobs <other@example.com>")]
 	[TestCase("2026-11-17T01:16:34", "Other <jobs@example.com>")]
@@ -147,6 +180,10 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(result.Message, Does.Contain("do not match"));
 	}
 
+	/// <summary>
+	/// Checks that invalid metadata produces a failed read.
+	/// </summary>
+	/// <param name="content">The malformed export content.</param>
 	[TestCase("Sent: not-a-date\nSender: Jobs <jobs@example.com>")]
 	[TestCase("Sent: 2026-11-17T01:16:34\nMissing sender")]
 	[TestCase("Sent: 2026-11-17T01:16:34\nSender: invalid-address")]
@@ -162,6 +199,9 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(result.Message, Is.Not.Empty);
 	}
 
+	/// <summary>
+	/// Checks that unsupported files are reported alongside valid reads.
+	/// </summary>
 	[Test]
 	public void ReadDirectory_IgnoredFilesDoNotPreventValidReads()
 	{
@@ -195,6 +235,9 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(allReasonsPresent, Is.True);
 	}
 
+	/// <summary>
+	/// Checks that an empty body is distinct from an absent body.
+	/// </summary>
 	[Test]
 	public void ReadDirectory_EmptyBodyIsDistinctFromAnAbsentBody()
 	{
@@ -209,6 +252,9 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(result.Email.HtmlBody, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that an empty directory produces no read outcomes.
+	/// </summary>
 	[Test]
 	public void ReadDirectory_EmptyDirectoryHasNoOutcomes()
 	{
@@ -218,6 +264,9 @@ internal sealed class ExportedEmailReaderTests
 		Assert.That(results, Is.Empty);
 	}
 
+	/// <summary>
+	/// Checks that a missing input directory produces an error.
+	/// </summary>
 	[Test]
 	public void ReadDirectory_MissingDirectoryFailsClearly()
 	{

@@ -14,6 +14,9 @@ using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers SQLite storage and lookup of source credentials.
+/// </summary>
 [TestFixture]
 internal class CredentialRepositoryTests
 {
@@ -21,6 +24,9 @@ internal class CredentialRepositoryTests
 	private CredentialRepository repository;
 	private string testDbPath;
 
+	/// <summary>
+	/// Creates a temporary database and credential repository.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -30,6 +36,9 @@ internal class CredentialRepositoryTests
 		repository = new CredentialRepository(context);
 	}
 
+	/// <summary>
+	/// Disposes the context and removes the temporary database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -42,6 +51,10 @@ internal class CredentialRepositoryTests
 		}
 	}
 
+	/// <summary>
+	/// Verifies that a new source creates a credential record.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task AddOrUpdateAsync_NewCredential_AddsToDatabase()
 	{
@@ -64,6 +77,10 @@ internal class CredentialRepositoryTests
 		Assert.That(retrieved, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Verifies that saving an existing source updates its record.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task AddOrUpdateAsync_ExistingCredential_UpdatesInDatabase()
 	{
@@ -88,6 +105,10 @@ internal class CredentialRepositoryTests
 		Assert.That(retrieved.Username, Is.EqualTo("new@example.com"));
 	}
 
+	/// <summary>
+	/// Verifies that a known source returns its credential.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetBySourceAsync_ExistingCredential_ReturnsCredential()
 	{
@@ -110,6 +131,10 @@ internal class CredentialRepositoryTests
 		Assert.That(result.Source, Is.EqualTo("TokyoDev"));
 	}
 
+	/// <summary>
+	/// Verifies that an unknown source yields no credential.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetBySourceAsync_NonExistingSource_ReturnsNull()
 	{
@@ -120,6 +145,10 @@ internal class CredentialRepositoryTests
 		Assert.That(result, Is.Null);
 	}
 
+	/// <summary>
+	/// Verifies that the active query excludes disabled credentials.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetAllActiveAsync_OnlyReturnsActive()
 	{

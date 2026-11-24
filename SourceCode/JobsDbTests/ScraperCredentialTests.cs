@@ -10,9 +10,15 @@ using System;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers defaults and usage timestamps on stored credentials.
+/// </summary>
 [TestFixture]
 internal class ScraperCredentialTests
 {
+	/// <summary>
+	/// Checks that a new scraper credential is active.
+	/// </summary>
 	[Test]
 	public void ScraperCredential_NewInstance_IsActive()
 	{
@@ -31,6 +37,9 @@ internal class ScraperCredentialTests
 		Assert.That(credential.IsActive, Is.True);
 	}
 
+	/// <summary>
+	/// Checks that a credential retains the assigned last-used time.
+	/// </summary>
 	[Test]
 	public void ScraperCredential_SetLastUsed_DateIsSet()
 	{

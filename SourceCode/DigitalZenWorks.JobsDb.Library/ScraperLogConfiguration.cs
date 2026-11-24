@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </summary>
 public class ScraperLogConfiguration : IEntityTypeConfiguration<ScraperLog>
 {
+	/// <inheritdoc/>
 	public void Configure(EntityTypeBuilder<ScraperLog> entity)
 	{
 		entity.HasIndex(e => e.Timestamp);

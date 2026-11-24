@@ -16,10 +16,29 @@ using DigitalZenWorks.JobsDb.Library.Repositories;
 /// </summary>
 public abstract class JobScraperBase
 {
+	/// <summary>
+	/// The repository used to look up source credentials.
+	/// </summary>
 	protected readonly ICredentialRepository credentialRepository;
+	/// <summary>
+	/// The repository used to read and save listings.
+	/// </summary>
 	protected readonly IJobRepository jobRepository;
+	/// <summary>
+	/// The identifier associated with this source.
+	/// </summary>
 	protected readonly string sourceName;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="JobScraperBase"/> class.
+	/// </summary>
+	/// <param name="jobRepository">The repository for stored listings.</param>
+	/// <param name="credentialRepository">
+	/// The repository for stored source credentials.
+	/// </param>
+	/// <param name="sourceName">
+	/// The identifier for the scraper's source.
+	/// </param>
 	protected JobScraperBase(
 		IJobRepository jobRepository,
 		ICredentialRepository credentialRepository,
@@ -33,23 +52,31 @@ public abstract class JobScraperBase
 	/// <summary>
 	/// Login to the source if required. Must be implemented by derived classes.
 	/// </summary>
+	/// <param name="credential">The account information for the source.</param>
+	/// <returns>
+	/// True when sign-in succeeds or is unnecessary, otherwise false.
+	/// </returns>
 	protected abstract Task<bool> LoginAsync(ScraperCredential credential);
 
 	/// <summary>
-	/// Scrape jobs from the source. Must be implemented by derived classes.
+	/// Gets the repository used to look up source credentials.
 	/// </summary>
-	// public abstract Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null);
-
 	public ICredentialRepository CredentialRepository
 	{
 		get { return credentialRepository; }
 	}
 
+	/// <summary>
+	/// Gets the repository used to read and save listings.
+	/// </summary>
 	public IJobRepository JobRepository
 	{
 		get { return jobRepository; }
 	}
 
+	/// <summary>
+	/// Gets the identifier for the scraper's source.
+	/// </summary>
 	public string SourceName
 	{
 		get { return sourceName; }
@@ -58,6 +85,9 @@ public abstract class JobScraperBase
 	/// <summary>
 	/// Get credentials for this scraper's source from the database.
 	/// </summary>
+	/// <returns>
+	/// The stored credential, or null when no credential exists.
+	/// </returns>
 	protected async Task<ScraperCredential> GetCredentialsAsync()
 	{
 		ScraperCredential credential =
@@ -69,6 +99,8 @@ public abstract class JobScraperBase
 	/// <summary>
 	/// Add a new job or update an existing one based on SourceJobId.
 	/// </summary>
+	/// <param name="job">The source listing with the values to save.</param>
+	/// <returns>The listing after the insert or update.</returns>
 	protected async Task<Job> AddOrUpdateJobAsync(Job job)
 	{
 		var existing = await jobRepository.GetBySourceIdAsync(job.Source, job.SourceJobId).ConfigureAwait(false);
@@ -99,6 +131,12 @@ public abstract class JobScraperBase
 		}
 	}
 
+	/// <summary>
+	/// Retrieves job listings for this source. The base implementation returns
+	/// an empty result.
+	/// </summary>
+	/// <param name="filter">Optional source-specific search criteria.</param>
+	/// <returns>The acquisition outcome reported by the scraper.</returns>
 	public virtual async Task<ScraperResult> ScrapeJobsAsync(SearchFilter filter = null)
 	{
 		ScraperResult result = new ScraperResult();

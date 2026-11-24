@@ -11,12 +11,18 @@ using System.IO;
 using DigitalZenWorks.JobsDb.Library.Services;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers file-based cookie checks and deletion.
+/// </summary>
 [TestFixture]
 internal class CookieManagerTests
 {
 	private CookieManager cookieManager;
 	private string testCookiesPath;
 
+	/// <summary>
+	/// Creates the cookie manager and locates its storage directory.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -27,6 +33,9 @@ internal class CookieManagerTests
 			"Cookies");
 	}
 
+	/// <summary>
+	/// Removes cookie files written by the tests.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -47,6 +56,9 @@ internal class CookieManagerTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that clearing an unknown source does not throw.
+	/// </summary>
 	[Test]
 	public void ClearCookies_NonExistentSource_DoesNotThrow()
 	{
@@ -54,6 +66,9 @@ internal class CookieManagerTests
 		Assert.DoesNotThrow(() => cookieManager.ClearCookies("NonExistent"));
 	}
 
+	/// <summary>
+	/// Checks that a missing cookie file is reported as unavailable.
+	/// </summary>
 	[Test]
 	public void HasValidCookies_NonExistentSource_ReturnsFalse()
 	{
@@ -64,6 +79,9 @@ internal class CookieManagerTests
 		Assert.That(result, Is.False);
 	}
 
+	/// <summary>
+	/// Checks that clearing a known source removes its cookie file.
+	/// </summary>
 	[Test]
 	public void ClearCookies_ExistingCookies_RemovesFile()
 	{

@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </summary>
 public class JobConfiguration : IEntityTypeConfiguration<Job>
 {
+	/// <inheritdoc/>
 	public void Configure(EntityTypeBuilder<Job> entity)
 	{
 		// Indexes for common query patterns

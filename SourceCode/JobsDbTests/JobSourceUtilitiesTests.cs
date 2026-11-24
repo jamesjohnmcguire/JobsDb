@@ -10,9 +10,16 @@ using System;
 using DigitalZenWorks.JobsDb.Library.Utilities;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers LinkedIn posting identity and HTML text normalization.
+/// </summary>
 [TestFixture]
 internal sealed class JobSourceUtilitiesTests
 {
+	/// <summary>
+	/// Checks that equivalent posting links resolve to one canonical address.
+	/// </summary>
+	/// <param name="address">The supported form of the posting link.</param>
 	[TestCase("https://www.linkedin.com/jobs/view/123/?tracking=old")]
 	[TestCase("https://www.linkedin.com/comm/jobs/view/123/?a=1&amp;b=2")]
 	[TestCase("https://linkedin.com/jobs/view/123")]
@@ -27,6 +34,10 @@ internal sealed class JobSourceUtilitiesTests
 			Is.EqualTo("https://www.linkedin.com/jobs/view/123/"));
 	}
 
+	/// <summary>
+	/// Checks that nonnumeric or invented posting identifiers are rejected.
+	/// </summary>
+	/// <param name="value">The identifier to validate.</param>
 	[TestCase("")]
 	[TestCase("random-id")]
 	[TestCase("１２３")]
@@ -37,6 +48,9 @@ internal sealed class JobSourceUtilitiesTests
 			() => LinkedInJobLinks.GetCanonicalUrl(value));
 	}
 
+	/// <summary>
+	/// Checks that a supported posting link takes precedence over an attribute.
+	/// </summary>
 	[Test]
 	public void LinkedInLinks_UsePostingLinkBeforeValidatedAttribute()
 	{
@@ -51,6 +65,13 @@ internal sealed class JobSourceUtilitiesTests
 		Assert.That(identifier, Is.EqualTo("123"));
 	}
 
+	/// <summary>
+	/// Checks that fallback uses only a valid numeric identifier.
+	/// </summary>
+	/// <param name="attribute">The raw identifier attribute value.</param>
+	/// <param name="expected">
+	/// The accepted identifier or null for an invalid attribute.
+	/// </param>
 	[TestCase("456", "456")]
 	[TestCase("unverified", null)]
 	public void LinkedInLinks_ValidateAttributeFallback(
@@ -64,6 +85,11 @@ internal sealed class JobSourceUtilitiesTests
 		Assert.That(identifier, Is.EqualTo(expected));
 	}
 
+	/// <summary>
+	/// Checks that HTML entities and whitespace normalize to readable text.
+	/// </summary>
+	/// <param name="input">The extracted HTML text.</param>
+	/// <param name="expected">The expected normalized text.</param>
 	[TestCase(null, "")]
 	[TestCase(" \r\n\t ", "")]
 	[TestCase(" Senior&nbsp;\r\n C# &amp; 日本語 ", "Senior C# & 日本語")]

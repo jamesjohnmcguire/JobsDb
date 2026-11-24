@@ -13,11 +13,17 @@ using System.Text.Json;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers local JSON configuration loading, saving, and credential lookup.
+/// </summary>
 [TestFixture]
 internal sealed class ConfigurationManagerTests
 {
 	private string testConfigurationPath = string.Empty;
 
+	/// <summary>
+	/// Chooses a temporary configuration path for the test.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
@@ -25,6 +31,9 @@ internal sealed class ConfigurationManagerTests
 			Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
 	}
 
+	/// <summary>
+	/// Removes the configuration file created by the test.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -34,6 +43,9 @@ internal sealed class ConfigurationManagerTests
 		}
 	}
 
+	/// <summary>
+	/// Checks that a missing file is initialized with default settings.
+	/// </summary>
 	[Test]
 	public void Constructor_NoConfigFile_CreatesDefaultConfiguration()
 	{
@@ -44,6 +56,9 @@ internal sealed class ConfigurationManagerTests
 		Assert.That(File.Exists(testConfigurationPath), Is.True);
 	}
 
+	/// <summary>
+	/// Checks that an existing file supplies settings and credentials.
+	/// </summary>
 	[Test]
 	public void Constructor_ExistingConfigFile_LoadsConfiguration()
 	{
@@ -62,6 +77,9 @@ internal sealed class ConfigurationManagerTests
 			Is.EqualTo("test@example.com"));
 	}
 
+	/// <summary>
+	/// Checks that changed settings are written to disk.
+	/// </summary>
 	[Test]
 	public void SaveConfiguration_ValidConfig_SavesToFile()
 	{
@@ -77,6 +95,9 @@ internal sealed class ConfigurationManagerTests
 			loadedConfiguration?.MasterPassword, Is.EqualTo("NewPassword"));
 	}
 
+	/// <summary>
+	/// Checks that a configured source password can be read.
+	/// </summary>
 	[Test]
 	public void GetDecryptedPassword_ExistingSource_ReturnsPassword()
 	{
@@ -88,6 +109,9 @@ internal sealed class ConfigurationManagerTests
 		Assert.That(password, Is.EqualTo("MyPassword123"));
 	}
 
+	/// <summary>
+	/// Checks that a missing source yields no password.
+	/// </summary>
 	[Test]
 	public void GetDecryptedPassword_NonExistingSource_ReturnsNull()
 	{
@@ -98,6 +122,9 @@ internal sealed class ConfigurationManagerTests
 		Assert.That(password, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that lookup returns the credential for a configured source.
+	/// </summary>
 	[Test]
 	public void GetCredentialConfig_ExistingSource_ReturnsConfig()
 	{
@@ -112,6 +139,9 @@ internal sealed class ConfigurationManagerTests
 		Assert.That(credential?.Username, Is.EqualTo("test@example.com"));
 	}
 
+	/// <summary>
+	/// Checks that a missing source yields no credential.
+	/// </summary>
 	[Test]
 	public void GetCredentialConfig_NonExistingSource_ReturnsNull()
 	{
@@ -123,6 +153,10 @@ internal sealed class ConfigurationManagerTests
 		Assert.That(credential, Is.Null);
 	}
 
+	/// <summary>
+	/// Checks that invalid JSON leaves defaults in memory and input intact.
+	/// </summary>
+	/// <param name="json">The invalid or null JSON to load.</param>
 	[TestCase("null")]
 	[TestCase("{")]
 	[TestCase("[]")]
@@ -139,6 +173,10 @@ internal sealed class ConfigurationManagerTests
 			File.ReadAllText(testConfigurationPath), Is.EqualTo(json));
 	}
 
+	/// <summary>
+	/// Checks that lookups tolerate omitted or null credential collections.
+	/// </summary>
+	/// <param name="json">The JSON input with no credential collection.</param>
 	[TestCase("{}")]
 	[TestCase("{\"Credentials\":null}")]
 	public void CredentialLookups_MissingCollection_ReturnNull(string json)

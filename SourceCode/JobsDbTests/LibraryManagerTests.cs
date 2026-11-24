@@ -16,15 +16,24 @@ using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Services;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers library initialization and the lifetime of its services.
+/// </summary>
 [TestFixture]
 internal sealed class LibraryManagerTests : BaseTestsSupport
 {
+	/// <summary>
+	/// Prepares the database used to initialize the library.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
 		DatabaseTestSchema.Create(TestDbPath!);
 	}
 
+	/// <summary>
+	/// Removes the library initialization test database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -32,6 +41,10 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		cleanupContext.Database.EnsureDeleted();
 	}
 
+	/// <summary>
+	/// Checks that initialization exposes jobs stored in the prepared database.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Initialize_PreparedDatabase_ProvidesPersistentJobs()
 	{
@@ -56,6 +69,9 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		Assert.That(jobs[0].Title, Is.EqualTo("Software Developer"));
 	}
 
+	/// <summary>
+	/// Checks that initialization does not create a missing database.
+	/// </summary>
 	[Test]
 	public void Initialize_MissingDatabase_DoesNotCreateIt()
 	{
@@ -68,6 +84,9 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		Assert.That(File.Exists(databasePath), Is.False);
 	}
 
+	/// <summary>
+	/// Checks that initialization can be retried after preparing the database.
+	/// </summary>
 	[Test]
 	public void Initialize_InvalidDatabase_CanRetryAfterPreparation()
 	{
@@ -87,6 +106,10 @@ internal sealed class LibraryManagerTests : BaseTestsSupport
 		Assert.That(manager.JobQueries, Is.InstanceOf<IJobQueryService>());
 	}
 
+	/// <summary>
+	/// Checks that disposing the manager blocks access through its services.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Dispose_PreventsFurtherServiceAccess()
 	{

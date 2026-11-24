@@ -24,6 +24,16 @@ internal sealed class EmailImportService : IEmailImportService
 	private readonly Func<JobsDbContext> createContext;
 	private readonly IEmailJobParser parser;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="EmailImportService"/>
+	/// class.
+	/// </summary>
+	/// <param name="createContext">
+	/// Creates a database context for each message write.
+	/// </param>
+	/// <param name="parser">
+	/// Extracts job candidates from a supported message.
+	/// </param>
 	public EmailImportService(
 		Func<JobsDbContext> createContext, IEmailJobParser parser)
 	{

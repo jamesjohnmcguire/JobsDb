@@ -14,15 +14,24 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers ordering, archival, and persistence of job query results.
+/// </summary>
 [TestFixture]
 internal sealed class JobCollectionTests : BaseTestsSupport
 {
+	/// <summary>
+	/// Prepares the database for job collection tests.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
 		DatabaseTestSchema.Create(TestDbPath!);
 	}
 
+	/// <summary>
+	/// Removes the job collection test database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -30,6 +39,13 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 		cleanupContext.Database.EnsureDeleted();
 	}
 
+	/// <summary>
+	/// Checks that job collections are complete and ordered.
+	/// </summary>
+	/// <param name="includeArchived">
+	/// Whether the collection includes archived listings.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task GetJobsAsync_ReturnsOrderedCompleteCollection(
@@ -67,6 +83,10 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 			jobs.ConvertAll(job => job.Id), Is.EqualTo(expectedIdentifiers));
 	}
 
+	/// <summary>
+	/// Checks that changing a returned job does not save it implicitly.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetJobsAsync_DisplayChangesRequireExplicitSave()
 	{
@@ -95,6 +115,10 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 		Assert.That(savedJob.Title, Is.EqualTo("Edited in display"));
 	}
 
+	/// <summary>
+	/// Checks that an empty database yields an empty collection.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task GetJobsAsync_EmptyDatabase_ReturnsEmptyCollection()
 	{

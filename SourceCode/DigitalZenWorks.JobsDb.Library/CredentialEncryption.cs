@@ -20,6 +20,13 @@ public static class CredentialEncryption
 	/// <summary>
 	/// Encrypt a plain text string using AES encryption.
 	/// </summary>
+	/// <param name="plainText">The plaintext credential to encrypt.</param>
+	/// <param name="masterPassword">
+	/// The password used to derive the encryption key.
+	/// </param>
+	/// <returns>
+	/// The Base64-encoded ciphertext, or an empty string for empty input.
+	/// </returns>
 	public static string Encrypt(string plainText, string masterPassword)
 	{
 		if (string.IsNullOrEmpty(plainText))
@@ -43,6 +50,15 @@ public static class CredentialEncryption
 	/// <summary>
 	/// Decrypt an encrypted string using AES encryption.
 	/// </summary>
+	/// <param name="encryptedText">
+	/// The Base64-encoded credential to decrypt.
+	/// </param>
+	/// <param name="masterPassword">
+	/// The password used to derive the encryption key.
+	/// </param>
+	/// <returns>
+	/// The original credential, or an empty string for empty input.
+	/// </returns>
 	public static string Decrypt(string encryptedText, string masterPassword)
 	{
 		if (string.IsNullOrEmpty(encryptedText))

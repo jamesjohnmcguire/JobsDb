@@ -20,15 +20,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers job reader context ownership and concurrency.
+/// </summary>
 [TestFixture]
 internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 {
+	/// <summary>
+	/// Prepares the database for a reader test.
+	/// </summary>
 	[SetUp]
 	public void SetUp()
 	{
 		DatabaseTestSchema.Create(TestDbPath!);
 	}
 
+	/// <summary>
+	/// Removes the reader test database.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
@@ -36,6 +45,13 @@ internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 		cleanup.Database.EnsureDeleted();
 	}
 
+	/// <summary>
+	/// Checks that each read uses and disposes its own context.
+	/// </summary>
+	/// <param name="readAll">
+	/// Whether to include archived listings in the read.
+	/// </param>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[TestCase(false)]
 	[TestCase(true)]
 	public async Task Read_EachCallOwnsAndDisposesItsContext(bool readAll)
@@ -72,6 +88,10 @@ internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 		}
 	}
 
+	/// <summary>
+	/// Checks that a failed read still disposes its context.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Read_FailureStillDisposesContext()
 	{
@@ -88,6 +108,10 @@ internal sealed class DatabaseJobReaderTests : BaseTestsSupport
 		Assert.Throws<ObjectDisposedException>(() => context.Jobs.Count());
 	}
 
+	/// <summary>
+	/// Checks that overlapping reads use independent contexts.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
 	[Test]
 	public async Task Read_OverlappingQueriesUseIndependentContexts()
 	{

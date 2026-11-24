@@ -10,9 +10,15 @@ using System.Text.Json;
 using DigitalZenWorks.JobsDb.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the JSON representation of application settings.
+/// </summary>
 [TestFixture]
 internal class AppConfigurationTests
 {
+	/// <summary>
+	/// Checks that settings can be assigned on a new configuration.
+	/// </summary>
 	[Test]
 	public void AppConfiguration_NewInstance_CanSetProperties()
 	{
@@ -32,6 +38,9 @@ internal class AppConfigurationTests
 		Assert.That(config.ScraperSettings, Is.Not.Null);
 	}
 
+	/// <summary>
+	/// Checks that serialization emits the expected JSON settings.
+	/// </summary>
 	[Test]
 	public void AppConfiguration_SerializeToJson_ProducesValidJson()
 	{
@@ -72,6 +81,9 @@ internal class AppConfigurationTests
 		Assert.That(json, Does.Contain("software developer"));
 	}
 
+	/// <summary>
+	/// Checks that JSON input reconstructs the expected settings.
+	/// </summary>
 	[Test]
 	public void AppConfiguration_DeserializeFromJson_CreatesValidObject()
 	{

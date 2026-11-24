@@ -21,6 +21,15 @@ internal sealed class JobRefreshService : IJobRefreshService
 	private readonly Func<JobsDbContext, IJobRefreshService> createService;
 	private int refreshInProgress;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="JobRefreshService"/> class.
+	/// </summary>
+	/// <param name="createContext">
+	/// Creates a database context for each refresh session.
+	/// </param>
+	/// <param name="createService">
+	/// Creates the acquisition service for that context.
+	/// </param>
 	public JobRefreshService(
 		Func<JobsDbContext> createContext,
 		Func<JobsDbContext, IJobRefreshService> createService)

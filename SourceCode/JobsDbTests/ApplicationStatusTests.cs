@@ -10,9 +10,15 @@ using System;
 using DigitalZenWorks.JobsDb.Library.Models;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers the application's status values and their names.
+/// </summary>
 [TestFixture]
 internal class ApplicationStatusTests
 {
+	/// <summary>
+	/// Checks the complete set of application status values.
+	/// </summary>
 	[Test]
 	public void ApplicationStatus_AllValuesAreDefined()
 	{
@@ -26,6 +32,9 @@ internal class ApplicationStatusTests
 		Assert.That(Enum.IsDefined(typeof(ApplicationStatus), ApplicationStatus.Accepted));
 	}
 
+	/// <summary>
+	/// Checks that status values use their expected string names.
+	/// </summary>
 	[Test]
 	public void ApplicationStatus_ConvertToString_ReturnsCorrectValue()
 	{
