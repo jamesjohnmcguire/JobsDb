@@ -321,6 +321,27 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		OnPropertyChanged(nameof(CanEditPriority));
 	}
 
+	private static bool HasApplicationStatus(Job job)
+	{
+		return job.Status != ApplicationStatus.NotApplied;
+	}
+
+	private static bool IsReviewed(Job job)
+	{
+		return job.Priority.HasValue || HasApplicationStatus(job);
+	}
+
+	private static int GetReviewPriority(Job job)
+	{
+		return job.Priority switch
+		{
+			4 or 5 => 3,
+			3 => 2,
+			1 or 2 => 1,
+			_ => 0
+		};
+	}
+
 	private void ApplyLoadedJobs(List<Job> loadedJobs)
 	{
 		int? selectedJobIdentifier = SelectedJob?.Id;
@@ -348,17 +369,9 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
-	private static bool IsReviewed(Job job)
-	{
-		return job.Priority.HasValue ||
-			job.Status != ApplicationStatus.NotApplied;
-	}
-
 	private void ApplyReviewFilter(int? preferredJobId, int fallbackIndex = 0)
 	{
-		bool showReviewed = selectedReviewTab == 1;
-		visibleJobs = jobs.Where(job => IsReviewed(job) == showReviewed)
-			.ToList();
+		visibleJobs = GetOrderedReviewJobs();
 		Job? preferredJob = visibleJobs.Find(job => job.Id == preferredJobId);
 		if (preferredJob == null && visibleJobs.Count > 0)
 		{
@@ -368,6 +381,24 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 
 		OnPropertyChanged(nameof(VisibleJobs));
 		SelectedJob = preferredJob;
+	}
+
+	private List<Job> GetOrderedReviewJobs()
+	{
+		if (selectedReviewTab == 1)
+		{
+			return jobs.Where(IsReviewed)
+				.OrderByDescending(HasApplicationStatus)
+				.ThenByDescending(GetReviewPriority)
+				.ThenByDescending(job => job.DatePosted)
+				.ThenByDescending(job => job.Id)
+				.ToList();
+		}
+
+		return jobs.Where(job => !IsReviewed(job))
+			.OrderBy(job => job.DatePosted)
+			.ThenBy(job => job.Id)
+			.ToList();
 	}
 
 	private void UpdateLoadedStatus()

@@ -44,6 +44,43 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(notifications, Is.SupersetOf(expectedNotifications));
 	}
 
+	/// <summary>
+	/// Checks oldest-first Inbox and application-first Reviewed ordering.
+	/// </summary>
+	/// <returns>A task that completes after checking the tab orders.</returns>
+	[Test]
+	public async Task ReviewTabs_UseTheirDefaultOrdering()
+	{
+		Job oldest = CreatePosting(1, 1);
+		Job newest = CreatePosting(2, 8);
+		Job unrated = CreatePosting(3, 2, ApplicationStatus.Applied);
+		Job interviewing = CreatePosting(
+			4, 3, ApplicationStatus.Interviewing, priority: 1);
+		Job olderHigh = CreatePosting(5, 1, priority: 5);
+		Job newerHigh = CreatePosting(6, 4, priority: 4);
+		Job medium = CreatePosting(7, 9, priority: 3);
+		Mock<IJobQueryService> queries = new Mock<IJobQueryService>();
+		queries.Setup(service => service.GetJobsAsync(false))
+			.ReturnsAsync(new List<Job>
+			{
+				medium, newest, newerHigh, interviewing, unrated,
+				olderHigh, oldest
+			});
+		JobsDashboardViewModel viewModel =
+			new JobsDashboardViewModel(queries.Object);
+
+		await viewModel.LoadJobsAsync().ConfigureAwait(false);
+
+		Job[] expectedInbox = { oldest, newest };
+		Assert.That(viewModel.VisibleJobs, Is.EqualTo(expectedInbox));
+		viewModel.SelectedReviewTab = 1;
+		Job[] expectedReviewed =
+		{
+			interviewing, unrated, newerHigh, olderHigh, medium
+		};
+		Assert.That(viewModel.VisibleJobs, Is.EqualTo(expectedReviewed));
+	}
+
 	[Test]
 	public async Task LoadJobsAsync_IgnoresOverlappingRequests()
 	{
@@ -99,5 +136,19 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(viewModel.SelectedJob, Is.SameAs(updatedJob));
 		Assert.That(
 			viewModel.StatusMessage, Is.EqualTo("Inbox: 1 posting."));
+	}
+
+	private static Job CreatePosting(
+		int id,
+		int day,
+		ApplicationStatus status = ApplicationStatus.NotApplied,
+		int? priority = null)
+	{
+		Job job = new Job();
+		job.Id = id;
+		job.DatePosted = new DateTime(2026, 11, day, 0, 0, 0, DateTimeKind.Utc);
+		job.Status = status;
+		job.Priority = priority;
+		return job;
 	}
 }

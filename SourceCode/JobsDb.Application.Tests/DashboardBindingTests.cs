@@ -61,7 +61,7 @@ internal sealed class DashboardBindingTests
 				Source = "TestSource",
 				SourceUrl = "https://example.com/jobs/2",
 				SourceJobId = "2",
-				DatePosted = firstJob.DatePosted.AddDays(-1)
+				DatePosted = firstJob.DatePosted.AddDays(1)
 			};
 			Job appliedJob = new Job
 			{
@@ -125,7 +125,8 @@ internal sealed class DashboardBindingTests
 					viewModel.SelectedJob!.Id, Is.EqualTo(secondJob.Id));
 
 				TabControl tabs = (TabControl)window.FindName("ReviewTabs");
-				CheckPriorityButton(grid, manager, secondJob.Id);
+				CheckPriorityButton(
+					grid, manager, secondJob.Id, firstJob.Id);
 				Assert.That(tabs.SelectedIndex, Is.Zero);
 				Assert.That(grid.Items.Count, Is.EqualTo(1));
 				Assert.That(viewModel.SelectedJob!.Id, Is.EqualTo(firstJob.Id));
@@ -133,11 +134,13 @@ internal sealed class DashboardBindingTests
 				tabs.SelectedIndex = 1;
 				dashboard.UpdateLayout();
 				Assert.That(grid.Items.Count, Is.EqualTo(2));
-				Assert.That(((Job)grid.Items[0]).Id, Is.EqualTo(secondJob.Id));
-				Assert.That(((Job)grid.Items[1]).Id, Is.EqualTo(appliedJob.Id));
+				Assert.That(((Job)grid.Items[0]).Id, Is.EqualTo(appliedJob.Id));
+				Assert.That(((Job)grid.Items[1]).Id, Is.EqualTo(secondJob.Id));
 				Assert.That(
-					viewModel.SelectedJob!.Id, Is.EqualTo(secondJob.Id));
-				Button reviewedPriority = FindPriorityButton(grid, 0);
+					viewModel.SelectedJob!.Id, Is.EqualTo(appliedJob.Id));
+				grid.SelectedItem = grid.Items[1];
+				dashboard.UpdateLayout();
+				Button reviewedPriority = FindPriorityButton(grid, 1);
 				Assert.That(reviewedPriority.Tag, Is.EqualTo("Selected"));
 				SavePreview(dashboard);
 			}
@@ -267,7 +270,10 @@ internal sealed class DashboardBindingTests
 	}
 
 	private static void CheckPriorityButton(
-		DataGrid grid, LibraryManager manager, int jobId)
+		DataGrid grid,
+		LibraryManager manager,
+		int jobId,
+		int otherJobId)
 	{
 		Button priority = FindPriorityButton(grid, 1);
 		Assert.That(priority.IsEnabled, Is.True);
@@ -280,8 +286,8 @@ internal sealed class DashboardBindingTests
 			.GetAwaiter().GetResult();
 		Job savedJob = savedJobs.Find(job => job.Id == jobId)!;
 		Assert.That(savedJob.Priority, Is.EqualTo((int)JobPriority.Medium));
-		Assert.That(savedJobs[0].Priority, Is.Null);
-
+		Job otherJob = savedJobs.Find(job => job.Id == otherJobId)!;
+		Assert.That(otherJob.Priority, Is.Null);
 	}
 
 	private static Button FindPriorityButton(DataGrid grid, int row)
