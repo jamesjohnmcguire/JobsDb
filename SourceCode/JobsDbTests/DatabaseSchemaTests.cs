@@ -497,11 +497,16 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 	/// </param>
 	[TestCase("20260723233159_InitialCreate")]
 	[TestCase("20261116204352_UseCamelCaseColumns")]
+	[TestCase("20261116222114_AllowOptionalJobDetails")]
 	public void SqlUpgrades_PreserveExistingEfDatabase(string previousVersion)
 	{
 		using JobsDbContext context = CreateContext();
 		IMigrator migrator = context.GetService<IMigrator>();
 		migrator.Migrate(previousVersion);
+		ExecuteSql(
+			context,
+			"ALTER TABLE MigrationsHistory RENAME TO __EFMigrationsHistory;");
+
 		Job existingJob = CopyJob(TestJob!);
 		existingJob.Id = 42;
 		existingJob.Status = ApplicationStatus.Applied;
@@ -611,7 +616,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			savedJob, Is.EqualTo(existingJob).UsingPropertiesComparer());
 		Assert.That(ReadSchema(context), Is.EqualTo(expectedSchema));
 		Assert.That(
-			context.Database.GetAppliedMigrations(),
+			ReadSqlUpgradeHistory(context),
 			Does.Not.Contain("20261116222114_AllowOptionalJobDetails"));
 	}
 
@@ -624,8 +629,7 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			"Upgrades",
 			"upgradeOrder.txt");
 		string[] upgrades = File.ReadAllLines(orderPath);
-		HashSet<string> appliedVersions = context.Database
-			.GetAppliedMigrations().ToHashSet(StringComparer.Ordinal);
+		HashSet<string> appliedVersions = ReadSqlUpgradeHistory(context);
 
 		foreach (string upgrade in upgrades.Take(maximumUpgrades))
 		{
@@ -642,6 +646,37 @@ internal sealed class DatabaseSchemaTests : BaseTestsSupport
 			string script = ReadUpgradeScript(fileName);
 			ExecuteSql(context, script);
 		}
+	}
+
+	private static HashSet<string> ReadSqlUpgradeHistory(JobsDbContext context)
+	{
+		DbConnection connection = context.Database.GetDbConnection();
+		using DbCommand command = connection.CreateCommand();
+		command.CommandText =
+			"SELECT name FROM sqlite_schema WHERE type = 'table' " +
+			"AND name IN ('MigrationsHistory', '__EFMigrationsHistory');";
+		string? tableName = command.ExecuteScalar() as string;
+		HashSet<string> versions = new HashSet<string>(StringComparer.Ordinal);
+
+		if (tableName == null)
+		{
+			return versions;
+		}
+
+		command.CommandText = "SELECT MigrationId FROM MigrationsHistory;";
+		if (tableName == "__EFMigrationsHistory")
+		{
+			command.CommandText =
+				"SELECT MigrationId FROM __EFMigrationsHistory;";
+		}
+
+		using DbDataReader reader = command.ExecuteReader();
+		while (reader.Read())
+		{
+			versions.Add(reader.GetString(0));
+		}
+
+		return versions;
 	}
 
 	private static string ReadUpgradeScript(string fileName)

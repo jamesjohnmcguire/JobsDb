@@ -173,7 +173,7 @@ internal sealed class DatabaseReadinessTests : BaseTestsSupport
 	{
 		using JobsDbContext context = new JobsDbContext(TestDbPath!);
 		context.Database.ExecuteSqlRaw(
-			"INSERT INTO __EFMigrationsHistory VALUES " +
+			"INSERT INTO MigrationsHistory VALUES " +
 			"('20261117090000_FutureSqlUpgrade', 'sql');");
 
 		Assert.DoesNotThrow(() => context.ValidateDatabase());

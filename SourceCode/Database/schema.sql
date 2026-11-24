@@ -59,9 +59,9 @@ CREATE TABLE "SearchFilters" (
 	"lastRunDate" TEXT NULL
 );
 
-CREATE TABLE "__EFMigrationsHistory" (
+CREATE TABLE "MigrationsHistory" (
 	"MigrationId" TEXT NOT NULL
-		CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+		CONSTRAINT "PK_MigrationsHistory" PRIMARY KEY,
 	"ProductVersion" TEXT NOT NULL
 );
 
@@ -92,13 +92,16 @@ CREATE INDEX "IX_SearchFilters_isActive" ON "SearchFilters" ("isActive");
 
 CREATE INDEX "IX_SearchFilters_name" ON "SearchFilters" ("name");
 
-INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+INSERT INTO "MigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20260723233159_InitialCreate', '10.0.11');
 
-INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+INSERT INTO "MigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20261116204352_UseCamelCaseColumns', '10.0.11');
 
-INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+INSERT INTO "MigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20261116222114_AllowOptionalJobDetails', '10.0.11');
+
+INSERT INTO "MigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20261123220231_RenameMigrationsHistory', '11.0.0');
 
 COMMIT;

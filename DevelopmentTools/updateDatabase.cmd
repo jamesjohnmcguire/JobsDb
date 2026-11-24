@@ -47,8 +47,14 @@ POPD
 EXIT /B 0
 
 :applyUpgrade
+SET "historyTable="
+FOR /F %%T IN ('sqlite3 -bail "%databasePath%" "SELECT CASE WHEN COUNT(*) = 1 THEN MAX(name) END FROM sqlite_schema WHERE type = 'table' AND name IN ('MigrationsHistory', '__EFMigrationsHistory');"') DO SET "historyTable=%%T"
+IF "%historyTable%"=="" (
+	ECHO Expected exactly one migration history table. 1>&2
+	EXIT /B 1
+)
 SET "appliedCount="
-FOR /F %%C IN ('sqlite3 -bail "%databasePath%" "SELECT COUNT(*) FROM __EFMigrationsHistory WHERE MigrationId='%~1';"') DO SET "appliedCount=%%C"
+FOR /F %%C IN ('sqlite3 -bail "%databasePath%" "SELECT COUNT(*) FROM %historyTable% WHERE MigrationId='%~1';"') DO SET "appliedCount=%%C"
 IF "%appliedCount%"=="" EXIT /B 1
 IF "%appliedCount%"=="1" EXIT /B 0
 ECHO Applying %~1...

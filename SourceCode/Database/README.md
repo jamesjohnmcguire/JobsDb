@@ -20,7 +20,7 @@ Runtime and EF tooling share the default database path, `%LOCALAPPDATA%\JobsDb\j
 
 ## SQL Upgrade History
 
-The reviewed SQL files in `Upgrades/` follow `upgradeOrder.txt`, which lists the existing version ID and SQL filename on each line. A runner must skip recorded versions; each file writes its history entry in the same transaction as its schema changes. The updater follows this contract using SQLite directly. The existing `__EFMigrationsHistory` table and version IDs are retained for compatibility; their naming cleanup remains separate.
+The reviewed SQL files in `Upgrades/` follow `upgradeOrder.txt`, which lists the existing version ID and SQL filename on each line. A runner must skip recorded versions; each file writes its history entry in the same transaction as its schema changes. The updater follows this contract using SQLite directly. The SQL updater renames the legacy history table to MigrationsHistory and preserves existing version IDs. Run it before using EF tooling on an older database.
 
 ## Updating a Database
 

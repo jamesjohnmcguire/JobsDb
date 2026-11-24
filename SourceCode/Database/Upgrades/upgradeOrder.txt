@@ -1,3 +1,4 @@
 20260723233159_InitialCreate initialCreate.sql
 20261116204352_UseCamelCaseColumns useCamelCaseColumns.sql
 20261116222114_AllowOptionalJobDetails allowOptionalJobDetails.sql
+20261123220231_RenameMigrationsHistory renameMigrationsHistory.sql

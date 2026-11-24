@@ -142,6 +142,16 @@ public class JobsDbContext : DbContext
 	}
 
 	/// <inheritdoc/>
+	protected override void OnConfiguring(
+		DbContextOptionsBuilder optionsBuilder)
+	{
+		ArgumentNullException.ThrowIfNull(optionsBuilder);
+		base.OnConfiguring(optionsBuilder);
+		optionsBuilder.UseSqlite(
+			sqlite => sqlite.MigrationsHistoryTable("MigrationsHistory"));
+	}
+
+	/// <inheritdoc/>
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -168,7 +178,7 @@ public class JobsDbContext : DbContext
 	private static void ValidateUpgradeHistory(DbConnection connection)
 	{
 		using DbCommand command = connection.CreateCommand();
-		command.CommandText = "SELECT MigrationId FROM __EFMigrationsHistory";
+		command.CommandText = "SELECT MigrationId FROM MigrationsHistory";
 		HashSet<string> appliedVersions =
 			new HashSet<string>(StringComparer.Ordinal);
 

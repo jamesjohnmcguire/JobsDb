@@ -28,7 +28,12 @@ else
 	while read -r version upgradeFile || [ -n "$version" ]; do
 		# Git may check out the manifest with CRLF line endings.
 		upgradeFile="${upgradeFile%$'\r'}"
-		appliedCount="$(sqlite3 -bail "$databasePath" "SELECT COUNT(*) FROM __EFMigrationsHistory WHERE MigrationId='$version';")" || exit $?
+		historyTable="$(sqlite3 -bail "$databasePath" "SELECT CASE WHEN COUNT(*) = 1 THEN MAX(name) END FROM sqlite_schema WHERE type = 'table' AND name IN ('MigrationsHistory', '__EFMigrationsHistory');")" || exit $?
+		if [ -z "$historyTable" ]; then
+			printf 'Expected exactly one migration history table.\n' >&2
+			exit 1
+		fi
+		appliedCount="$(sqlite3 -bail "$databasePath" "SELECT COUNT(*) FROM $historyTable WHERE MigrationId='$version';")" || exit $?
 
 		if [ "$appliedCount" = '0' ]; then
 			printf 'Applying %s...\n' "$version"
