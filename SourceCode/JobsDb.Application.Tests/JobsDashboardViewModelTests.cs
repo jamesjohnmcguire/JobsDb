@@ -36,7 +36,7 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(viewModel.Jobs, Is.EqualTo(new[] { job }));
 		Assert.That(viewModel.SelectedJob, Is.SameAs(job));
 		Assert.That(
-			viewModel.StatusMessage, Is.EqualTo("Loaded 1 active job."));
+			viewModel.StatusMessage, Is.EqualTo("Inbox: 1 posting."));
 		List<string> expectedNotifications = new List<string>
 		{
 			"Jobs", "SelectedJob", "StatusMessage", "IsLoading", "CanLoad"
@@ -69,7 +69,7 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(viewModel.Jobs, Is.Empty);
 		Assert.That(viewModel.SelectedJob, Is.Null);
 		Assert.That(
-			viewModel.StatusMessage, Is.EqualTo("No active jobs found."));
+			viewModel.StatusMessage, Is.EqualTo("Inbox: 0 postings."));
 	}
 
 	[Test]
@@ -98,6 +98,6 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(viewModel.Jobs, Is.EqualTo(new[] { updatedJob }));
 		Assert.That(viewModel.SelectedJob, Is.SameAs(updatedJob));
 		Assert.That(
-			viewModel.StatusMessage, Is.EqualTo("Loaded 1 active job."));
+			viewModel.StatusMessage, Is.EqualTo("Inbox: 1 posting."));
 	}
 }

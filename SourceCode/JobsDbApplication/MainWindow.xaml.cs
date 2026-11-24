@@ -110,9 +110,27 @@ internal sealed partial class MainWindow : Window
 			button.DataContext is Job job &&
 			button.CommandParameter is JobPriority priority)
 		{
-			await viewModel.SetPriorityAsync(job, priority)
+			Job? nextJob = FindAdjacentPosting(job);
+			await viewModel.SetPriorityAsync(job, priority, nextJob?.Id)
 				.ConfigureAwait(true);
 		}
+	}
+
+	private Job? FindAdjacentPosting(Job job)
+	{
+		int rowIndex = JobsGrid.Items.IndexOf(job);
+		if (rowIndex < 0 || JobsGrid.Items.Count < 2)
+		{
+			return null;
+		}
+
+		int nextIndex = rowIndex + 1;
+		if (nextIndex == JobsGrid.Items.Count)
+		{
+			nextIndex = rowIndex - 1;
+		}
+
+		return JobsGrid.Items[nextIndex] as Job;
 	}
 
 	private async void ReloadJobs_Click(object sender, RoutedEventArgs e)

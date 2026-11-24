@@ -4,7 +4,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:models="clr-namespace:DigitalZenWorks.JobsDb.Library.Models;assembly=DigitalZenWorks.JobsDb.Library"
 	Title="Jobs DB" Height="760" Width="1240"
-	MinHeight="450" MinWidth="800">
+	MinHeight="500" MinWidth="800">
 	<DockPanel
 		Background="{DynamicResource WindowBackground}">
 		<DockPanel.Resources>
@@ -16,23 +16,14 @@
 					Value="{Binding DataContext.CanEditPriority,
 						RelativeSource={RelativeSource
 						AncestorType=DataGrid}}" />
-				<Setter Property="Foreground">
-					<Setter.Value>
-						<Binding Path="Foreground">
-							<Binding.RelativeSource>
-								<RelativeSource Mode="FindAncestor"
-									AncestorType="DataGridCell" />
-							</Binding.RelativeSource>
-						</Binding>
-					</Setter.Value>
-				</Setter>
+				<Setter Property="Foreground" Value="#17202A" />
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="Button">
 							<Grid x:Name="PriorityFace"
 								Background="Transparent">
 								<Ellipse x:Name="PriorityCircle"
-									Fill="Transparent" StrokeThickness="1"
+									Fill="{TemplateBinding Background}" StrokeThickness="1"
 									Stroke="{TemplateBinding Foreground}" />
 								<ContentPresenter x:Name="PriorityLetter"
 									HorizontalAlignment="Center"
@@ -41,15 +32,10 @@
 							<ControlTemplate.Triggers>
 								<Trigger Property="Tag" Value="Selected">
 									<Setter TargetName="PriorityCircle"
-										Property="Fill"
-										Value="{DynamicResource
-											{x:Static
-											SystemColors.HighlightBrushKey}}" />
+										Property="StrokeThickness" Value="2" />
 									<Setter TargetName="PriorityLetter"
-										Property="TextElement.Foreground"
-										Value="{DynamicResource
-											{x:Static
-											SystemColors.HighlightTextBrushKey}}" />
+										Property="TextElement.FontWeight"
+										Value="Bold" />
 								</Trigger>
 								<Trigger Property="IsMouseOver" Value="True">
 									<Setter TargetName="PriorityCircle"
@@ -71,31 +57,39 @@
 			</Style>
 			<Style x:Key="HighPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
+				<Setter Property="Background" Value="#A4B3C1" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="5">
 						<Setter Property="Tag" Value="Selected" />
+						<Setter Property="Background" Value="#70B6FF" />
 					</DataTrigger>
 					<DataTrigger Binding="{Binding Priority}" Value="4">
 						<Setter Property="Tag" Value="Selected" />
+						<Setter Property="Background" Value="#70B6FF" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
 			<Style x:Key="MediumPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
+				<Setter Property="Background" Value="#A0B5A7" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="3">
 						<Setter Property="Tag" Value="Selected" />
+						<Setter Property="Background" Value="#69D58D" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
 			<Style x:Key="LowPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
+				<Setter Property="Background" Value="#BEB597" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="1">
 						<Setter Property="Tag" Value="Selected" />
+						<Setter Property="Background" Value="#F5D65B" />
 					</DataTrigger>
 					<DataTrigger Binding="{Binding Priority}" Value="2">
 						<Setter Property="Tag" Value="Selected" />
+						<Setter Property="Background" Value="#F5D65B" />
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
@@ -132,9 +126,10 @@
 		<Grid Margin="16">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
 				<RowDefinition Height="4*" MinHeight="120" />
 				<RowDefinition Height="8" />
-				<RowDefinition Height="2*" MinHeight="132" />
+				<RowDefinition Height="2*" MinHeight="180" />
 			</Grid.RowDefinitions>
 			<DockPanel Margin="0,0,0,12">
 				<Button DockPanel.Dock="Right" Content="Reload Jobs"
@@ -154,8 +149,13 @@
 				<TextBlock Text="Job Listings" FontSize="22"
 					FontWeight="SemiBold" VerticalAlignment="Center" />
 			</DockPanel>
-			<DataGrid x:Name="JobsGrid" Grid.Row="1"
-				ItemsSource="{Binding Jobs}"
+			<TabControl x:Name="ReviewTabs" Grid.Row="1" Margin="0,0,0,4"
+				SelectedIndex="{Binding SelectedReviewTab, Mode=TwoWay}">
+				<TabItem Header="Inbox" />
+				<TabItem Header="Reviewed" />
+			</TabControl>
+			<DataGrid x:Name="JobsGrid" Grid.Row="2"
+				ItemsSource="{Binding VisibleJobs}"
 				SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
 				AutoGenerateColumns="False" IsReadOnly="True"
 				CanUserAddRows="False" CanUserDeleteRows="False"
@@ -179,10 +179,10 @@
 						CellTemplate="{StaticResource PriorityCell}" />
 				</DataGrid.Columns>
 			</DataGrid>
-			<GridSplitter Grid.Row="2" Height="4"
+			<GridSplitter Grid.Row="3" Height="4"
 				HorizontalAlignment="Stretch" ResizeDirection="Rows"
 				ResizeBehavior="PreviousAndNext" />
-			<GroupBox Grid.Row="3" Header="Selected Job" Padding="8">
+			<GroupBox Grid.Row="4" Header="Selected Job" Padding="8">
 				<DockPanel>
 					<DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
 						<Button x:Name="OpenPostingButton"

@@ -25,6 +25,8 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	private readonly Action<Uri> openPosting;
 	private readonly IJobPriorityService? jobPriorities;
 	private IReadOnlyList<Job> jobs = Array.Empty<Job>();
+	private List<Job> visibleJobs = new List<Job>();
+	private int selectedReviewTab;
 	private Job? selectedJob;
 	private string statusMessage = "Ready";
 	private bool isLoading;
@@ -61,6 +63,41 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		get
 		{
 			return jobs;
+		}
+	}
+
+	/// <summary>
+	/// Gets the listings in the selected review tab.
+	/// </summary>
+	public IReadOnlyList<Job> VisibleJobs
+	{
+		get
+		{
+			return visibleJobs;
+		}
+	}
+
+	/// <summary>
+	/// Gets or sets the selected tab index. Inbox is first.
+	/// </summary>
+	public int SelectedReviewTab
+	{
+		get
+		{
+			return selectedReviewTab;
+		}
+
+		set
+		{
+			if (selectedReviewTab == value || value is not (0 or 1))
+			{
+				return;
+			}
+
+			selectedReviewTab = value;
+			OnPropertyChanged();
+			ApplyReviewFilter(null);
+			UpdateLoadedStatus();
 		}
 	}
 
@@ -228,12 +265,14 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	/// </summary>
 	/// <param name="job">The posting whose button was clicked.</param>
 	/// <param name="priority">The requested priority.</param>
+	/// <param name="nextJobId">The adjacent grid row, if available.</param>
 	/// <returns>A task that completes when the update is reported.</returns>
 	[SuppressMessage(
 		"Design",
 		"CA1031",
 		Justification = "The view reports write failures and allows retry.")]
-	public async Task SetPriorityAsync(Job job, JobPriority priority)
+	public async Task SetPriorityAsync(
+		Job job, JobPriority priority, int? nextJobId)
 	{
 		if (jobPriorities == null || !CanLoad || !jobs.Contains(job))
 		{
@@ -253,9 +292,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 				return;
 			}
 
-			job.Priority = (int)priority;
-			ApplyLoadedJobs(new List<Job>(jobs));
-			StatusMessage = "Priority saved.";
+			ApplySavedPriority(job, priority, nextJobId);
 		}
 		catch (Exception exception)
 		{
@@ -279,32 +316,55 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		int? selectedJobIdentifier = SelectedJob?.Id;
 		jobs = loadedJobs;
 		OnPropertyChanged(nameof(Jobs));
-		SelectedJob = loadedJobs.Find(job => job.Id == selectedJobIdentifier);
-		SelectFirstJobIfNeeded(loadedJobs);
+		ApplyReviewFilter(selectedJobIdentifier);
 	}
 
-	private void SelectFirstJobIfNeeded(List<Job> loadedJobs)
+	private void ApplySavedPriority(
+		Job job, JobPriority priority, int? nextJobId)
 	{
-		if (SelectedJob == null && loadedJobs.Count > 0)
+		int rowIndex = visibleJobs.IndexOf(job);
+		bool movesToReviewed = rowIndex >= 0 && !IsReviewed(job);
+		int? selectedJobIdentifier = SelectedJob?.Id;
+		job.Priority = (int)priority;
+		if (movesToReviewed)
 		{
-			SelectedJob = loadedJobs[0];
+			ApplyReviewFilter(nextJobId, rowIndex);
+			StatusMessage = "Priority saved. Posting moved to Reviewed.";
 		}
+		else
+		{
+			ApplyReviewFilter(selectedJobIdentifier);
+			StatusMessage = "Priority saved.";
+		}
+	}
+
+	private static bool IsReviewed(Job job)
+	{
+		return job.Priority.HasValue ||
+			job.Status != ApplicationStatus.NotApplied;
+	}
+
+	private void ApplyReviewFilter(int? preferredJobId, int fallbackIndex = 0)
+	{
+		bool showReviewed = selectedReviewTab == 1;
+		visibleJobs = jobs.Where(job => IsReviewed(job) == showReviewed)
+			.ToList();
+		Job? preferredJob = visibleJobs.Find(job => job.Id == preferredJobId);
+		if (preferredJob == null && visibleJobs.Count > 0)
+		{
+			int index = Math.Min(fallbackIndex, visibleJobs.Count - 1);
+			preferredJob = visibleJobs[index];
+		}
+
+		OnPropertyChanged(nameof(VisibleJobs));
+		SelectedJob = preferredJob;
 	}
 
 	private void UpdateLoadedStatus()
 	{
-		if (jobs.Count == 0)
-		{
-			StatusMessage = "No active jobs found.";
-		}
-		else if (jobs.Count == 1)
-		{
-			StatusMessage = "Loaded 1 active job.";
-		}
-		else
-		{
-			StatusMessage = $"Loaded {jobs.Count} active jobs.";
-		}
+		string tab = selectedReviewTab == 1 ? "Reviewed" : "Inbox";
+		string label = visibleJobs.Count == 1 ? "posting" : "postings";
+		StatusMessage = $"{tab}: {visibleJobs.Count} {label}.";
 	}
 
 	private Uri? GetSelectedPostingAddress()

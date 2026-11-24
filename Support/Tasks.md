@@ -11,6 +11,7 @@ Open work only. Each item names its type and the result to deliver. The [archite
 ## Dashboard
 
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
+- [ ] **Feature** - Hide the Location column when the dashboard grid is narrow. Keep the location accessible in the selected posting details.
 - [ ] **Feature** — Save application status, notes, and archive state through library operations. Provide a way to view archived jobs.
 - [ ] **Feature** — Add **Refresh Db** once the acquisition bugs below are addressed. Await the library refresh, reload the list, and report partial failures in the status line.
 - [ ] **Feature** — Offer optional UTM removal when opening a posting. Preserve query parameters needed to identify or access the job.

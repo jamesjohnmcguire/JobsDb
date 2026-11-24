@@ -60,10 +60,21 @@ internal sealed class DashboardBindingTests
 				SourceJobId = "2",
 				DatePosted = firstJob.DatePosted.AddDays(-1)
 			};
+			Job appliedJob = new Job
+			{
+				Title = "Applied Posting",
+				Company = "Example Company",
+				Source = "TestSource",
+				SourceJobId = "3",
+				SourceUrl = "https://example.com/jobs/3",
+				DatePosted = secondJob.DatePosted.AddDays(-1),
+				Status = ApplicationStatus.Applied
+			};
 			using JobsDbContext preparation = new JobsDbContext(databasePath);
 			JobRepository repository = new JobRepository(preparation);
 			repository.AddAsync(firstJob).GetAwaiter().GetResult();
 			repository.AddAsync(secondJob).GetAwaiter().GetResult();
+			repository.AddAsync(appliedJob).GetAwaiter().GetResult();
 			List<Uri> opened = new List<Uri>();
 			JobsDashboardViewModel viewModel =
 				new JobsDashboardViewModel(
@@ -87,7 +98,7 @@ internal sealed class DashboardBindingTests
 				Assert.That(grid.Items.Count, Is.EqualTo(2));
 				Assert.That(grid.IsReadOnly, Is.True);
 				Assert.That(description.Text, Is.EqualTo(firstJob.Description));
-				Assert.That(status.Text, Is.EqualTo("Loaded 2 active jobs."));
+				Assert.That(status.Text, Is.EqualTo("Inbox: 2 postings."));
 				TextBlock title =
 					(TextBlock)grid.Columns[0].GetCellContent(grid.Items[0]);
 				Assert.That(title.Text, Is.EqualTo(firstJob.Title));
@@ -100,7 +111,6 @@ internal sealed class DashboardBindingTests
 				Assert.That(
 					opened[0].AbsoluteUri, Is.EqualTo(firstJob.SourceUrl));
 
-				CheckPriorityButton(grid, manager, secondJob.Id);
 
 				grid.SelectedItem = grid.Items[1];
 				Dispatcher.CurrentDispatcher.Invoke(
@@ -115,8 +125,21 @@ internal sealed class DashboardBindingTests
 				Assert.That(
 					viewModel.SelectedJob!.Id, Is.EqualTo(secondJob.Id));
 
-				grid.SelectedItem = grid.Items[0];
+				TabControl tabs = (TabControl)window.FindName("ReviewTabs");
+				CheckPriorityButton(grid, manager, secondJob.Id);
+				Assert.That(tabs.SelectedIndex, Is.Zero);
+				Assert.That(grid.Items.Count, Is.EqualTo(1));
+				Assert.That(viewModel.SelectedJob!.Id, Is.EqualTo(firstJob.Id));
+
+				tabs.SelectedIndex = 1;
 				dashboard.UpdateLayout();
+				Assert.That(grid.Items.Count, Is.EqualTo(2));
+				Assert.That(((Job)grid.Items[0]).Id, Is.EqualTo(secondJob.Id));
+				Assert.That(((Job)grid.Items[1]).Id, Is.EqualTo(appliedJob.Id));
+				Assert.That(
+					viewModel.SelectedJob!.Id, Is.EqualTo(secondJob.Id));
+				Button reviewedPriority = FindPriorityButton(grid, 0);
+				Assert.That(reviewedPriority.Tag, Is.EqualTo("Selected"));
 				SavePreview(dashboard);
 			}
 			finally
@@ -219,7 +242,7 @@ internal sealed class DashboardBindingTests
 		Job savedJob = savedJobs.Find(job => job.Id == jobId)!;
 		Assert.That(savedJob.Priority, Is.EqualTo((int)JobPriority.Medium));
 		Assert.That(savedJobs[0].Priority, Is.Null);
-		Assert.That(FindPriorityButton(grid, 1).Tag, Is.EqualTo("Selected"));
+
 	}
 
 	private static Button FindPriorityButton(DataGrid grid, int row)
