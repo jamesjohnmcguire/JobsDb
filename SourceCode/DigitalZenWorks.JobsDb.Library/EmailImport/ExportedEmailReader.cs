@@ -6,8 +6,6 @@
 
 namespace DigitalZenWorks.JobsDb.Library.EmailImport;
 
-using DigitalZenWorks.JobsDb.Library.Models;
-using OpenQA.Selenium.DevTools.V149.Page;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using static System.Collections.Specialized.BitVector32;
+using DigitalZenWorks.JobsDb.Library.Models;
 
 /// <summary>
 /// Reads paired HTML/text body exports without modifying their source files.
