@@ -19,7 +19,9 @@ using DigitalZenWorks.JobsDb.Application;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
+using DigitalZenWorks.JobsDb.Library.Services;
 using JobsDbTests;
+using Moq;
 using NUnit.Framework;
 
 [TestFixture]
@@ -124,6 +126,79 @@ internal sealed class DashboardBindingTests
 			using JobsDbContext cleanup = new JobsDbContext(databasePath);
 			cleanup.Database.EnsureDeleted();
 		}
+	}
+
+	/// <summary>
+	/// Checks the default theme, live switching, and saved selection.
+	/// </summary>
+	[Test]
+	public void Dashboard_ChangesThemeAndRestoresSavedChoice()
+	{
+		string preferencePath = Path.Combine(
+			Path.GetTempPath(), "JobsDb-theme-" + Guid.NewGuid() + ".txt");
+		IJobQueryService jobQueries = Mock.Of<IJobQueryService>();
+		JobsDashboardViewModel viewModel = new JobsDashboardViewModel(
+			jobQueries);
+
+		try
+		{
+			CheckThemeSelection(viewModel, preferencePath);
+			CheckSavedTheme(viewModel, preferencePath);
+		}
+		finally
+		{
+			File.Delete(preferencePath);
+		}
+	}
+
+	private static void CheckThemeSelection(
+		JobsDashboardViewModel viewModel, string preferencePath)
+	{
+		MainWindow window = new MainWindow(viewModel, preferencePath);
+		try
+		{
+			ComboBox selector = (ComboBox)window.FindName("ThemeSelector");
+			Assert.That(selector.SelectedValue, Is.EqualTo("Dark"));
+			Assert.That(File.Exists(preferencePath), Is.False);
+			Color dark = ReadDashboardBackground(window);
+
+			selector.SelectedValue = "System";
+			Assert.That(File.ReadAllText(preferencePath), Is.EqualTo("System"));
+
+			selector.SelectedValue = "Light";
+			Assert.That(File.ReadAllText(preferencePath), Is.EqualTo("Light"));
+			Color light = ReadDashboardBackground(window);
+
+			Assert.That(light.R, Is.GreaterThan(dark.R));
+		}
+		finally
+		{
+			window.Close();
+		}
+	}
+
+	private static void CheckSavedTheme(
+		JobsDashboardViewModel viewModel, string preferencePath)
+	{
+		MainWindow window = new MainWindow(viewModel, preferencePath);
+		try
+		{
+			ComboBox selector = (ComboBox)window.FindName("ThemeSelector");
+			Assert.That(selector.SelectedValue, Is.EqualTo("Light"));
+		}
+		finally
+		{
+			window.Close();
+		}
+	}
+
+	private static Color ReadDashboardBackground(MainWindow window)
+	{
+		DockPanel dashboard = (DockPanel)window.Content;
+		window.ApplyTemplate();
+		dashboard.UpdateLayout();
+		SolidColorBrush background = (SolidColorBrush)dashboard.Background;
+		return background.Color;
 	}
 
 	private static void SavePreview(FrameworkElement dashboard)

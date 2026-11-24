@@ -40,7 +40,8 @@ internal partial class App : Application
 
 		JobsDashboardViewModel viewModel =
 			new JobsDashboardViewModel(libraryManager.JobQueries);
-		MainWindow mainWindow = new MainWindow(viewModel);
+		MainWindow mainWindow = new MainWindow(
+			viewModel, DashboardThemePreference.GetPath());
 		mainWindow.Show();
 	}
 
