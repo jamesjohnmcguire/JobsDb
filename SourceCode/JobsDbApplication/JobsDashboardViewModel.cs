@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Models;
@@ -22,10 +23,12 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 {
 	private readonly IJobQueryService jobQueries;
 	private readonly Action<Uri> openPosting;
+	private readonly IJobPriorityService? jobPriorities;
 	private IReadOnlyList<Job> jobs = Array.Empty<Job>();
 	private Job? selectedJob;
 	private string statusMessage = "Ready";
 	private bool isLoading;
+	private bool isSavingPriority;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="JobsDashboardViewModel"/>
@@ -35,12 +38,16 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	/// <param name="openPosting">
 	/// The browser action, or null to use the default launcher.
 	/// </param>
+	/// <param name="jobPriorities">The optional priority write service.</param>
 	public JobsDashboardViewModel(
-		IJobQueryService jobQueries, Action<Uri>? openPosting = null)
+		IJobQueryService jobQueries,
+		Action<Uri>? openPosting = null,
+		IJobPriorityService? jobPriorities = null)
 	{
 		ArgumentNullException.ThrowIfNull(jobQueries);
 		this.jobQueries = jobQueries;
 		this.openPosting = openPosting ?? PostingLauncher.Open;
+		this.jobPriorities = jobPriorities;
 	}
 
 	/// <inheritdoc/>
@@ -129,7 +136,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		{
 			isLoading = value;
 			OnPropertyChanged();
-			OnPropertyChanged(nameof(CanLoad));
+			NotifyOperationAvailability();
 		}
 	}
 
@@ -140,7 +147,18 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	{
 		get
 		{
-			return !isLoading;
+			return !isLoading && !isSavingPriority;
+		}
+	}
+
+	/// <summary>
+	/// Gets a value indicating whether priorities can be edited.
+	/// </summary>
+	public bool CanEditPriority
+	{
+		get
+		{
+			return jobPriorities != null && CanLoad;
 		}
 	}
 
@@ -156,7 +174,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		Justification = "The view reports load failures and allows retry.")]
 	public async Task LoadJobsAsync()
 	{
-		if (IsLoading)
+		if (!CanLoad)
 		{
 			return;
 		}
@@ -203,6 +221,57 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		{
 			StatusMessage = "Unable to open posting: " + exception.Message;
 		}
+	}
+
+	/// <summary>
+	/// Saves a priority for the specified posting and updates the display.
+	/// </summary>
+	/// <param name="job">The posting whose button was clicked.</param>
+	/// <param name="priority">The requested priority.</param>
+	/// <returns>A task that completes when the update is reported.</returns>
+	[SuppressMessage(
+		"Design",
+		"CA1031",
+		Justification = "The view reports write failures and allows retry.")]
+	public async Task SetPriorityAsync(Job job, JobPriority priority)
+	{
+		if (jobPriorities == null || !CanLoad || !jobs.Contains(job))
+		{
+			return;
+		}
+
+		isSavingPriority = true;
+		NotifyOperationAvailability();
+		try
+		{
+			bool saved = await jobPriorities.SetPriorityAsync(job.Id, priority)
+				.ConfigureAwait(true);
+			if (!saved)
+			{
+				StatusMessage =
+					"This posting is no longer available. Reload jobs.";
+				return;
+			}
+
+			job.Priority = (int)priority;
+			ApplyLoadedJobs(new List<Job>(jobs));
+			StatusMessage = "Priority saved.";
+		}
+		catch (Exception exception)
+		{
+			StatusMessage = "Unable to save priority: " + exception.Message;
+		}
+		finally
+		{
+			isSavingPriority = false;
+			NotifyOperationAvailability();
+		}
+	}
+
+	private void NotifyOperationAvailability()
+	{
+		OnPropertyChanged(nameof(CanLoad));
+		OnPropertyChanged(nameof(CanEditPriority));
 	}
 
 	private void ApplyLoadedJobs(List<Job> loadedJobs)

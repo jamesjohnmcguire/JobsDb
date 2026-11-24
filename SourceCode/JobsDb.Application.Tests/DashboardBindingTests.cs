@@ -66,7 +66,8 @@ internal sealed class DashboardBindingTests
 			repository.AddAsync(secondJob).GetAwaiter().GetResult();
 			List<Uri> opened = new List<Uri>();
 			JobsDashboardViewModel viewModel =
-				new JobsDashboardViewModel(manager.JobQueries, opened.Add);
+				new JobsDashboardViewModel(
+				manager.JobQueries, opened.Add, manager.JobPriorities);
 			viewModel.LoadJobsAsync().GetAwaiter().GetResult();
 			MainWindow window = new MainWindow(viewModel);
 			try
@@ -98,6 +99,8 @@ internal sealed class DashboardBindingTests
 				Assert.That(opened, Has.Count.EqualTo(1));
 				Assert.That(
 					opened[0].AbsoluteUri, Is.EqualTo(firstJob.SourceUrl));
+
+				CheckPriorityButton(grid, manager, secondJob.Id);
 
 				grid.SelectedItem = grid.Items[1];
 				Dispatcher.CurrentDispatcher.Invoke(
@@ -199,6 +202,34 @@ internal sealed class DashboardBindingTests
 		dashboard.UpdateLayout();
 		SolidColorBrush background = (SolidColorBrush)dashboard.Background;
 		return background.Color;
+	}
+
+	private static void CheckPriorityButton(
+		DataGrid grid, LibraryManager manager, int jobId)
+	{
+		Button priority = FindPriorityButton(grid, 1);
+		Assert.That(priority.IsEnabled, Is.True);
+		Assert.That(priority.Tag, Is.Null);
+		priority.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+		Dispatcher.CurrentDispatcher.Invoke(
+			() => { }, DispatcherPriority.ApplicationIdle);
+
+		List<Job> savedJobs = manager.JobQueries.GetJobsAsync()
+			.GetAwaiter().GetResult();
+		Job savedJob = savedJobs.Find(job => job.Id == jobId)!;
+		Assert.That(savedJob.Priority, Is.EqualTo((int)JobPriority.Medium));
+		Assert.That(savedJobs[0].Priority, Is.Null);
+		Assert.That(FindPriorityButton(grid, 1).Tag, Is.EqualTo("Selected"));
+	}
+
+	private static Button FindPriorityButton(DataGrid grid, int row)
+	{
+		DataGridTemplateColumn column =
+			(DataGridTemplateColumn)grid.Columns[^1];
+		ContentPresenter cell = (ContentPresenter)column.GetCellContent(
+			grid.Items[row]);
+		cell.ApplyTemplate();
+		return (Button)column.CellTemplate.FindName("MediumPriority", cell);
 	}
 
 	private static void SavePreview(FrameworkElement dashboard)

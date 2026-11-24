@@ -39,7 +39,9 @@ internal partial class App : Application
 		}
 
 		JobsDashboardViewModel viewModel =
-			new JobsDashboardViewModel(libraryManager.JobQueries);
+			new JobsDashboardViewModel(
+				libraryManager.JobQueries,
+				jobPriorities: libraryManager.JobPriorities);
 		MainWindow mainWindow = new MainWindow(
 			viewModel, DashboardThemePreference.GetPath());
 		mainWindow.Show();

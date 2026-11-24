@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using DigitalZenWorks.JobsDb.Library.Models;
 
 /// <summary>
 /// Presents the dashboard and forwards load requests to its view model.
@@ -101,6 +102,17 @@ internal sealed partial class MainWindow : Window
 	private void OpenPosting_Click(object sender, RoutedEventArgs e)
 	{
 		viewModel.OpenSelectedPosting();
+	}
+
+	private async void Priority_Click(object sender, RoutedEventArgs e)
+	{
+		if (sender is Button button &&
+			button.DataContext is Job job &&
+			button.CommandParameter is JobPriority priority)
+		{
+			await viewModel.SetPriorityAsync(job, priority)
+				.ConfigureAwait(true);
+		}
 	}
 
 	private async void ReloadJobs_Click(object sender, RoutedEventArgs e)

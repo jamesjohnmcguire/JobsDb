@@ -129,6 +129,33 @@ internal sealed class JobCollectionTests : BaseTestsSupport
 		Assert.That(jobs, Is.Empty);
 	}
 
+	/// <summary>
+	/// Verifies that saving priority leaves a newer job title intact.
+	/// </summary>
+	/// <returns>A task that completes after checking the save.</returns>
+	[Test]
+	public async Task SetPriorityAsync_PreservesOtherJobFields()
+	{
+		using JobsDbContext context = new JobsDbContext(TestDbPath!);
+		JobRepository repository = new JobRepository(context);
+		Job job = CreateJob("Original");
+		await repository.AddAsync(job).ConfigureAwait(false);
+		using LibraryManager manager = LibraryManager.Initialize(TestDbPath);
+		List<Job> displayed = await manager.JobQueries.GetJobsAsync()
+			.ConfigureAwait(false);
+
+		job.Title = "Updated independently";
+		await repository.UpdateAsync(job).ConfigureAwait(false);
+		bool saved = await manager.JobPriorities.SetPriorityAsync(
+			displayed[0].Id, JobPriority.High).ConfigureAwait(false);
+
+		List<Job> reloaded = await manager.JobQueries.GetJobsAsync()
+			.ConfigureAwait(false);
+		Assert.That(saved, Is.True);
+		Assert.That(reloaded[0].Priority, Is.EqualTo((int)JobPriority.High));
+		Assert.That(reloaded[0].Title, Is.EqualTo("Updated independently"));
+	}
+
 	private static Job CreateJob(string title)
 	{
 		return new Job

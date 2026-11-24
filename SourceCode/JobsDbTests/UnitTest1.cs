@@ -11,7 +11,7 @@ using NUnit.Framework;
 /// <summary>
 /// Provides a basic NUnit discovery and execution check.
 /// </summary>
-internal class Tests
+internal sealed class Tests
 {
 	/// <summary>
 	/// Runs before the smoke test.

@@ -2,10 +2,127 @@
 	x:ClassModifier="internal"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:models="clr-namespace:DigitalZenWorks.JobsDb.Library.Models;assembly=DigitalZenWorks.JobsDb.Library"
 	Title="Jobs DB" Height="760" Width="1240"
 	MinHeight="450" MinWidth="800">
 	<DockPanel
 		Background="{DynamicResource WindowBackground}">
+		<DockPanel.Resources>
+			<Style x:Key="PriorityButton" TargetType="Button">
+				<Setter Property="Width" Value="26" />
+				<Setter Property="Height" Value="26" />
+				<Setter Property="Margin" Value="2,1" />
+				<Setter Property="IsEnabled"
+					Value="{Binding DataContext.CanEditPriority,
+						RelativeSource={RelativeSource
+						AncestorType=DataGrid}}" />
+				<Setter Property="Foreground">
+					<Setter.Value>
+						<Binding Path="Foreground">
+							<Binding.RelativeSource>
+								<RelativeSource Mode="FindAncestor"
+									AncestorType="DataGridCell" />
+							</Binding.RelativeSource>
+						</Binding>
+					</Setter.Value>
+				</Setter>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="Button">
+							<Grid x:Name="PriorityFace"
+								Background="Transparent">
+								<Ellipse x:Name="PriorityCircle"
+									Fill="Transparent" StrokeThickness="1"
+									Stroke="{TemplateBinding Foreground}" />
+								<ContentPresenter x:Name="PriorityLetter"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center" />
+							</Grid>
+							<ControlTemplate.Triggers>
+								<Trigger Property="Tag" Value="Selected">
+									<Setter TargetName="PriorityCircle"
+										Property="Fill"
+										Value="{DynamicResource
+											{x:Static
+											SystemColors.HighlightBrushKey}}" />
+									<Setter TargetName="PriorityLetter"
+										Property="TextElement.Foreground"
+										Value="{DynamicResource
+											{x:Static
+											SystemColors.HighlightTextBrushKey}}" />
+								</Trigger>
+								<Trigger Property="IsMouseOver" Value="True">
+									<Setter TargetName="PriorityCircle"
+										Property="StrokeThickness" Value="2" />
+								</Trigger>
+								<Trigger Property="IsKeyboardFocused"
+									Value="True">
+									<Setter TargetName="PriorityCircle"
+										Property="StrokeThickness" Value="2" />
+								</Trigger>
+								<Trigger Property="IsEnabled" Value="False">
+									<Setter TargetName="PriorityFace"
+										Property="Opacity" Value="0.55" />
+								</Trigger>
+							</ControlTemplate.Triggers>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+			<Style x:Key="HighPriorityButton" TargetType="Button"
+				BasedOn="{StaticResource PriorityButton}">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding Priority}" Value="5">
+						<Setter Property="Tag" Value="Selected" />
+					</DataTrigger>
+					<DataTrigger Binding="{Binding Priority}" Value="4">
+						<Setter Property="Tag" Value="Selected" />
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+			<Style x:Key="MediumPriorityButton" TargetType="Button"
+				BasedOn="{StaticResource PriorityButton}">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding Priority}" Value="3">
+						<Setter Property="Tag" Value="Selected" />
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+			<Style x:Key="LowPriorityButton" TargetType="Button"
+				BasedOn="{StaticResource PriorityButton}">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding Priority}" Value="1">
+						<Setter Property="Tag" Value="Selected" />
+					</DataTrigger>
+					<DataTrigger Binding="{Binding Priority}" Value="2">
+						<Setter Property="Tag" Value="Selected" />
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+			<DataTemplate x:Key="PriorityCell">
+				<StackPanel Orientation="Horizontal"
+					HorizontalAlignment="Center">
+					<Button x:Name="HighPriority" Content="A"
+						ToolTip="High priority"
+						AutomationProperties.Name="A, high priority"
+						Style="{StaticResource HighPriorityButton}"
+						CommandParameter="{x:Static models:JobPriority.High}"
+						Click="Priority_Click" />
+					<Button x:Name="MediumPriority" Content="B"
+						ToolTip="Medium priority"
+						AutomationProperties.Name="B, medium priority"
+						Style="{StaticResource MediumPriorityButton}"
+						CommandParameter="{x:Static models:JobPriority.Medium}"
+						Click="Priority_Click" />
+					<Button x:Name="LowPriority" Content="C"
+						ToolTip="Low priority"
+						AutomationProperties.Name="C, low priority"
+						Style="{StaticResource LowPriorityButton}"
+						CommandParameter="{x:Static models:JobPriority.Low}"
+						Click="Priority_Click" />
+				</StackPanel>
+			</DataTemplate>
+		</DockPanel.Resources>
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>
 				<TextBlock x:Name="StatusText" Text="{Binding StatusMessage}"
@@ -58,6 +175,8 @@
 						Width="Auto" />
 					<DataGridTextColumn Header="Status"
 						Binding="{Binding Status}" Width="Auto" />
+					<DataGridTemplateColumn Header="Priority" Width="108"
+						CellTemplate="{StaticResource PriorityCell}" />
 				</DataGrid.Columns>
 			</DataGrid>
 			<GridSplitter Grid.Row="2" Height="4"

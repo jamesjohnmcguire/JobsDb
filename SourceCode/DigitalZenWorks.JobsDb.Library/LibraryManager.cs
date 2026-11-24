@@ -20,6 +20,7 @@ public sealed class LibraryManager : IDisposable
 {
 	private readonly string databasePath;
 	private readonly IJobQueryService jobQueries;
+	private readonly IJobPriorityService jobPriorities;
 	private readonly IEmailImportService emailImports;
 	private readonly Lazy<IJobRefreshService> refreshService;
 	private bool disposed;
@@ -30,6 +31,7 @@ public sealed class LibraryManager : IDisposable
 		DatabaseJobReader jobReader =
 			new DatabaseJobReader(CreateOperationContext);
 		jobQueries = new JobQueryService(jobReader);
+		jobPriorities = new DatabaseJobPriorityService(CreateOperationContext);
 		emailImports = new EmailImportService(
 			CreateOperationContext, new LinkedInEmailParser());
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
@@ -44,6 +46,16 @@ public sealed class LibraryManager : IDisposable
 		{
 			ObjectDisposedException.ThrowIf(disposed, this);
 			return jobQueries;
+		}
+	}
+
+	/// <summary>Gets the service for saving job priorities.</summary>
+	public IJobPriorityService JobPriorities
+	{
+		get
+		{
+			ObjectDisposedException.ThrowIf(disposed, this);
+			return jobPriorities;
 		}
 	}
 
