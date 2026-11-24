@@ -211,7 +211,7 @@ internal sealed class ScraperServiceTests
 	}
 
 	// Mock scraper for testing
-	private class MockTestScraper : JobScraperBase
+	private sealed class MockTestScraper : JobScraperBase
 	{
 		public MockTestScraper(
 			IJobRepository jobRepository,

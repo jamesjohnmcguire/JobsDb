@@ -14,7 +14,6 @@ Open work only. Each item names its type and the result to deliver. The [archite
 - [ ] **Feature** — Save application status, notes, and archive state through library operations. Provide a way to view archived jobs.
 - [ ] **Feature** — Add **Refresh Db** once the acquisition bugs below are addressed. Await the library refresh, reload the list, and report partial failures in the status line.
 - [ ] **Feature** - Offer System, Light, and Dark themes and remember the selection. Follow TimeTracker's built-in WPF theme approach.
-- [ ] **Feature** - Use TimeTracker as the reference for dashboard spacing and layout. Give the posting list and details more usable space on the desktop.
 - [ ] **Feature** - Add compact circular A, B, and C priority buttons to each posting. Map them to high, medium, and low priority, show the selected state, and save through the library.
 - [ ] **Feature** — Offer optional UTM removal when opening a posting. Preserve query parameters needed to identify or access the job.
 

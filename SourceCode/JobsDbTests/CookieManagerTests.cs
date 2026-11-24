@@ -15,7 +15,7 @@ using NUnit.Framework;
 /// Covers file-based cookie checks and deletion.
 /// </summary>
 [TestFixture]
-internal class CookieManagerTests
+internal sealed class CookieManagerTests
 {
 	private CookieManager cookieManager;
 	private string testCookiesPath;
