@@ -17,7 +17,7 @@ using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using HtmlAgilityPack;
 
-public class TokyoDevScraper : JobScraperBase
+public class TokyoDevScraper : JobScraperBase, IDisposable
 {
 	private readonly HttpClient httpClient;
 	private const string BaseUrl = "https://www.tokyodev.com";
@@ -125,6 +125,27 @@ public class TokyoDevScraper : JobScraperBase
 		stopwatch.Stop();
 		result.Duration = stopwatch.Elapsed;
 		return result;
+	}
+
+	/// <summary>
+	/// Releases the HTTP client owned by this instance.
+	/// </summary>
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	/// <summary>
+	/// Releases managed resources when called by Dispose.
+	/// </summary>
+	/// <param name="disposing">Whether to release managed resources.</param>
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			httpClient.Dispose();
+		}
 	}
 
 	private async Task<Job> ParseJobNodeAsync(HtmlNode node)

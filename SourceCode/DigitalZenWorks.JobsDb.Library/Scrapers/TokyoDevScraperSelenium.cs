@@ -27,7 +27,7 @@ using OpenQA.Selenium.Chrome;
 /// </summary>
 public class TokyoDevScraperSelenium : JobScraperBase
 {
-	private IWebDriver driver;
+	private IWebDriver driver = null!;
 	private readonly CookieManager cookieManager;
 	private readonly ConfigurationManager configManager;
 	private const string BaseUrl = "https://www.tokyodev.com";
@@ -51,7 +51,9 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 		try
 		{
-			InitializeDriver();
+			using IWebDriver sessionDriver = CreateDriver();
+			driver = sessionDriver;
+			ConfigureDriver(sessionDriver);
 
 			// Navigate to jobs page
 			Console.WriteLine($"Navigating to {JobsUrl}...");
@@ -149,7 +151,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		}
 		finally
 		{
-			CleanupDriver();
+			driver = null!;
 		}
 
 		stopwatch.Stop();
@@ -157,7 +159,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		return result;
 	}
 
-	private void InitializeDriver()
+	private static IWebDriver CreateDriver()
 	{
 		ChromeOptions options = new ChromeOptions();
 
@@ -176,25 +178,17 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		options.AddExcludedArgument("enable-automation");
 		options.AddAdditionalOption("useAutomationExtension", false);
 
-		driver = new ChromeDriver(options);
+		return new ChromeDriver(options);
+	}
+
+	private static void ConfigureDriver(IWebDriver driver)
+	{
 		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
 
 		// Remove webdriver property
 		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
-	}
-
-	private void CleanupDriver()
-	{
-		try
-		{
-			driver?.Quit();
-			driver?.Dispose();
-		}
-		catch
-		{
-		}
 	}
 
 	private void ScrollPage()

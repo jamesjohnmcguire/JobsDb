@@ -33,8 +33,14 @@ internal sealed class JobsDbContextTests : BaseTestsSupport
 	[TearDown]
 	public void TearDown()
 	{
-		context.Database.EnsureDeleted();
-		context.Dispose();
+		try
+		{
+			context?.Database.EnsureDeleted();
+		}
+		finally
+		{
+			context?.Dispose();
+		}
 	}
 
 	[Test]

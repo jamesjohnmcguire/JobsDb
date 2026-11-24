@@ -14,10 +14,8 @@ using NUnit.Framework;
 /// <summary>
 /// Base test support class.
 /// </summary>
-internal abstract class BaseTestsSupport : IDisposable
+internal abstract class BaseTestsSupport
 {
-	private bool disposed;
-
 	/// <summary>
 	/// Gets or sets the test database path.
 	/// </summary>
@@ -68,15 +66,6 @@ internal abstract class BaseTestsSupport : IDisposable
 	}
 
 	/// <summary>
-	/// Dispose method.
-	/// </summary>
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-	/// <summary>
 	/// Copy a job object.
 	/// </summary>
 	/// <param name="job">The job to be copied.</param>
@@ -106,19 +95,5 @@ internal abstract class BaseTestsSupport : IDisposable
 		};
 
 		return copyJob;
-	}
-
-	/// <summary>
-	/// Dispose method.
-	/// </summary>
-	/// <param name="disposing">True to release both managed and unmanaged
-	/// resources; false to release only unmanaged resources.</param>
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing == true && disposed == false)
-		{
-		}
-
-		disposed = true;
 	}
 }

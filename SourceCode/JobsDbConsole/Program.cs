@@ -15,7 +15,7 @@ internal class Program
 	private static async Task Main(string[] args)
 	{
 		Console.WriteLine("Hello, World!");
-		ScraperTester tester = new ScraperTester();
+		using ScraperTester tester = new ScraperTester();
 
 		// Analyze TokyoDev structure
 		await tester.TestTokyoDev().ConfigureAwait(false);

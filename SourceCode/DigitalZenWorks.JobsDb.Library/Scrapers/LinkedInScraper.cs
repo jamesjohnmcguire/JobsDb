@@ -30,7 +30,7 @@ public class LinkedInScraper : JobScraperBase
 {
 	private readonly CookieManager cookieManager;
 	private readonly ConfigurationManager configManager;
-	private IWebDriver driver;
+	private IWebDriver driver = null!;
 	private bool isLoggedIn;
 	private const string LinkedInJobsUrl = "https://www.linkedin.com/jobs/search/";
 	private const string LinkedInLoginUrl = "https://www.linkedin.com/login";
@@ -54,7 +54,9 @@ public class LinkedInScraper : JobScraperBase
 
 		try
 		{
-			InitializeDriver();
+			using IWebDriver sessionDriver = CreateDriver();
+			driver = sessionDriver;
+			ConfigureDriver(sessionDriver);
 
 			var credential = await GetCredentialsAsync().ConfigureAwait(false);
 
@@ -171,7 +173,7 @@ public class LinkedInScraper : JobScraperBase
 		}
 		finally
 		{
-			CleanupDriver();
+			driver = null!;
 		}
 
 		stopwatch.Stop();
@@ -179,7 +181,7 @@ public class LinkedInScraper : JobScraperBase
 		return result;
 	}
 
-	private void InitializeDriver()
+	private static IWebDriver CreateDriver()
 	{
 		ChromeOptions options = new ChromeOptions();
 
@@ -196,25 +198,17 @@ public class LinkedInScraper : JobScraperBase
 		options.AddExcludedArgument("enable-automation");
 		options.AddAdditionalOption("useAutomationExtension", false);
 
-		driver = new ChromeDriver(options);
+		return new ChromeDriver(options);
+	}
+
+	private static void ConfigureDriver(IWebDriver driver)
+	{
 		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
 
 		// Remove webdriver property
 		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
 		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
-	}
-
-	private void CleanupDriver()
-	{
-		try
-		{
-			driver?.Quit();
-			driver?.Dispose();
-		}
-		catch
-		{
-		}
 	}
 
 	protected override async Task<bool> LoginAsync(ScraperCredential credential)

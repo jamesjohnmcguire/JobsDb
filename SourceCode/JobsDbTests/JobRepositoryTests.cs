@@ -34,8 +34,14 @@ internal sealed class JobRepositoryTests : BaseTestsSupport
 	[TearDown]
 	public void TearDown()
 	{
-		context.Database.EnsureDeleted();
-		context.Dispose();
+		try
+		{
+			context?.Database.EnsureDeleted();
+		}
+		finally
+		{
+			context?.Dispose();
+		}
 
 		if (File.Exists(testDbPath))
 		{

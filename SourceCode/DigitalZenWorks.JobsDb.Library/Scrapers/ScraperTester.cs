@@ -17,7 +17,7 @@ using HtmlAgilityPack;
 /// Utility class to help debug and test scrapers by analyzing HTML structure
 /// Run this first to understand the page structure before adjusting selectors.
 /// </summary>
-public class ScraperTester
+public class ScraperTester : IDisposable
 {
 	private readonly HttpClient httpClient;
 
@@ -67,6 +67,27 @@ public class ScraperTester
 		Console.WriteLine("2. Look for repeated patterns (these are likely job listings)");
 		Console.WriteLine("3. Update your scraper's XPath/CSS selectors based on findings");
 		Console.WriteLine("4. Test with a small sample first before full scraping");
+	}
+
+	/// <summary>
+	/// Releases the HTTP client owned by this instance.
+	/// </summary>
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	/// <summary>
+	/// Releases managed resources when called by Dispose.
+	/// </summary>
+	/// <param name="disposing">Whether to release managed resources.</param>
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			httpClient.Dispose();
+		}
 	}
 
 	private static void AnalyzeJobListings(HtmlDocument doc)
