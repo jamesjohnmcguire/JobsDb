@@ -14,12 +14,17 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
 - [ ] **Feature** - Hide the Location column when the dashboard grid is narrow. Keep the location accessible in the selected posting details.
+- [ ] **Bug** - Align dashboard column headers with their cell text. Add horizontal padding to Source, Posted, and Status.
+- [ ] **Feature** - Rename the dashboard Status column to Applied. Show a green check mark for applied postings and a red X for postings without an application. Let users click the indicator to mark a posting as applied or undo an accidental mark. Save the change through the library.
 - [ ] **Feature** — Save application status, notes, and archive state through library operations. Provide a way to view archived jobs.
+- [ ] **Feature** - Add a **Pull Full Job Description** button in the details pane. Fetch and save the full description for the selected posting through the library, then refresh the pane.
 - [ ] **Feature** — Add **Refresh Db** once the acquisition bugs below are addressed. Await the library refresh, reload the list, and report partial failures in the status line.
 - [ ] **Feature** — Offer optional UTM removal when opening a posting. Preserve query parameters needed to identify or access the job.
+- [ ] **Feature** - Add a macOS desktop client. Prototype the existing dashboard in Avalonia using the shared JobsDb library. Verify SQLite initialization, posting review, browser links, and packaging on macOS before deciding whether to share the desktop UI with Windows.
 
 ## Email import
 
+- [ ] **Feature (High priority)** - Make .eml the preferred import format shared with the exporter. Decode message headers and MIME body parts into the existing email model, retain support for paired HTML/text exports during the transition, and log malformed messages.
 - [ ] **Feature** — Add text fallback for LinkedIn exports with no usable HTML. Keep a paired export as one message.
 - [ ] **Feature** — Add provider parsers in small batches. Evaluate Remogu, DTCC, and DirectlyApply first, then handle the distinct Dice, Indeed, and other digest or recruiter formats.
 - [ ] **Feature** — Add email provenance with a reviewed SQL upgrade. Store source identity, fingerprints, parser versions, and outcomes. Link each message to its jobs and record when a posting date came from the email.
