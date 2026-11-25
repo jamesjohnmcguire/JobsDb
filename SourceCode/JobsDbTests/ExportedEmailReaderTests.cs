@@ -200,12 +200,65 @@ internal sealed class ExportedEmailReaderTests
 	}
 
 	/// <summary>
+	/// Checks MIME decoding and precedence over coexisting legacy exports.
+	/// </summary>
+	[Test]
+	public void ReadDirectory_PrefersEmlAndDecodesBothBodies()
+	{
+		string message =
+			"From: =?utf-8?Q?Jos=C3=A9?= <jobs@example.com>\r\n" +
+			"Date: Tue, 17 Nov 2026 18:00:00 +0900\r\n" +
+			"MIME-Version: 1.0\r\n" +
+			"Content-Type: multipart/alternative; boundary=body\r\n\r\n" +
+			"--body\r\n" +
+			"Content-Type: text/plain; charset=utf-8\r\n" +
+			"Content-Transfer-Encoding: quoted-printable\r\n\r\n" +
+			"Caf=C3=A9 jobs\r\n" +
+			"--body\r\n" +
+			"Content-Type: text/html; charset=utf-8\r\n\r\n" +
+			"<p>Job listings</p>\r\n" +
+			"--body--\r\n";
+		WriteFile("entry-id.EML", message);
+		WriteFile("entry-id.txt", "Legacy export without metadata");
+
+		EmailReadResult result = ReadSingle();
+		DateTime expected = new DateTime(
+			2026, 11, 17, 9, 0, 0, DateTimeKind.Utc);
+
+		Assert.That(result.Status, Is.EqualTo(EmailReadStatus.Read));
+		Assert.That(result.SourceName, Is.EqualTo("entry-id"));
+		Assert.That(result.Email!.SentOn, Is.EqualTo(expected));
+		Assert.That(result.Email.SentOn.Kind, Is.EqualTo(DateTimeKind.Utc));
+		Assert.That(result.Email.SenderName, Is.EqualTo("Jos\u00e9"));
+		Assert.That(
+			result.Email.SenderAddress, Is.EqualTo("jobs@example.com"));
+		Assert.That(result.Email.TextBody, Is.EqualTo("Caf\u00e9 jobs"));
+		Assert.That(result.Email.HtmlBody, Is.EqualTo("<p>Job listings</p>"));
+	}
+
+	/// <summary>
+	/// Checks that a malformed EML is reported as an item failure.
+	/// </summary>
+	[Test]
+	public void ReadDirectory_ReportsMalformedEml()
+	{
+		WriteFile("malformed.eml", "Unrecognized email export");
+
+		EmailReadResult result = ReadSingle();
+
+		Assert.That(result.Status, Is.EqualTo(EmailReadStatus.Failed));
+		Assert.That(result.SourceName, Is.EqualTo("malformed"));
+		Assert.That(result.Email, Is.Null);
+		Assert.That(result.Message, Is.Not.Empty);
+	}
+
+	/// <summary>
 	/// Checks that unsupported files are reported alongside valid reads.
 	/// </summary>
 	[Test]
 	public void ReadDirectory_IgnoredFilesDoNotPreventValidReads()
 	{
-		WriteFile("unknown.eml", "Unrecognized email export");
+		WriteFile("unknown.msg", "Unrecognized email export");
 		WriteFile("malformed.txt", "Sent: 2026-11-17T01:16:34\nSender:");
 		WriteFile("unknown.html", "<html>No exported metadata</html>");
 		WriteFile(

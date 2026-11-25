@@ -16,6 +16,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="11.0.0" />
+		<PackageReference Include="MimeKit.Core" Version="5.0.0" />
 		<PackageReference Include="Selenium.WebDriver" Version="4.54.0" />
 		<PackageReference Include="Roslynator.Analyzers" Version="5.0.1">
 			<PrivateAssets>all</PrivateAssets>

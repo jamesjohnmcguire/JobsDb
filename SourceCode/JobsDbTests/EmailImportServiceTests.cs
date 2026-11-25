@@ -121,8 +121,8 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 			result => result.Status == EmailImportStatus.Failed);
 		int review = results.Count(
 			result => result.Status == EmailImportStatus.NeedsReview);
-		Assert.That(ignored, Is.EqualTo(2));
-		Assert.That(failed, Is.EqualTo(1));
+		Assert.That(ignored, Is.EqualTo(1));
+		Assert.That(failed, Is.EqualTo(2));
 		Assert.That(review, Is.EqualTo(1));
 		Assert.That(results.Sum(result => result.Added), Is.EqualTo(1));
 		using JobsDbContext reader = new JobsDbContext(TestDbPath!);

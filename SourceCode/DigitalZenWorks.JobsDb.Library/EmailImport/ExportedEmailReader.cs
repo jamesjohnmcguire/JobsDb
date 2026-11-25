@@ -16,7 +16,7 @@ using System.Net.Mail;
 using DigitalZenWorks.JobsDb.Library.Models;
 
 /// <summary>
-/// Reads paired HTML/text body exports without modifying their source files.
+/// Reads EML and paired HTML/text exports without modifying their source files.
 /// </summary>
 public static class ExportedEmailReader
 {
@@ -46,7 +46,7 @@ public static class ExportedEmailReader
 		foreach (string path in paths)
 		{
 			string extension = Path.GetExtension(path);
-			if (!IsHtml(extension) &&
+			if (!IsEml(extension) && !IsHtml(extension) &&
 				!extension.Equals(".txt", StringComparison.OrdinalIgnoreCase))
 			{
 				results.Add(new EmailReadResult(
@@ -69,7 +69,7 @@ public static class ExportedEmailReader
 
 		foreach (KeyValuePair<string, List<string>> group in groups)
 		{
-			results.Add(ReadGroup(group.Key, group.Value));
+			results.Add(ReadExport(group.Key, group.Value));
 		}
 
 		return results.OrderBy(
@@ -141,9 +141,33 @@ public static class ExportedEmailReader
 		return sentOn;
 	}
 
+	private static bool IsEml(string extension)
+	{
+		return extension.Equals(".eml", StringComparison.OrdinalIgnoreCase);
+	}
+
 	private static bool IsHtml(string extension)
 	{
 		return extension.Equals(".html", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static EmailReadResult ReadExport(
+		string sourceName, List<string> paths)
+	{
+		List<string> emlPaths = paths.FindAll(
+			path => IsEml(Path.GetExtension(path)));
+		if (emlPaths.Count == 0)
+		{
+			return ReadGroup(sourceName, paths);
+		}
+
+		if (emlPaths.Count == 1)
+		{
+			return EmlEmailReader.Read(sourceName, emlPaths[0]);
+		}
+
+		return new EmailReadResult(
+			sourceName, EmailReadStatus.Failed, null, "Duplicate EML exports.");
 	}
 
 	private static EmailReadResult ReadGroup(
