@@ -16,7 +16,6 @@
 					Value="{Binding DataContext.CanEditPriority,
 						RelativeSource={RelativeSource
 						AncestorType=DataGrid}}" />
-				<Setter Property="Foreground" Value="#17202A" />
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="Button">
@@ -53,10 +52,16 @@
 						</ControlTemplate>
 					</Setter.Value>
 				</Setter>
+				<Style.Triggers>
+					<Trigger Property="Tag" Value="Selected">
+						<Setter Property="Foreground" Value="#17202A" />
+					</Trigger>
+				</Style.Triggers>
 			</Style>
 			<Style x:Key="HighPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
-				<Setter Property="Background" Value="#A4B3C1" />
+				<Setter Property="Background" Value="#234C77" />
+				<Setter Property="Foreground" Value="#C3E0FF" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="5">
 						<Setter Property="Tag" Value="Selected" />
@@ -70,7 +75,8 @@
 			</Style>
 			<Style x:Key="MediumPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
-				<Setter Property="Background" Value="#A0B5A7" />
+				<Setter Property="Background" Value="#235C3B" />
+				<Setter Property="Foreground" Value="#C0F0CE" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="3">
 						<Setter Property="Tag" Value="Selected" />
@@ -80,7 +86,8 @@
 			</Style>
 			<Style x:Key="LowPriorityButton" TargetType="Button"
 				BasedOn="{StaticResource PriorityButton}">
-				<Setter Property="Background" Value="#BEB597" />
+				<Setter Property="Background" Value="#6A531B" />
+				<Setter Property="Foreground" Value="#FFF0AE" />
 				<Style.Triggers>
 					<DataTrigger Binding="{Binding Priority}" Value="1">
 						<Setter Property="Tag" Value="Selected" />
@@ -150,8 +157,14 @@
 			</DockPanel>
 			<TabControl x:Name="ReviewTabs" Grid.Row="1" Margin="0,0,0,4"
 				SelectedIndex="{Binding SelectedReviewTab, Mode=TwoWay}">
-				<TabItem Header="Inbox" />
-				<TabItem Header="Reviewed" />
+				<TabControl.Resources>
+					<SolidColorBrush x:Key="TabViewSelectedItemBorderBrush"
+						Color="{DynamicResource ControlStrongStrokeColorDefault}" />
+				</TabControl.Resources>
+				<TabItem Header="Inbox" Margin="0,0,3,0"
+					BorderBrush="{DynamicResource ControlStrongStrokeColorDefaultBrush}" />
+				<TabItem Header="Reviewed"
+					BorderBrush="{DynamicResource ControlStrongStrokeColorDefaultBrush}" />
 			</TabControl>
 			<DataGrid x:Name="JobsGrid" Grid.Row="2"
 				ItemsSource="{Binding VisibleJobs}"
@@ -162,7 +175,17 @@
 				HeadersVisibility="Column" MinRowHeight="26">
 				<DataGrid.Columns>
 					<DataGridTextColumn Header="Title"
-						Binding="{Binding Title}" Width="2*" />
+						Binding="{Binding Title}" Width="2*">
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="TextBlock" BasedOn="{x:Static
+								DataGridTextColumn.DefaultElementStyle}">
+								<Setter Property="TextTrimming"
+									Value="CharacterEllipsis" />
+								<Setter Property="ToolTip"
+									Value="{Binding Title}" />
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
 					<DataGridTextColumn Header="Company"
 						Binding="{Binding Company}" Width="*" />
 					<DataGridTextColumn Header="Location"
