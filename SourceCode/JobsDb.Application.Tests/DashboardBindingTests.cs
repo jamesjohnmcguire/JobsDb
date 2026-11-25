@@ -55,7 +55,9 @@ internal sealed class DashboardBindingTests
 			};
 			Job secondJob = new Job
 			{
-				Title = "Data Engineer",
+				Title = "Senior Solutions Architect: Enterprise Database " +
+					"Modernization and Distributed Systems Architecture " +
+					"for Customers Across Japan",
 				Company = "Example Company",
 				Description = "Work on data pipelines.",
 				Source = "TestSource",
@@ -108,6 +110,7 @@ internal sealed class DashboardBindingTests
 					(TextBlock)grid.Columns[0].GetCellContent(grid.Items[0]);
 				Assert.That(title.Text, Is.EqualTo(firstJob.Title));
 
+				CheckLongTitleCell(grid, (Job)grid.Items[1]);
 				CheckPostingLinks(window, description, opened, firstJob);
 
 				grid.SelectedItem = grid.Items[1];
@@ -142,6 +145,8 @@ internal sealed class DashboardBindingTests
 				dashboard.UpdateLayout();
 				Button reviewedPriority = FindPriorityButton(grid, 1);
 				Assert.That(reviewedPriority.Tag, Is.EqualTo("Selected"));
+				CheckLongTitleCell(grid, (Job)grid.Items[1]);
+				CheckColumnAlignment(grid);
 				SavePreview(dashboard);
 			}
 			finally
@@ -267,6 +272,35 @@ internal sealed class DashboardBindingTests
 		Assert.That(request.Handled, Is.True);
 		Assert.That(opened, Has.Count.EqualTo(2));
 		Assert.That(opened[1], Is.EqualTo(link.NavigateUri));
+	}
+
+	private static void CheckLongTitleCell(DataGrid grid, Job job)
+	{
+		TextBlock title = (TextBlock)grid.Columns[0].GetCellContent(job);
+		FrameworkElement company = grid.Columns[1].GetCellContent(job);
+		double companyStart = company.TranslatePoint(default, grid).X;
+		Point titleRight = new Point(title.ActualWidth, 0);
+		double titleEnd = title.TranslatePoint(titleRight, grid).X;
+
+		Assert.That(title.Text, Is.EqualTo(job.Title));
+		Assert.That(titleEnd, Is.LessThanOrEqualTo(companyStart));
+		Assert.That(title.ToolTip, Is.EqualTo(job.Title));
+		Assert.That(
+			title.TextTrimming,
+			Is.EqualTo(TextTrimming.CharacterEllipsis));
+	}
+
+	private static void CheckColumnAlignment(DataGrid grid)
+	{
+		foreach (DataGridColumn column in grid.Columns)
+		{
+			FrameworkElement firstCell = column.GetCellContent(grid.Items[0]);
+			FrameworkElement secondCell = column.GetCellContent(grid.Items[1]);
+			double firstOffset = firstCell.TranslatePoint(default, grid).X;
+			double secondOffset = secondCell.TranslatePoint(default, grid).X;
+
+			Assert.That(secondOffset, Is.EqualTo(firstOffset).Within(0.5));
+		}
 	}
 
 	private static void CheckPriorityButton(
