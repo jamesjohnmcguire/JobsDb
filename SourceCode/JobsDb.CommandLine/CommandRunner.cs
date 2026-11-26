@@ -49,14 +49,27 @@ internal sealed class CommandRunner
 	}
 
 	/// <summary>
-	/// Checks whether the arguments specify an import and its input folder.
+	/// Checks whether the command name is recognized.
 	/// </summary>
-	/// <param name="args">The command-line arguments.</param>
-	/// <returns>True if the arguments identify an import command.</returns>
-	public static bool IsImportCommand(string[] args)
+	/// <param name="arguments">The command-line arguments.</param>
+	/// <returns>True when the command name is recognized.</returns>
+	internal static bool IsValidCommand(string[] arguments)
 	{
-		return args.Length == 2 &&
-			args[0].Equals("import", StringComparison.OrdinalIgnoreCase);
+		bool isValid = false;
+
+		if (arguments.Length > 0)
+		{
+			string command = arguments[0];
+			if (command.Equals(
+				"help", StringComparison.OrdinalIgnoreCase) ||
+				command.Equals(
+				"import", StringComparison.OrdinalIgnoreCase))
+			{
+				isValid = true;
+			}
+		}
+
+		return isValid;
 	}
 
 	/// <summary>
@@ -64,27 +77,35 @@ internal sealed class CommandRunner
 	/// </summary>
 	/// <param name="args">The command-line arguments.</param>
 	/// <returns>
-	/// Zero for success, one for an import failure, or two for invalid usage.
+	/// Zero for success or minus one for an error.
 	/// </returns>
 	public async Task<int> RunAsync(string[] args)
 	{
-		if (args.Length == 0 ||
-			(args.Length == 1 && args[0].Equals(
-				"help", StringComparison.OrdinalIgnoreCase)))
+		int returnCode = -1;
+
+		string command = string.Empty;
+		if (IsValidCommand(args))
 		{
-			WriteHelp(output);
-			return 0;
+			command = args[0].ToLowerInvariant();
 		}
 
-		if (IsImportCommand(args))
+		switch (command)
 		{
-			return await ImportAsync(args[1]).ConfigureAwait(false);
+			case "import" when args.Length == 2:
+				returnCode = await ImportAsync(args[1]).ConfigureAwait(false);
+				break;
+			case "help" when args.Length == 1:
+				WriteHelp(output);
+				returnCode = 0;
+				break;
+			default:
+				await error.WriteLineAsync("Invalid command or arguments.")
+					.ConfigureAwait(false);
+				WriteHelp(output);
+				break;
 		}
 
-		await error.WriteLineAsync("Invalid command or arguments.")
-			.ConfigureAwait(false);
-		WriteHelp(error);
-		return 2;
+		return returnCode;
 	}
 
 	private static void WriteHelp(TextWriter writer)
@@ -96,7 +117,7 @@ internal sealed class CommandRunner
 	[SuppressMessage(
 		"Design",
 		"CA1031",
-		Justification = "Reports command failures with exit code 1.")]
+		Justification = "Reports command failures with exit code -1.")]
 	private async Task<int> ImportAsync(string directory)
 	{
 		try
@@ -111,7 +132,7 @@ internal sealed class CommandRunner
 				result => result.Status == EmailImportStatus.Failed);
 			if (hasFailures)
 			{
-				return 1;
+				return -1;
 			}
 
 			return 0;
@@ -122,7 +143,7 @@ internal sealed class CommandRunner
 				"Email import stopped with {ErrorType}.",
 				exception.GetType().Name);
 			await error.WriteLineAsync(exception.Message).ConfigureAwait(false);
-			return 1;
+			return -1;
 		}
 	}
 

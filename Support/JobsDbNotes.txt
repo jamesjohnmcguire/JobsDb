@@ -1,0 +1,20 @@
+codex resume 01a1e574-630f-7543-98cb-e728ff006004
+
+Resources
+	https://app.apijobs.dev/
+	https://app.apijobs.dev/,,AnythingGoesHere12#,Api Key: 89edd855a53820c0c5476191e7413abdd6d0a542768379cdd869f7e282a36794
+
+	curl --location 'https://api.apijobs.dev/v1/job/search' --header 'apikey: APIKEY' --header 'Content-Type: application/json' --data '{"q" : "Reactjs" }'
+LinkedIn Scraper
+	https://www.linkedin.com/jobs/linkedin-jobs?trk=jobs_directory&original_referer=https%3A%2F%2Fwww.linkedin.com%2Fdirectory%2Fjobs%3Ftrk%3Dhomepage-jobseeker_directory_jobSearchDirectoryUrl&position=1&pageNum=0
+	https://www.linkedin.com/jobs/search/?currentJobId=4102930544
+	https://github.com/joeyism/linkedin_scraper
+	https://www.reddit.com/r/webscraping/comments/11fm3zn/linkedin_scraping/
+	https://www.zenrows.com/blog/web-scraping-c-sharp
+	https://stackoverflow.com/questions/26523418/c-sharp-get-content-from-url-like-facebook-and-linkedin-does
+Migrations
+	cd JobsDbLibrary
+	dotnet ef migrations add InitialCreate
+	dotnet ef database update
+Scripts
+	.\DevelopmentTools\jobsdb.exe import "Emails"

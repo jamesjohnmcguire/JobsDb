@@ -29,7 +29,7 @@ The import CLI writes accepted jobs through the library. The dashboard reads sto
 
 Treat email as a passive lead feed. Prioritize useful leads and explain matches using explicit criteria. Source count and repeated alerts are operational signals.
 
-Pair exported HTML and text by basename. Prefer HTML for structured digests and text for recruiter prose or fallback. Stage files before publishing a batch, then let the external exporter or script invoke the CLI. Parse offline and report unsupported formats, ambiguous candidates, and failures separately.
+Read one .eml per exporter entry ID, taken from the filename stem. Decode its MIME body parts into the email model. Prefer HTML for structured digests and text for recruiter prose or fallback. Stage files before publishing a batch, then let the external exporter or script invoke the CLI. Parse offline and report unsupported formats, ambiguous candidates, and failures separately.
 
 Deduplicate by source and stable posting identity. Preserve user-maintained notes, status, priority, and archive state, as well as richer source details missing from a partial refresh. An email timestamp can provide an estimated posting date until enrichment supplies a better date.
 

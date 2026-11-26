@@ -32,8 +32,8 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 	public async Task ImportDirectory_IsRepeatableAndVisibleToQueries()
 	{
 		string card = CreateCard("123", "Developer", "Company");
-		WriteMessage("first.html", card);
-		WriteMessage("second.html", card);
+		WriteMessage("first.eml", card);
+		WriteMessage("second.eml", card);
 		using LibraryManager library = CreateLibrary();
 
 		IReadOnlyList<EmailImportResult> first =
@@ -73,7 +73,7 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		existing.SalaryMin = 123000;
 		DateTime originalDate = existing.DatePosted;
 		await repository.AddAsync(existing).ConfigureAwait(false);
-		WriteMessage("message.html", CreateCard("123", "New Title", "New Co"));
+		WriteMessage("message.eml", CreateCard("123", "New Title", "New Co"));
 
 		IReadOnlyList<EmailImportResult> results = await CreateImportService()
 			.ImportDirectoryAsync(ImportDirectory).ConfigureAwait(false);
@@ -100,16 +100,16 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 	[Test]
 	public async Task ImportDirectory_ReportsIgnoredFailedAndReviewItems()
 	{
-		WriteMessage("valid.html", CreateCard("123", "Developer", "Company"));
-		WriteMessage("review.html", CreateCard("456", "Engineer", null));
+		WriteMessage("valid.eml", CreateCard("123", "Developer", "Company"));
+		WriteMessage("review.eml", CreateCard("456", "Engineer", null));
 		WriteMessage(
-			"other.html", "<body>Other provider</body>", "jobs@dice.com");
+			"other.eml", "<body>Other provider</body>", "jobs@dice.com");
 		await File.WriteAllTextAsync(
 			Path.Combine(ImportDirectory, "unknown.eml"), "Unknown")
 			.ConfigureAwait(false);
 		await File.WriteAllTextAsync(
-			Path.Combine(ImportDirectory, "broken.txt"),
-			"Sent: bad timestamp\nSender: jobs@example.com")
+			Path.Combine(ImportDirectory, "broken.eml"),
+			"From: jobs@example.com\r\nDate: bad timestamp\r\n\r\nBody")
 			.ConfigureAwait(false);
 
 		IReadOnlyList<EmailImportResult> results = await CreateImportService()
@@ -146,7 +146,7 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		string html = CreateCard("123", "New title", "Company");
 		html = html.Replace(
 			" &middot; Tokyo", string.Empty, StringComparison.Ordinal);
-		WriteMessage("message.html", html);
+		WriteMessage("message.eml", html);
 
 		await CreateImportService().ImportDirectoryAsync(ImportDirectory)
 			.ConfigureAwait(false);
@@ -173,8 +173,8 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 
 		string rejectedMessage = CreateCard("123", "First", "Company") +
 			CreateCard("456", "Rejected", "Company");
-		WriteMessage("first.html", rejectedMessage);
-		WriteMessage("second.html", CreateCard("789", "Accepted", "Company"));
+		WriteMessage("first.eml", rejectedMessage);
+		WriteMessage("second.eml", CreateCard("789", "Accepted", "Company"));
 
 		IReadOnlyList<EmailImportResult> results = await CreateImportService()
 			.ImportDirectoryAsync(ImportDirectory).ConfigureAwait(false);

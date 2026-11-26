@@ -12,9 +12,11 @@ using System.Threading.Tasks;
 /// <summary>Processes exported emails and persists supported job listings.</summary>
 public interface IEmailImportService
 {
-	/// <summary>Imports immediate directory contents, leaving inputs intact.</summary>
+	/// <summary>
+	/// Imports EML messages and writes batch reports beside the inputs.
+	/// </summary>
 	/// <param name="directoryPath">The completed export batch directory.</param>
-	/// <returns>One outcome per message or unsupported file.</returns>
+	/// <returns>One outcome per exported entry ID.</returns>
 	Task<IReadOnlyList<EmailImportResult>> ImportDirectoryAsync(
 		string directoryPath);
 }

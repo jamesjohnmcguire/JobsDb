@@ -12,13 +12,13 @@ git submodule update --init --recursive
 dotnet run --project SourceCode/JobsDbApplication
 ```
 
-To add listings, import a folder of LinkedIn job digest exports in HTML format:
+To add listings, import a folder of LinkedIn job digest exports in `.eml` format:
 
 ```powershell
 dotnet run --project SourceCode/JobsDb.CommandLine -- import "Emails"
 ```
 
-Click **Reload Jobs** in the dashboard after importing. Select a listing and click **Open Posting** to view it in your browser.
+Each import replaces `processed.txt` and `unprocessed.txt` in the input folder, with one exporter entry ID per line. Click **Reload Jobs** in the dashboard after importing. Select a listing and click its link to open it in your browser.
 
 ## Contributing
 

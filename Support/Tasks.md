@@ -10,6 +10,9 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Dashboard
 
+- [ ] **Feature** - Add an X button on each posting to hide it from the dashboard. Make hidden postings accessible for restoration.
+- [ ] **Feature** - Add a top-level **Purge** command with a confirmation dialog and an optional **From date** filter. Show what will be removed before confirming.
+- [ ] **Feature** - Add an **Import Emails** button to choose an export directory, run a manual import through the library, and report the outcome.
 - [ ] **Feature** - Size the listing viewport to show whole rows at the bottom when resizing the window or dragging the splitter.
 
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
@@ -24,8 +27,7 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Email import
 
-- [ ] **Feature (High priority)** - Make .eml the preferred import format shared with the exporter. Decode message headers and MIME body parts into the existing email model, retain support for paired HTML/text exports during the transition, and log malformed messages.
-- [ ] **Feature** — Add text fallback for LinkedIn exports with no usable HTML. Keep a paired export as one message.
+- [ ] **Feature** — Add plain-text fallback for LinkedIn .eml messages with no usable HTML body.
 - [ ] **Feature** — Add provider parsers in small batches. Evaluate Remogu, DTCC, and DirectlyApply first, then handle the distinct Dice, Indeed, and other digest or recruiter formats.
 - [ ] **Feature** — Add email provenance with a reviewed SQL upgrade. Store source identity, fingerprints, parser versions, and outcomes. Link each message to its jobs and record when a posting date came from the email.
 - [ ] **Feature** — Add bounded retention for email content and stale postings. Base expiry on successful source checks and preserve application history and notes.
@@ -33,6 +35,7 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 ## Acquisition and credentials
 
+- [ ] **Feature** - Record acquisition transport, such as email import or web scrape, separately from the posting provider. Preserve provider job identity when a lead arrives through multiple transports.
 - [ ] **Design** - Move scrapers to opt-in plugins. Define the provider contract, discovery, version compatibility, and failure handling. Keep validation and persistence in JobsDb, and provide a small example for third-party providers.
 - [ ] **Bug** — Remove random source IDs from TokyoDev acquisition. Use a stable posting ID or canonical URL and report listings whose identity cannot be established.
 - [ ] **Bug** — Preserve known details during partial scraper refreshes. Report per-item failures and partial success accurately before exposing refresh in the dashboard.
@@ -46,3 +49,11 @@ Open work only. Each item names its type and the result to deliver. The [archite
 - [ ] **Refactor** — Move remaining diagnostic console writes to LoggingFoundation in focused passes. Keep CLI output intended for callers and exclude private payloads from logs.
 - [ ] **Refactor** — Address remaining build warnings in small batches, starting with nullability and resource lifetime. Review submodule warnings separately.
 - [ ] **Test** — Isolate cookie tests from the application profile and verify the database tests use fresh mutable fixtures.
+
+Replace Console.WriteLines with Logging
+Test and Merge TokyoDevScraperSelenium
+Review OnModelCreating
+Remove: Support/JobsDbNotes.txt (Support/JobsDbNotes.txt:11) contains a literal API key in an HTTP header example.
+Ignored 00000000A45886A902B9E044977F9E53108E433C04D82900: added 0, updated 0, unchanged 0  Unsupported LinkedIn sender.
+Review and Improve Importing
+Move Scrapers to PlugIns

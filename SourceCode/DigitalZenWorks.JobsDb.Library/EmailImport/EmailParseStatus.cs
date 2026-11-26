@@ -15,5 +15,8 @@ public enum EmailParseStatus
 	Parsed,
 
 	/// <summary>The sender, body, or message template is not supported.</summary>
-	Ignored
+	Ignored,
+
+	/// <summary>Some recognized posting cards could not be read.</summary>
+	NeedsReview
 }

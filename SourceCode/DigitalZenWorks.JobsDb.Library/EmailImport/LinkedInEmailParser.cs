@@ -22,6 +22,7 @@ public sealed class LinkedInEmailParser : IEmailJobParser
 	public EmailParseResult Parse(Email email)
 	{
 		ArgumentNullException.ThrowIfNull(email);
+
 		if (!IsSupportedSender(email.SenderAddress))
 		{
 			return Ignore("Unsupported LinkedIn sender.");
@@ -58,17 +59,23 @@ public sealed class LinkedInEmailParser : IEmailJobParser
 		document.LoadHtml(htmlBody);
 		List<EmailJobCandidate> candidates = new List<EmailJobCandidate>();
 		List<string> messages = new List<string>();
-		CollectCandidates(document, sentOn, candidates, messages);
+		bool skippedCard = CollectCandidates(
+			document, sentOn, candidates, messages);
 		if (candidates.Count == 0)
 		{
 			return Ignore("No supported LinkedIn job cards were found.");
 		}
 
-		return new EmailParseResult(
-			EmailParseStatus.Parsed, true, candidates, messages);
+		EmailParseStatus status = EmailParseStatus.Parsed;
+		if (skippedCard)
+		{
+			status = EmailParseStatus.NeedsReview;
+		}
+
+		return new EmailParseResult(status, true, candidates, messages);
 	}
 
-	private static void CollectCandidates(
+	private static bool CollectCandidates(
 		HtmlDocument document,
 		DateTime sentOn,
 		List<EmailJobCandidate> candidates,
@@ -76,11 +83,13 @@ public sealed class LinkedInEmailParser : IEmailJobParser
 	{
 		HashSet<string> identifiers =
 			new HashSet<string>(StringComparer.Ordinal);
+		bool skippedCard = false;
 		foreach (HtmlNode link in FindTitleLinks(document))
 		{
 			EmailJobCandidate? candidate = ReadCandidate(link, sentOn);
 			if (candidate == null)
 			{
+				skippedCard = true;
 				messages.Add("Skipped an unsupported or incomplete job card.");
 				continue;
 			}
@@ -95,6 +104,8 @@ public sealed class LinkedInEmailParser : IEmailJobParser
 			candidates.Add(candidate);
 			ReportMissingDetails(candidate, messages);
 		}
+
+		return skippedCard;
 	}
 
 	private static IEnumerable<HtmlNode> FindTitleLinks(HtmlDocument document)

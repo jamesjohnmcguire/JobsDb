@@ -94,7 +94,7 @@ internal abstract class EmailImportTestSupport : BaseTestsSupport
 	}
 
 	/// <summary>
-	/// Writes an HTML export with sender and timestamp metadata.
+	/// Writes an EML message with an HTML body.
 	/// </summary>
 	/// <param name="filename">
 	/// The filename within the test import directory.
@@ -108,8 +108,10 @@ internal abstract class EmailImportTestSupport : BaseTestsSupport
 		string html,
 		string sender = "jobalerts-noreply@linkedin.com")
 	{
-		string metadata = "<!-- Sent: 2026-11-17T09:00:00Z\nSender: " +
-			sender + " -->\n\n";
+		string metadata = "From: " + sender + "\r\n" +
+			"Date: Tue, 17 Nov 2026 09:00:00 +0000\r\n" +
+			"MIME-Version: 1.0\r\n" +
+			"Content-Type: text/html; charset=utf-8\r\n\r\n";
 		string path = Path.Combine(ImportDirectory, filename);
 		File.WriteAllText(path, metadata + html);
 	}

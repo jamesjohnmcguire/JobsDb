@@ -63,6 +63,7 @@ internal sealed class EmailImportService : IEmailImportService
 			results.Add(result);
 		}
 
+		EmailImportReports.Write(directoryPath, results);
 		return results;
 	}
 
@@ -70,17 +71,6 @@ internal sealed class EmailImportService : IEmailImportService
 		string sourceName, EmailImportStatus status, string? message)
 	{
 		return new EmailImportResult(sourceName, status, 0, 0, 0, message);
-	}
-
-	private static EmailImportResult MapReadFailure(EmailReadResult result)
-	{
-		EmailImportStatus status = EmailImportStatus.Failed;
-		if (result.Status == EmailReadStatus.Ignored)
-		{
-			status = EmailImportStatus.Ignored;
-		}
-
-		return NoWrites(result.SourceName, status, result.Message);
 	}
 
 	private static async Task<List<CandidateStatus>> WriteCandidatesAsync(
@@ -183,6 +173,11 @@ internal sealed class EmailImportService : IEmailImportService
 		List<CandidateStatus> outcomes)
 	{
 		EmailImportStatus status = EmailImportStatus.Completed;
+		if (parsed.Status == EmailParseStatus.NeedsReview)
+		{
+			status = EmailImportStatus.NeedsReview;
+		}
+
 		List<string> messages = new List<string>(parsed.Messages);
 		if (outcomes.Contains(CandidateStatus.NeedsReview))
 		{
@@ -220,7 +215,8 @@ internal sealed class EmailImportService : IEmailImportService
 	{
 		if (source.Status != EmailReadStatus.Read || source.Email == null)
 		{
-			return MapReadFailure(source);
+			return NoWrites(
+				source.SourceName, EmailImportStatus.Failed, source.Message);
 		}
 
 		try
