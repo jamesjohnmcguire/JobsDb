@@ -294,7 +294,6 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
-
 	/// <summary>
 	/// Opens the selected posting and reports the outcome in the status line.
 	/// </summary>
@@ -420,7 +419,6 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
-
 	private async Task RefreshJobsAsync()
 	{
 		List<Job> loadedJobs = await jobQueries.GetJobsAsync()
@@ -504,7 +502,6 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			ApplyReviewFilter(nextJobId, Math.Max(rowIndex, 0));
 		}
 	}
-
 
 	private void ApplyReviewFilter(int? preferredJobId, int fallbackIndex = 0)
 	{

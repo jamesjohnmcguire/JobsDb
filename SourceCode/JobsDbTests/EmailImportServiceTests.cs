@@ -97,7 +97,6 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(stored.SourceJobId, Is.EqualTo(id));
 	}
 
-
 	/// <summary>
 	/// Checks that an import preserves richer details and application data.
 	/// </summary>

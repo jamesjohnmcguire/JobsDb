@@ -172,7 +172,6 @@ internal sealed class JobsDashboardViewModelTests
 		queries.VerifyNoOtherCalls();
 	}
 
-
 	private static Job CreatePosting(
 		int id,
 		int day,

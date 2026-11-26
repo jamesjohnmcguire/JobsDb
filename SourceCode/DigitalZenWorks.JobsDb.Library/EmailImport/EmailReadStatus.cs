@@ -14,7 +14,6 @@ public enum EmailReadStatus
 	/// <summary>An email was read; job recognition has not run.</summary>
 	Read,
 
-
 	/// <summary>A recognized export could not be read or validated.</summary>
 	Failed
 }
