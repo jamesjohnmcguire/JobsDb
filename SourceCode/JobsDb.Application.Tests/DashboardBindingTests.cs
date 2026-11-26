@@ -403,9 +403,14 @@ internal sealed class DashboardBindingTests
 	private static void SavePreview(FrameworkElement dashboard)
 	{
 		RenderTargetBitmap image = new RenderTargetBitmap(
-			(int)dashboard.ActualWidth, (int)dashboard.ActualHeight,
-			96, 96, PixelFormats.Pbgra32);
-				DrawingVisual drawing = new DrawingVisual();
+			(int)dashboard.ActualWidth,
+			(int)dashboard.ActualHeight,
+			96,
+			96,
+			PixelFormats.Pbgra32);
+
+		DrawingVisual drawing = new DrawingVisual();
+
 		using (DrawingContext context = drawing.RenderOpen())
 		{
 			Rect bounds = new Rect(

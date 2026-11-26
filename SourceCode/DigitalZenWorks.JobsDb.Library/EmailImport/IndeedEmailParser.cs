@@ -89,8 +89,14 @@ internal sealed class IndeedEmailParser : IEmailJobParser
 		Uri postingUrl = new Uri(
 			"https://www.indeed.com/viewjob?jk=" + identifier);
 		return new EmailJobCandidate(
-			"Indeed", identifier, postingUrl, title, company, location,
-			sentOn, true);
+			"Indeed",
+			identifier,
+			postingUrl,
+			title,
+			company,
+			location,
+			sentOn
+			, true);
 	}
 
 	private static string? ReadPostingIdentifier(HtmlNode link)

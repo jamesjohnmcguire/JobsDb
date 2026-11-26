@@ -69,10 +69,10 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 			"<a class='strong-text-link' href='{0}'>Engineer</a>" +
 			"</h2></td></tr><tr><td><p>Company</p><p>Tokyo</p></td>" +
 			"</tr></table>";
-		string html = string.Format(CultureInfo.InvariantCulture, template,
-			organicUrl);
-		html += string.Format(CultureInfo.InvariantCulture, template,
-			sponsoredUrl);
+		string html = string.Format(
+			CultureInfo.InvariantCulture, template, organicUrl);
+		html += string.Format(
+			CultureInfo.InvariantCulture, template, sponsoredUrl);
 		WriteMessage("indeed.eml", html, IndeedEmailParser.JobAlertSender);
 
 		EmailImportBatchResult first = await LibraryManager
