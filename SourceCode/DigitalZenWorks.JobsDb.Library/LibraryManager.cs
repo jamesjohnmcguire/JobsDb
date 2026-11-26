@@ -7,6 +7,7 @@
 namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
@@ -34,7 +35,7 @@ public sealed class LibraryManager : IDisposable
 		jobQueries = new JobQueryService(jobReader);
 		jobPriorities = new DatabaseJobPriorityService(CreateOperationContext);
 		emailImports = new EmailImportService(
-			CreateOperationContext, new LinkedInEmailParser());
+			CreateOperationContext, CreateEmailJobParser());
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
 	}
 
@@ -144,6 +145,17 @@ public sealed class LibraryManager : IDisposable
 		using LibraryManager library = Initialize(databasePath);
 		return await library.EmailImports.ImportDirectoryAsync(directoryPath)
 			.ConfigureAwait(false);
+	}
+
+	private static EmailJobParserRouter CreateEmailJobParser()
+	{
+		LinkedInEmailParser linkedInParser = new LinkedInEmailParser();
+		Dictionary<string, IEmailJobParser> parsersBySender =
+			new Dictionary<string, IEmailJobParser>
+			{
+				{ LinkedInEmailParser.JobAlertSender, linkedInParser }
+			};
+		return new EmailJobParserRouter(parsersBySender);
 	}
 
 	private static IJobRefreshService CreateScraperService(

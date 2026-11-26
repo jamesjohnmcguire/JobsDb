@@ -18,6 +18,9 @@ using HtmlAgilityPack;
 /// </summary>
 public sealed class LinkedInEmailParser : IEmailJobParser
 {
+	/// <summary>Sender address for LinkedIn job alerts.</summary>
+	internal const string JobAlertSender = "jobalerts-noreply@linkedin.com";
+
 	/// <inheritdoc/>
 	public EmailParseResult Parse(Email email)
 	{
@@ -39,7 +42,7 @@ public sealed class LinkedInEmailParser : IEmailJobParser
 	private static bool IsSupportedSender(string address)
 	{
 		return address.Equals(
-			"jobalerts-noreply@linkedin.com",
+			JobAlertSender,
 			StringComparison.OrdinalIgnoreCase);
 	}
 

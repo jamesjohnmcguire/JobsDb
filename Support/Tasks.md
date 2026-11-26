@@ -28,7 +28,9 @@ Open work only. Each item names its type and the result to deliver. The [archite
 ## Email import
 
 - [ ] **Feature** — Add plain-text fallback for LinkedIn .eml messages with no usable HTML body.
-- [ ] **Feature** — Add provider parsers in small batches. Evaluate Remogu, DTCC, and DirectlyApply first, then handle the distinct Dice, Indeed, and other digest or recruiter formats.
+- [ ] **Feature (High priority)** - Add the first Indeed job-alert parser. Verify stable posting IDs and real-batch report outcomes.
+- [ ] **Feature (High priority)** - Add the first Dice job-alert parser after Indeed. Verify stable posting IDs and real-batch report outcomes.
+- [ ] **Feature** - Evaluate Remogu, DTCC, DirectlyApply, and additional digest and recruiter templates in small batches.
 - [ ] **Feature** — Add email provenance with a reviewed SQL upgrade. Store source identity, fingerprints, parser versions, and outcomes. Link each message to its jobs and record when a posting date came from the email.
 - [ ] **Feature** — Add bounded retention for email content and stale postings. Base expiry on successful source checks and preserve application history and notes.
 - [ ] **Feature** — Enrich leads from full postings as needed. Preserve known values during partial updates and replace estimated dates when a reliable posting date is available.
