@@ -21,4 +21,10 @@ public sealed record EmailImportResult(
 	int Added,
 	int Updated,
 	int Unchanged,
-	string? Message);
+	string? Message)
+{
+	/// <summary>Gets a summary of the message and its job changes.</summary>
+	public string Summary =>
+		$"{Status} {SourceName}: added {Added}, updated {Updated}, " +
+		$"unchanged {Unchanged}";
+}

@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.JobsDb.Library.EmailImport;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 /// <summary>Processes exported emails and persists supported job listings.</summary>
@@ -16,7 +15,7 @@ public interface IEmailImportService
 	/// Imports EML messages and writes batch reports beside the inputs.
 	/// </summary>
 	/// <param name="directoryPath">The completed export batch directory.</param>
-	/// <returns>One outcome per exported entry ID.</returns>
-	Task<IReadOnlyList<EmailImportResult>> ImportDirectoryAsync(
+	/// <returns>Batch totals and one outcome per exported entry ID.</returns>
+	Task<EmailImportBatchResult> ImportDirectoryAsync(
 		string directoryPath);
 }

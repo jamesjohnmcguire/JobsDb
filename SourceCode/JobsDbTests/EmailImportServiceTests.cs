@@ -36,20 +36,20 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		WriteMessage("second.eml", card);
 		using LibraryManager library = CreateLibrary();
 
-		IReadOnlyList<EmailImportResult> first =
-			await library.EmailImports.ImportDirectoryAsync(ImportDirectory)
+		EmailImportBatchResult first =
+			await LibraryManager.ImportEmailsAsync(ImportDirectory, TestDbPath)
 				.ConfigureAwait(false);
-		IReadOnlyList<EmailImportResult> repeated =
-			await library.EmailImports.ImportDirectoryAsync(ImportDirectory)
+		EmailImportBatchResult repeated =
+			await LibraryManager.ImportEmailsAsync(ImportDirectory, TestDbPath)
 				.ConfigureAwait(false);
 		List<Job> jobs = await library.JobQueries.GetJobsAsync()
 			.ConfigureAwait(false);
 
-		Assert.That(first.Sum(result => result.Added), Is.EqualTo(1));
-		Assert.That(first.Sum(result => result.Unchanged), Is.EqualTo(1));
-		Assert.That(repeated.Sum(result => result.Added), Is.Zero);
-		Assert.That(repeated.Sum(result => result.Updated), Is.Zero);
-		Assert.That(repeated.Sum(result => result.Unchanged), Is.EqualTo(2));
+		Assert.That(first.Added, Is.EqualTo(1));
+		Assert.That(first.Unchanged, Is.EqualTo(1));
+		Assert.That(repeated.Added, Is.Zero);
+		Assert.That(repeated.Updated, Is.Zero);
+		Assert.That(repeated.Unchanged, Is.EqualTo(2));
 		Assert.That(jobs, Has.Count.EqualTo(1));
 		Assert.That(jobs[0].Title, Is.EqualTo("Developer"));
 	}
@@ -75,12 +75,12 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		await repository.AddAsync(existing).ConfigureAwait(false);
 		WriteMessage("message.eml", CreateCard("123", "New Title", "New Co"));
 
-		IReadOnlyList<EmailImportResult> results = await CreateImportService()
+		EmailImportBatchResult results = await CreateImportService()
 			.ImportDirectoryAsync(ImportDirectory).ConfigureAwait(false);
 
 		using JobsDbContext reader = new JobsDbContext(TestDbPath!);
 		Job stored = reader.Jobs.Single();
-		Assert.That(results.Single().Updated, Is.EqualTo(1));
+		Assert.That(results.Results.Single().Updated, Is.EqualTo(1));
 		Assert.That(stored.Title, Is.EqualTo("New Title"));
 		Assert.That(stored.Company, Is.EqualTo("New Co"));
 		Assert.That(stored.Description, Is.EqualTo(TestJob!.Description));
@@ -104,6 +104,12 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		WriteMessage("review.eml", CreateCard("456", "Engineer", null));
 		WriteMessage(
 			"other.eml", "<body>Other provider</body>", "jobs@dice.com");
+		string partial = CreateCard("987", "Architect", "Company") +
+			"<a class='font-bold' " +
+			"href='https://www.linkedin.com/jobs/view/7'>Incomplete card</a>";
+		WriteMessage("partial.eml", partial);
+		string processed = Path.Combine(ImportDirectory, "processed.txt");
+		File.WriteAllText(processed, "stale-id");
 		await File.WriteAllTextAsync(
 			Path.Combine(ImportDirectory, "unknown.eml"), "Unknown")
 			.ConfigureAwait(false);
@@ -112,21 +118,23 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 			"From: jobs@example.com\r\nDate: bad timestamp\r\n\r\nBody")
 			.ConfigureAwait(false);
 
-		IReadOnlyList<EmailImportResult> results = await CreateImportService()
+		EmailImportBatchResult results = await CreateImportService()
 			.ImportDirectoryAsync(ImportDirectory).ConfigureAwait(false);
 
-		int ignored = results.Count(
-			result => result.Status == EmailImportStatus.Ignored);
-		int failed = results.Count(
-			result => result.Status == EmailImportStatus.Failed);
-		int review = results.Count(
-			result => result.Status == EmailImportStatus.NeedsReview);
-		Assert.That(ignored, Is.EqualTo(1));
-		Assert.That(failed, Is.EqualTo(2));
-		Assert.That(review, Is.EqualTo(1));
-		Assert.That(results.Sum(result => result.Added), Is.EqualTo(1));
+		Assert.That(results.Ignored, Is.EqualTo(1));
+		Assert.That(results.Failed, Is.EqualTo(2));
+		Assert.That(results.NeedsReview, Is.EqualTo(2));
+		Assert.That(results.Added, Is.EqualTo(2));
 		using JobsDbContext reader = new JobsDbContext(TestDbPath!);
-		Assert.That(reader.Jobs.Count(), Is.EqualTo(1));
+		Assert.That(reader.Jobs.Count(), Is.EqualTo(2));
+		string unprocessed = Path.Combine(ImportDirectory, "unprocessed.txt");
+		string[] accepted = { "valid" };
+		string[] rejected =
+		{
+			"broken", "other", "partial", "review", "unknown"
+		};
+		Assert.That(File.ReadAllLines(processed), Is.EqualTo(accepted));
+		Assert.That(File.ReadAllLines(unprocessed), Is.EqualTo(rejected));
 	}
 
 	/// <summary>
@@ -176,12 +184,13 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		WriteMessage("first.eml", rejectedMessage);
 		WriteMessage("second.eml", CreateCard("789", "Accepted", "Company"));
 
-		IReadOnlyList<EmailImportResult> results = await CreateImportService()
+		EmailImportBatchResult results = await CreateImportService()
 			.ImportDirectoryAsync(ImportDirectory).ConfigureAwait(false);
 
-		Assert.That(results[0].Status, Is.EqualTo(EmailImportStatus.Failed));
-		Assert.That(results[0].Added, Is.Zero);
-		Assert.That(results[1].Added, Is.EqualTo(1));
+		Assert.That(
+			results.Results[0].Status, Is.EqualTo(EmailImportStatus.Failed));
+		Assert.That(results.Results[0].Added, Is.Zero);
+		Assert.That(results.Results[1].Added, Is.EqualTo(1));
 		using JobsDbContext reader = new JobsDbContext(TestDbPath!);
 		Assert.That(reader.Jobs.Single().SourceJobId, Is.EqualTo("789"));
 	}

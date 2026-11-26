@@ -7,10 +7,8 @@
 namespace JobsDb.CommandLine;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
@@ -24,7 +22,6 @@ internal sealed class CommandRunner
 {
 	private readonly TextWriter output;
 	private readonly TextWriter error;
-	private readonly string? databasePath;
 	private readonly ILogger logger;
 
 	/// <summary>
@@ -33,18 +30,13 @@ internal sealed class CommandRunner
 	/// <param name="output">The writer for command output.</param>
 	/// <param name="error">The writer for command errors.</param>
 	/// <param name="logger">The logger for import summaries.</param>
-	/// <param name="databasePath">
-	/// The database file, or null to use the application database.
-	/// </param>
 	public CommandRunner(
 		TextWriter output,
 		TextWriter error,
-		ILogger logger,
-		string? databasePath = null)
+		ILogger logger)
 	{
 		this.output = output;
 		this.error = error;
-		this.databasePath = databasePath;
 		this.logger = logger;
 	}
 
@@ -102,15 +94,10 @@ internal sealed class CommandRunner
 		{
 			logger.Information("Email import started.");
 
-			using LibraryManager library =
-				LibraryManager.Initialize(databasePath);
-			IReadOnlyList<EmailImportResult> results =
-				await library.EmailImports.ImportDirectoryAsync(directory)
-					.ConfigureAwait(false);
-			WriteResults(results);
-			bool hasFailures = results.Any(
-				result => result.Status == EmailImportStatus.Failed);
-			if (hasFailures)
+			EmailImportBatchResult batch = await LibraryManager
+				.ImportEmailsAsync(directory).ConfigureAwait(false);
+			WriteResults(batch);
+			if (batch.HasFailures)
 			{
 				return -1;
 			}
@@ -127,57 +114,30 @@ internal sealed class CommandRunner
 		}
 	}
 
-	private void WriteResults(IReadOnlyList<EmailImportResult> results)
+	private void WriteResults(EmailImportBatchResult batch)
 	{
-		foreach (EmailImportResult result in results)
+		foreach (EmailImportResult result in batch.Results)
 		{
-			WriteResult(result);
+			TextWriter writer = output;
+			if (result.Status == EmailImportStatus.Failed)
+			{
+				writer = error;
+			}
+
+			writer.WriteLine(result.Summary);
+			if (!string.IsNullOrEmpty(result.Message))
+			{
+				writer.WriteLine("  " + result.Message);
+			}
 		}
 
-		int added = results.Sum(result => result.Added);
-		int updated = results.Sum(result => result.Updated);
-		int unchanged = results.Sum(result => result.Unchanged);
-		string totals =
-			$"Jobs: {added} added, {updated} updated, {unchanged} unchanged.";
-		WriteSummary(totals, LogEventLevel.Information);
-		WriteMessageCounts(results);
-	}
-
-	private void WriteResult(EmailImportResult result)
-	{
-		TextWriter writer = output;
-		if (result.Status == EmailImportStatus.Failed)
+		logger.Information("{ImportSummary}", batch.JobSummary);
+		LogEventLevel level = LogEventLevel.Information;
+		if (batch.HasFailures)
 		{
-			writer = error;
+			level = LogEventLevel.Error;
 		}
 
-		string counts = $"added {result.Added}, updated {result.Updated}, " +
-			$"unchanged {result.Unchanged}";
-		writer.WriteLine($"{result.Status} {result.SourceName}: {counts}");
-		if (!string.IsNullOrEmpty(result.Message))
-		{
-			writer.WriteLine("  " + result.Message);
-		}
-	}
-
-	private void WriteMessageCounts(IReadOnlyList<EmailImportResult> results)
-	{
-		int ignored = results.Count(
-			result => result.Status == EmailImportStatus.Ignored);
-		int review = results.Count(
-			result => result.Status == EmailImportStatus.NeedsReview);
-		int failed = results.Count(
-			result => result.Status == EmailImportStatus.Failed);
-		string counts = $"Messages: {ignored} ignored, " +
-			$"{review} need review, {failed} failed.";
-		LogEventLevel level = failed > 0
-			? LogEventLevel.Error
-			: LogEventLevel.Information;
-		WriteSummary(counts, level);
-	}
-
-	private void WriteSummary(string summary, LogEventLevel level)
-	{
-		logger.Write(level, "{ImportSummary}", summary);
+		logger.Write(level, "{ImportSummary}", batch.MessageSummary);
 	}
 }

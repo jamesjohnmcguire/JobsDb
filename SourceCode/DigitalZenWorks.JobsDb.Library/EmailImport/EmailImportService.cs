@@ -50,7 +50,7 @@ internal sealed class EmailImportService : IEmailImportService
 	}
 
 	/// <inheritdoc/>
-	public async Task<IReadOnlyList<EmailImportResult>> ImportDirectoryAsync(
+	public async Task<EmailImportBatchResult> ImportDirectoryAsync(
 		string directoryPath)
 	{
 		IReadOnlyList<EmailReadResult> emails =
@@ -64,7 +64,7 @@ internal sealed class EmailImportService : IEmailImportService
 		}
 
 		EmailImportReports.Write(directoryPath, results);
-		return results;
+		return new EmailImportBatchResult(results);
 	}
 
 	private static EmailImportResult NoWrites(

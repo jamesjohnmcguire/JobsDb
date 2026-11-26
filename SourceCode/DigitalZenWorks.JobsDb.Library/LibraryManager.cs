@@ -8,6 +8,7 @@ namespace DigitalZenWorks.JobsDb.Library;
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.EmailImport;
 using DigitalZenWorks.JobsDb.Library.Repositories;
 using DigitalZenWorks.JobsDb.Library.Scrapers;
@@ -82,6 +83,17 @@ public sealed class LibraryManager : IDisposable
 	}
 
 	/// <summary>
+	/// Imports an email batch into the application database.
+	/// </summary>
+	/// <param name="directoryPath">The EML export directory.</param>
+	/// <returns>The batch totals and individual message outcomes.</returns>
+	public static Task<EmailImportBatchResult> ImportEmailsAsync(
+		string directoryPath)
+	{
+		return ImportEmailsAsync(directoryPath, null);
+	}
+
+	/// <summary>
 	/// Validates an existing database and prepares library services.
 	/// </summary>
 	/// <param name="databasePath">
@@ -117,6 +129,21 @@ public sealed class LibraryManager : IDisposable
 
 		disposed = true;
 		GC.SuppressFinalize(this);
+	}
+
+	/// <summary>
+	/// Imports an email batch using a supplied database path.
+	/// </summary>
+	/// <param name="directoryPath">The EML export directory.</param>
+	/// <param name="databasePath">The database file or null.</param>
+	/// <returns>The batch totals and individual message outcomes.</returns>
+	internal static async Task<EmailImportBatchResult> ImportEmailsAsync(
+		string directoryPath, string? databasePath)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
+		using LibraryManager library = Initialize(databasePath);
+		return await library.EmailImports.ImportDirectoryAsync(directoryPath)
+			.ConfigureAwait(false);
 	}
 
 	private static IJobRefreshService CreateScraperService(
