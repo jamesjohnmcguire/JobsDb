@@ -8,6 +8,7 @@ namespace JobsDbTests;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,6 +54,49 @@ internal sealed class EmailImportServiceTests : EmailImportTestSupport
 		Assert.That(jobs, Has.Count.EqualTo(1));
 		Assert.That(jobs[0].Title, Is.EqualTo("Developer"));
 	}
+
+	/// <summary>
+	/// Verifies that the registered Indeed sender saves stable postings.
+	/// </summary>
+	/// <returns>A task that completes when the assertions finish.</returns>
+	[Test]
+	public async Task ImportDirectory_RoutesIndeedAndReportsPartialAlert()
+	{
+		const string id = "0123456789abcdef";
+		string organicUrl = "https://www.indeed.com/rc/clk/dl?jk=" + id;
+		string sponsoredUrl = "https://www.indeed.com/pagead/clk/dl?ad=opaque";
+		string template = "<table><tr><td><h2>" +
+			"<a class='strong-text-link' href='{0}'>Engineer</a>" +
+			"</h2></td></tr><tr><td><p>Company</p><p>Tokyo</p></td>" +
+			"</tr></table>";
+		string html = string.Format(CultureInfo.InvariantCulture, template,
+			organicUrl);
+		html += string.Format(CultureInfo.InvariantCulture, template,
+			sponsoredUrl);
+		WriteMessage("indeed.eml", html, IndeedEmailParser.JobAlertSender);
+
+		EmailImportBatchResult first = await LibraryManager
+			.ImportEmailsAsync(ImportDirectory, TestDbPath)
+			.ConfigureAwait(false);
+		EmailImportBatchResult repeated = await LibraryManager
+			.ImportEmailsAsync(ImportDirectory, TestDbPath)
+			.ConfigureAwait(false);
+
+		Assert.That(first.Added, Is.EqualTo(1));
+		Assert.That(first.NeedsReview, Is.EqualTo(1));
+		Assert.That(repeated.Added, Is.Zero);
+		Assert.That(repeated.Unchanged, Is.EqualTo(1));
+		string processed = Path.Combine(ImportDirectory, "processed.txt");
+		string unprocessed = Path.Combine(ImportDirectory, "unprocessed.txt");
+		Assert.That(File.ReadAllLines(processed), Is.Empty);
+		string[] expected = { "indeed" };
+		Assert.That(File.ReadAllLines(unprocessed), Is.EqualTo(expected));
+		using JobsDbContext reader = new JobsDbContext(TestDbPath!);
+		Job stored = reader.Jobs.Single();
+		Assert.That(stored.Source, Is.EqualTo("Indeed"));
+		Assert.That(stored.SourceJobId, Is.EqualTo(id));
+	}
+
 
 	/// <summary>
 	/// Checks that an import preserves richer details and application data.

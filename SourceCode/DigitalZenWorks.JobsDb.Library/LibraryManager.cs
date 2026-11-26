@@ -153,7 +153,8 @@ public sealed class LibraryManager : IDisposable
 		Dictionary<string, IEmailJobParser> parsersBySender =
 			new Dictionary<string, IEmailJobParser>
 			{
-				{ LinkedInEmailParser.JobAlertSender, linkedInParser }
+				{ LinkedInEmailParser.JobAlertSender, linkedInParser },
+				{ IndeedEmailParser.JobAlertSender, new IndeedEmailParser() }
 			};
 		return new EmailJobParserRouter(parsersBySender);
 	}
