@@ -10,9 +10,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
-using DigitalZenWorks.JobsDb.Library;
 using JobsDb.CommandLine;
 using NUnit.Framework;
+using Serilog.Core;
 
 /// <summary>
 /// Covers command dispatch, import outcomes, and exit codes.
@@ -36,14 +36,16 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
 
+		string unusedDatabase = Path.Combine(ImportDirectory, "unused.db");
 		CommandRunner runner = new CommandRunner(
-			output, error, FailInitialization);
+			output, error, Logger.None, unusedDatabase);
 		int result = await runner.RunAsync(new[] { command })
 			.ConfigureAwait(false);
 
 		Assert.That(result, Is.Zero);
 		Assert.That(
 			output.ToString(), Does.Contain("jobsdb import <directory>"));
+		Assert.That(File.Exists(unusedDatabase), Is.False);
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
@@ -64,8 +66,9 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
 
+		string unusedDatabase = Path.Combine(ImportDirectory, "unused.db");
 		CommandRunner runner = new CommandRunner(
-			output, error, FailInitialization);
+			output, error, Logger.None, unusedDatabase);
 
 		string[] arguments = command.Split(
 			' ', StringSplitOptions.RemoveEmptyEntries);
@@ -74,6 +77,7 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 
 		Assert.That(result, Is.EqualTo(-1));
 		Assert.That(error.ToString(), Does.Contain("Invalid command"));
+		Assert.That(File.Exists(unusedDatabase), Is.False);
 	}
 
 	/// <summary>
@@ -88,7 +92,8 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
-		CommandRunner runner = new CommandRunner(output, error, CreateLibrary);
+		CommandRunner runner = new CommandRunner(
+			output, error, Logger.None, TestDbPath);
 		string[] arguments = { "import", ImportDirectory };
 
 		int first = await runner.RunAsync(arguments).ConfigureAwait(false);
@@ -97,8 +102,9 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 
 		Assert.That(first, Is.Zero);
 		Assert.That(repeated, Is.Zero);
-		Assert.That(output.ToString(), Does.Contain("1 added"));
-		Assert.That(output.ToString(), Does.Contain("1 unchanged"));
+		Assert.That(
+			output.ToString(), Does.Contain("Completed message: added 1"));
+		Assert.That(output.ToString(), Does.Contain("unchanged 1"));
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
@@ -113,7 +119,8 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
-		CommandRunner runner = new CommandRunner(output, error, CreateLibrary);
+		CommandRunner runner = new CommandRunner(
+			output, error, Logger.None, TestDbPath);
 		string missing = Path.Combine(ImportDirectory, "missing");
 		string[] arguments = { "import", missing };
 
@@ -136,13 +143,14 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
-		CommandRunner runner = new CommandRunner(output, error, CreateLibrary);
+		CommandRunner runner = new CommandRunner(
+			output, error, Logger.None, TestDbPath);
 		string[] arguments = { "import", ImportDirectory };
 
 		int result = await runner.RunAsync(arguments).ConfigureAwait(false);
 
 		Assert.That(result, Is.Zero);
-		Assert.That(output.ToString(), Does.Contain("1 ignored"));
+		Assert.That(output.ToString(), Does.Contain("Ignored other:"));
 		Assert.That(error.ToString(), Is.Empty);
 	}
 
@@ -171,13 +179,17 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
-		CommandRunner runner = new CommandRunner(output, error, CreateLibrary);
+		CommandRunner runner = new CommandRunner(
+			output, error, Logger.None, TestDbPath);
 		string[] arguments = { "import", ImportDirectory };
 
 		int result = await runner.RunAsync(arguments).ConfigureAwait(false);
 
 		Assert.That(result, Is.EqualTo(-1));
-		Assert.That(output.ToString(), Does.Contain("2 added"));
+		Assert.That(
+			output.ToString(), Does.Contain("Completed valid: added 1"));
+		Assert.That(
+			output.ToString(), Does.Contain("NeedsReview partial: added 1"));
 		Assert.That(error.ToString(), Does.Contain("Invalid EML"));
 		string processed = Path.Combine(ImportDirectory, "processed.txt");
 		string unprocessed = Path.Combine(ImportDirectory, "unprocessed.txt");
@@ -185,10 +197,5 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		Assert.That(File.ReadAllLines(processed), Is.EqualTo(accepted));
 		string[] rejected = { "broken", "other", "partial", "review" };
 		Assert.That(File.ReadAllLines(unprocessed), Is.EqualTo(rejected));
-	}
-
-	private static LibraryManager FailInitialization()
-	{
-		throw new InvalidOperationException("Initialization must not run.");
 	}
 }

@@ -146,7 +146,9 @@ public class JobsDbContext : DbContext
 		DbContextOptionsBuilder optionsBuilder)
 	{
 		ArgumentNullException.ThrowIfNull(optionsBuilder);
+
 		base.OnConfiguring(optionsBuilder);
+
 		optionsBuilder.UseSqlite(
 			sqlite => sqlite.MigrationsHistoryTable("MigrationsHistory"));
 	}
@@ -249,6 +251,7 @@ public class JobsDbContext : DbContext
 		DbContextOptionsBuilder<JobsDbContext> optionsBuilder =
 			new DbContextOptionsBuilder<JobsDbContext>();
 		optionsBuilder.UseSqlite(connectionStringBuilder.ConnectionString);
+
 		return optionsBuilder.Options;
 	}
 
@@ -258,6 +261,8 @@ public class JobsDbContext : DbContext
 			Environment.SpecialFolder.LocalApplicationData);
 		string applicationFolder = Path.Combine(
 			applicationDataFolder, "JobsDb");
-		return Path.Combine(applicationFolder, "jobsdb.db");
+
+		string databasePath = Path.Combine(applicationFolder, "jobsdb.db");
+		return databasePath;
 	}
 }

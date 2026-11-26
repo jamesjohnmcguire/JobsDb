@@ -9,7 +9,6 @@ namespace JobsDb.CommandLine;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using DigitalZenWorks.JobsDb.Library;
 using LoggingService;
 using Serilog;
 
@@ -22,25 +21,16 @@ internal static class Program
 	{
 		ConfigureImportLogging();
 
-		CommandRunner runner = CreateRunner(Log.Logger);
-
 		try
 		{
+			CommandRunner runner = new CommandRunner(
+				Console.Out, Console.Error, Log.Logger);
 			return await runner.RunAsync(args).ConfigureAwait(false);
 		}
 		finally
 		{
 			await Log.CloseAndFlushAsync().ConfigureAwait(false);
 		}
-	}
-
-	private static CommandRunner CreateRunner(ILogger? logger = null)
-	{
-		return new CommandRunner(
-			Console.Out,
-			Console.Error,
-			() => LibraryManager.Initialize(),
-			logger);
 	}
 
 	private static void ConfigureImportLogging()

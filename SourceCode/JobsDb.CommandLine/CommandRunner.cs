@@ -24,52 +24,28 @@ internal sealed class CommandRunner
 {
 	private readonly TextWriter output;
 	private readonly TextWriter error;
-	private readonly Func<LibraryManager> initialize;
-	private readonly ILogger? logger;
+	private readonly string? databasePath;
+	private readonly ILogger logger;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CommandRunner"/> class.
 	/// </summary>
 	/// <param name="output">The writer for command output.</param>
 	/// <param name="error">The writer for command errors.</param>
-	/// <param name="initialize">
-	/// Creates the library manager for an import.
+	/// <param name="logger">The logger for import summaries.</param>
+	/// <param name="databasePath">
+	/// The database file, or null to use the application database.
 	/// </param>
-	/// <param name="logger">The optional logger for import summaries.</param>
 	public CommandRunner(
 		TextWriter output,
 		TextWriter error,
-		Func<LibraryManager> initialize,
-		ILogger? logger = null)
+		ILogger logger,
+		string? databasePath = null)
 	{
 		this.output = output;
 		this.error = error;
-		this.initialize = initialize;
+		this.databasePath = databasePath;
 		this.logger = logger;
-	}
-
-	/// <summary>
-	/// Checks whether the command name is recognized.
-	/// </summary>
-	/// <param name="arguments">The command-line arguments.</param>
-	/// <returns>True when the command name is recognized.</returns>
-	internal static bool IsValidCommand(string[] arguments)
-	{
-		bool isValid = false;
-
-		if (arguments.Length > 0)
-		{
-			string command = arguments[0];
-			if (command.Equals(
-				"help", StringComparison.OrdinalIgnoreCase) ||
-				command.Equals(
-				"import", StringComparison.OrdinalIgnoreCase))
-			{
-				isValid = true;
-			}
-		}
-
-		return isValid;
 	}
 
 	/// <summary>
@@ -84,7 +60,8 @@ internal sealed class CommandRunner
 		int returnCode = -1;
 
 		string command = string.Empty;
-		if (IsValidCommand(args))
+
+		if (args.Length > 0)
 		{
 			command = args[0].ToLowerInvariant();
 		}
@@ -92,7 +69,8 @@ internal sealed class CommandRunner
 		switch (command)
 		{
 			case "import" when args.Length == 2:
-				returnCode = await ImportAsync(args[1]).ConfigureAwait(false);
+				string importPath = args[1];
+				returnCode = await ImportAsync(importPath).ConfigureAwait(false);
 				break;
 			case "help" when args.Length == 1:
 				WriteHelp(output);
@@ -122,8 +100,10 @@ internal sealed class CommandRunner
 	{
 		try
 		{
-			logger?.Information("Email import started.");
-			using LibraryManager library = initialize();
+			logger.Information("Email import started.");
+
+			using LibraryManager library =
+				LibraryManager.Initialize(databasePath);
 			IReadOnlyList<EmailImportResult> results =
 				await library.EmailImports.ImportDirectoryAsync(directory)
 					.ConfigureAwait(false);
@@ -139,7 +119,7 @@ internal sealed class CommandRunner
 		}
 		catch (Exception exception)
 		{
-			logger?.Error(
+			logger.Error(
 				"Email import stopped with {ErrorType}.",
 				exception.GetType().Name);
 			await error.WriteLineAsync(exception.Message).ConfigureAwait(false);
@@ -198,12 +178,6 @@ internal sealed class CommandRunner
 
 	private void WriteSummary(string summary, LogEventLevel level)
 	{
-		if (logger == null)
-		{
-			output.WriteLine(summary);
-			return;
-		}
-
 		logger.Write(level, "{ImportSummary}", summary);
 	}
 }
