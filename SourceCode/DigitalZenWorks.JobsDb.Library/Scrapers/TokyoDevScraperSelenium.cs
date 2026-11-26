@@ -174,6 +174,37 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		return result;
 	}
 
+	/// <inheritdoc/>
+	protected override async Task<bool> LoginAsync(ScraperCredential credential)
+	{
+		// TokyoDev doesn't require login for public job listings
+		return await Task.FromResult(true).ConfigureAwait(false);
+	}
+
+	private static string CleanText(string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return string.Empty;
+		}
+
+		return HtmlEntity.DeEntitize(text)
+			.Trim()
+			.Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\r", string.Empty, StringComparison.InvariantCultureIgnoreCase)
+			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase);
+	}
+
+	private static void ConfigureDriver(IWebDriver driver)
+	{
+		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+
+		// Remove webdriver property
+		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
+		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+	}
+
 	private static IWebDriver CreateDriver()
 	{
 		ChromeOptions options = new ChromeOptions();
@@ -194,30 +225,6 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		options.AddAdditionalOption("useAutomationExtension", false);
 
 		return new ChromeDriver(options);
-	}
-
-	private static void ConfigureDriver(IWebDriver driver)
-	{
-		driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-		driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
-
-		// Remove webdriver property
-		IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
-		jsExecutor.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
-	}
-
-	private void ScrollPage()
-	{
-		// Scroll in steps to trigger lazy loading
-		for (int i = 0; i < 3; i++)
-		{
-			((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0, 1000);");
-			Thread.Sleep(1000);
-		}
-
-		// Scroll back to top
-		((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, 0);");
-		Thread.Sleep(500);
 	}
 
 	private static List<HtmlNode> FindJobNodes(HtmlDocument doc)
@@ -262,6 +269,56 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		}
 
 		return null;
+	}
+
+	private static void ParseSalary(string salaryText, Job job)
+	{
+		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
+
+		if (numbers.Count >= 2)
+		{
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			{
+				job.SalaryMin = min;
+			}
+
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			{
+				job.SalaryMax = max;
+			}
+		}
+
+		job.SalaryCurrency = salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
+			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase) ? "JPY" : "USD";
+	}
+
+	private async Task FetchJobDetailsAsync(Job job)
+	{
+		driver.Navigate().GoToUrl(job.SourceUrl);
+		Thread.Sleep(2000);
+
+		var pageSource = driver.PageSource;
+		HtmlDocument doc = new HtmlDocument();
+		doc.LoadHtml(pageSource);
+
+		// Extract description
+		var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
+			?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'content')]")
+			?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'job-details')]");
+
+		if (descNode != null)
+		{
+			job.Description = CleanText(descNode.InnerText);
+		}
+
+		// Extract salary
+		var salaryNode = doc.DocumentNode.SelectSingleNode("//*[contains(@class, 'salary')]");
+		if (salaryNode != null)
+		{
+			ParseSalary(salaryNode.InnerText, job);
+		}
+
+		await Task.CompletedTask.ConfigureAwait(false);
 	}
 
 	private Job ParseJobNode(HtmlNode node)
@@ -324,74 +381,17 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		return job;
 	}
 
-	private async Task FetchJobDetailsAsync(Job job)
+	private void ScrollPage()
 	{
-		driver.Navigate().GoToUrl(job.SourceUrl);
-		Thread.Sleep(2000);
-
-		var pageSource = driver.PageSource;
-		HtmlDocument doc = new HtmlDocument();
-		doc.LoadHtml(pageSource);
-
-		// Extract description
-		var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
-			?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'content')]")
-			?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'job-details')]");
-
-		if (descNode != null)
+		// Scroll in steps to trigger lazy loading
+		for (int i = 0; i < 3; i++)
 		{
-			job.Description = CleanText(descNode.InnerText);
+			((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0, 1000);");
+			Thread.Sleep(1000);
 		}
 
-		// Extract salary
-		var salaryNode = doc.DocumentNode.SelectSingleNode("//*[contains(@class, 'salary')]");
-		if (salaryNode != null)
-		{
-			ParseSalary(salaryNode.InnerText, job);
-		}
-
-		await Task.CompletedTask.ConfigureAwait(false);
-	}
-
-	private static void ParseSalary(string salaryText, Job job)
-	{
-		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
-
-		if (numbers.Count >= 2)
-		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
-			{
-				job.SalaryMin = min;
-			}
-
-			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
-			{
-				job.SalaryMax = max;
-			}
-		}
-
-		job.SalaryCurrency = salaryText.Contains("¥", StringComparison.InvariantCultureIgnoreCase) ||
-			salaryText.ToLower(CultureInfo.InvariantCulture).Contains("jpy", StringComparison.InvariantCultureIgnoreCase) ? "JPY" : "USD";
-	}
-
-	private static string CleanText(string text)
-	{
-		if (string.IsNullOrWhiteSpace(text))
-		{
-			return string.Empty;
-		}
-
-		return HtmlEntity.DeEntitize(text)
-			.Trim()
-			.Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-			.Replace("\r", string.Empty, StringComparison.InvariantCultureIgnoreCase)
-			.Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase);
-	}
-
-	/// <inheritdoc/>
-	protected override async Task<bool> LoginAsync(ScraperCredential credential)
-	{
-		// TokyoDev doesn't require login for public job listings
-		return await Task.FromResult(true).ConfigureAwait(false);
+		// Scroll back to top
+		((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, 0);");
+		Thread.Sleep(500);
 	}
 }

@@ -419,20 +419,6 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 	}
 
-	private async Task RefreshJobsAsync()
-	{
-		List<Job> loadedJobs = await jobQueries.GetJobsAsync()
-			.ConfigureAwait(true);
-		ApplyLoadedJobs(loadedJobs);
-	}
-
-	private void NotifyOperationAvailability()
-	{
-		OnPropertyChanged(nameof(CanLoad));
-		OnPropertyChanged(nameof(CanEditPriority));
-		OnPropertyChanged(nameof(CanEditApplied));
-	}
-
 	private static bool HasApplicationStatus(Job job)
 	{
 		return job.Status != ApplicationStatus.NotApplied;
@@ -517,6 +503,13 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		SelectedJob = preferredJob;
 	}
 
+	private void NotifyOperationAvailability()
+	{
+		OnPropertyChanged(nameof(CanLoad));
+		OnPropertyChanged(nameof(CanEditPriority));
+		OnPropertyChanged(nameof(CanEditApplied));
+	}
+
 	private List<Job> GetOrderedReviewJobs()
 	{
 		if (selectedReviewTab == 1)
@@ -535,11 +528,18 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			.ToList();
 	}
 
-	private void UpdateLoadedStatus()
+	private void OnPropertyChanged(
+		[CallerMemberName] string? propertyName = null)
 	{
-		string tab = selectedReviewTab == 1 ? "Reviewed" : "Inbox";
-		string label = visibleJobs.Count == 1 ? "posting" : "postings";
-		StatusMessage = $"{tab}: {visibleJobs.Count} {label}.";
+		PropertyChanged?.Invoke(
+			this, new PropertyChangedEventArgs(propertyName));
+	}
+
+	private async Task RefreshJobsAsync()
+	{
+		List<Job> loadedJobs = await jobQueries.GetJobsAsync()
+			.ConfigureAwait(true);
+		ApplyLoadedJobs(loadedJobs);
 	}
 
 	private string GetSelectedDescription()
@@ -557,10 +557,10 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		return SelectedJob.Description;
 	}
 
-	private void OnPropertyChanged(
-		[CallerMemberName] string? propertyName = null)
+	private void UpdateLoadedStatus()
 	{
-		PropertyChanged?.Invoke(
-			this, new PropertyChangedEventArgs(propertyName));
+		string tab = selectedReviewTab == 1 ? "Reviewed" : "Inbox";
+		string label = visibleJobs.Count == 1 ? "posting" : "postings";
+		StatusMessage = $"{tab}: {visibleJobs.Count} {label}.";
 	}
 }
