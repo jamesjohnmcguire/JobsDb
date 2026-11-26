@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library;
@@ -81,7 +82,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			ScrollPage();
 
 			// Get the rendered HTML
-			var pageSource = driver.PageSource;
+			string pageSource = driver.PageSource;
 
 			// Save for debugging
 			System.IO.File.WriteAllText("tokyodev_scraped.html", pageSource);
@@ -92,7 +93,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			doc.LoadHtml(pageSource);
 
 			// Try multiple selector strategies
-			var jobNodes = FindJobNodes(doc);
+			List<HtmlNode> jobNodes = FindJobNodes(doc);
 
 			if (jobNodes == null || !jobNodes.Any())
 			{
@@ -107,11 +108,11 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 			Console.WriteLine($"✓ Found {jobNodes.Count} potential job listings");
 
-			foreach (var jobNode in jobNodes)
+			foreach (HtmlNode jobNode in jobNodes)
 			{
 				try
 				{
-					var job = ParseJobNode(jobNode);
+					Job job = ParseJobNode(jobNode);
 
 					if (job != null && !string.IsNullOrEmpty(job.Title))
 					{
@@ -130,7 +131,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 							}
 						}
 
-						var existing =
+						Job existing =
 							await jobRepository.GetBySourceIdAsync(
 								SourceName, job.SourceJobId).ConfigureAwait(false);
 
@@ -252,11 +253,11 @@ public class TokyoDevScraperSelenium : JobScraperBase
 			() => doc.DocumentNode.SelectNodes("//*[@data-job-id]")?.ToList(),
 		};
 
-		foreach (var strategy in strategies)
+		foreach (Func<List<HtmlNode>> strategy in strategies)
 		{
 			try
 			{
-				var nodes = strategy();
+				List<HtmlNode> nodes = strategy();
 				if (nodes != null && nodes.Any())
 				{
 					Console.WriteLine($"✓ Using selector strategy that found {nodes.Count} nodes");
@@ -273,16 +274,16 @@ public class TokyoDevScraperSelenium : JobScraperBase
 
 	private static void ParseSalary(string salaryText, Job job)
 	{
-		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
+		MatchCollection numbers = Regex.Matches(salaryText, @"[\d,]+");
 
 		if (numbers.Count >= 2)
 		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out decimal min))
 			{
 				job.SalaryMin = min;
 			}
 
-			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out decimal max))
 			{
 				job.SalaryMax = max;
 			}
@@ -297,12 +298,12 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		driver.Navigate().GoToUrl(job.SourceUrl);
 		Thread.Sleep(2000);
 
-		var pageSource = driver.PageSource;
+		string pageSource = driver.PageSource;
 		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(pageSource);
 
 		// Extract description
-		var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
+		HtmlNode? descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
 			?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'content')]")
 			?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'job-details')]");
 
@@ -312,7 +313,8 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		}
 
 		// Extract salary
-		var salaryNode = doc.DocumentNode.SelectSingleNode("//*[contains(@class, 'salary')]");
+		HtmlNode? salaryNode = doc.DocumentNode.SelectSingleNode(
+			"//*[contains(@class, 'salary')]");
 		if (salaryNode != null)
 		{
 			ParseSalary(salaryNode.InnerText, job);
@@ -331,7 +333,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		};
 
 		// Extract job title - try multiple selectors
-		var titleNode = node.SelectSingleNode(".//h2")
+		HtmlNode? titleNode = node.SelectSingleNode(".//h2")
 			?? node.SelectSingleNode(".//h3")
 			?? node.SelectSingleNode(".//h4")
 			?? node.SelectSingleNode(".//*[contains(@class, 'title')]");
@@ -346,7 +348,7 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		}
 
 		// Extract company
-		var companyNode = node.SelectSingleNode(".//*[contains(@class, 'company')]")
+		HtmlNode? companyNode = node.SelectSingleNode(".//*[contains(@class, 'company')]")
 			?? node.SelectSingleNode(".//*[contains(text(), 'at ')]");
 
 		if (companyNode != null)
@@ -355,21 +357,21 @@ public class TokyoDevScraperSelenium : JobScraperBase
 		}
 
 		// Extract location
-		var locationNode = node.SelectSingleNode(".//*[contains(@class, 'location')]")
+		HtmlNode? locationNode = node.SelectSingleNode(".//*[contains(@class, 'location')]")
 			?? node.SelectSingleNode(".//*[contains(@class, 'remote')]");
 
 		job.Location = locationNode != null ? CleanText(locationNode.InnerText) : "Tokyo, Japan";
 
 		// Extract URL and ID
-		var linkNode = node.SelectSingleNode(".//a[@href]") ?? (node.Name == "a" ? node : null);
+		HtmlNode? linkNode = node.SelectSingleNode(".//a[@href]") ?? (node.Name == "a" ? node : null);
 
 		if (linkNode != null)
 		{
-			var href = linkNode.GetAttributeValue("href", string.Empty);
+			string href = linkNode.GetAttributeValue("href", string.Empty);
 			job.SourceUrl = href.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ? href : $"{BaseUrl}{href}";
 
 			// Extract job ID from URL
-			var urlParts = href.Trim('/').Split('/');
+			string[] urlParts = href.Trim('/').Split('/');
 			job.SourceJobId = urlParts.LastOrDefault(p => !string.IsNullOrWhiteSpace(p) && p != "jobs")
 				?? Guid.NewGuid().ToString();
 		}

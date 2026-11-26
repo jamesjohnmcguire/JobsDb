@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Repositories;
@@ -54,7 +55,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		{
 			// TokyoDev typically doesn't require login for basic job listings
 			// But we can use credentials if they implement a login system later
-			var credential = await GetCredentialsAsync().ConfigureAwait(false);
+			ScraperCredential credential = await GetCredentialsAsync().ConfigureAwait(false);
 
 			if (credential != null && credential.IsActive)
 			{
@@ -62,7 +63,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 			}
 
 			// Fetch the jobs page
-			var jobsHtml = await httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
+			string jobsHtml = await httpClient.GetStringAsync(JobsUrl).ConfigureAwait(false);
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(jobsHtml);
 
@@ -89,15 +90,15 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 
 				if (jobNodes != null)
 				{
-					foreach (var jobNode in jobNodes)
+					foreach (HtmlNode? jobNode in jobNodes)
 					{
 						try
 						{
-							var job = await ParseJobNodeAsync(jobNode).ConfigureAwait(false);
+							Job job = await ParseJobNodeAsync(jobNode).ConfigureAwait(false);
 
 							if (job != null && !string.IsNullOrEmpty(job.Title))
 							{
-								var existing =
+								Job existing =
 									await JobRepository.GetBySourceIdAsync(
 										SourceName, job.SourceJobId).ConfigureAwait(false);
 
@@ -170,16 +171,16 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 	private static void ParseSalary(string salaryText, Job job)
 	{
 		// Parse salary strings like "¥5,000,000 - ¥8,000,000" or "$50,000 - $80,000"
-		var numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
+		MatchCollection numbers = System.Text.RegularExpressions.Regex.Matches(salaryText, @"[\d,]+");
 
 		if (numbers.Count >= 2)
 		{
-			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var min))
+			if (decimal.TryParse(numbers[0].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out decimal min))
 			{
 				job.SalaryMin = min;
 			}
 
-			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out var max))
+			if (decimal.TryParse(numbers[1].Value.Replace(",", string.Empty, StringComparison.InvariantCultureIgnoreCase), out decimal max))
 			{
 				job.SalaryMax = max;
 			}
@@ -203,7 +204,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		Job job = new Job();
 
 		// Extract job title
-		var titleNode = node.SelectSingleNode(".//h2")
+		HtmlNode? titleNode = node.SelectSingleNode(".//h2")
 			?? node.SelectSingleNode(".//h3")
 			?? node.SelectSingleNode(".//a[contains(@class, 'job-title')]");
 
@@ -213,7 +214,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 
 		// Extract company
-		var companyNode = node.SelectSingleNode(".//span[contains(@class, 'company')]")
+		HtmlNode? companyNode = node.SelectSingleNode(".//span[contains(@class, 'company')]")
 			?? node.SelectSingleNode(".//div[contains(@class, 'company')]");
 
 		if (companyNode != null)
@@ -222,7 +223,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 
 		// Extract location
-		var locationNode = node.SelectSingleNode(".//span[contains(@class, 'location')]")
+		HtmlNode? locationNode = node.SelectSingleNode(".//span[contains(@class, 'location')]")
 			?? node.SelectSingleNode(".//div[contains(@class, 'location')]");
 
 		if (locationNode != null)
@@ -231,15 +232,15 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 
 		// Extract job URL
-		var linkNode = node.SelectSingleNode(".//a[@href]") ?? node;
-		var href = linkNode.GetAttributeValue("href", string.Empty);
+		HtmlNode linkNode = node.SelectSingleNode(".//a[@href]") ?? node;
+		string href = linkNode.GetAttributeValue("href", string.Empty);
 
 		if (!string.IsNullOrEmpty(href))
 		{
 			job.SourceUrl = href.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ? href : $"{BaseUrl}{href}";
 
 			// Extract job ID from URL
-			var urlParts = href.Split('/');
+			string[] urlParts = href.Split('/');
 			job.SourceJobId = urlParts.LastOrDefault(p => !string.IsNullOrWhiteSpace(p)) ?? Guid.NewGuid().ToString();
 		}
 		else
@@ -268,12 +269,12 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 
 	private async Task FetchJobDetailsAsync(Job job)
 	{
-		var detailsHtml = await httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
+		string detailsHtml = await httpClient.GetStringAsync(job.SourceUrl).ConfigureAwait(false);
 		HtmlDocument doc = new HtmlDocument();
 		doc.LoadHtml(detailsHtml);
 
 		// Extract description
-		var descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
+		HtmlNode? descNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'description')]")
 			?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'job-content')]")
 			?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'description')]");
 
@@ -283,7 +284,7 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 
 		// Extract requirements
-		var reqNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'requirements')]")
+		HtmlNode? reqNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'requirements')]")
 			?? doc.DocumentNode.SelectSingleNode("//section[contains(@class, 'requirements')]");
 
 		if (reqNode != null)
@@ -292,24 +293,24 @@ public class TokyoDevScraper : JobScraperBase, IDisposable
 		}
 
 		// Extract salary if available
-		var salaryNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'salary')]")
+		HtmlNode? salaryNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'salary')]")
 			?? doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'salary')]");
 
 		if (salaryNode != null)
 		{
-			var salaryText = salaryNode.InnerText.Trim();
+			string salaryText = salaryNode.InnerText.Trim();
 			ParseSalary(salaryText, job);
 		}
 
 		// Extract job type (Full-time, Part-time, etc.)
-		var typeNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'job-type')]");
+		HtmlNode? typeNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'job-type')]");
 		if (typeNode != null)
 		{
 			job.JobType = HtmlEntity.DeEntitize(typeNode.InnerText.Trim());
 		}
 
 		// Extract remote type
-		var remoteNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'remote')]");
+		HtmlNode? remoteNode = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'remote')]");
 		if (remoteNode != null)
 		{
 			job.RemoteType = HtmlEntity.DeEntitize(remoteNode.InnerText.Trim());
