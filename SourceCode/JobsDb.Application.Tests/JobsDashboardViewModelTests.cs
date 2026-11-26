@@ -138,6 +138,26 @@ internal sealed class JobsDashboardViewModelTests
 			viewModel.StatusMessage, Is.EqualTo("Inbox: 1 posting."));
 	}
 
+	/// <summary>
+	/// Checks that an import error restores the dashboard's controls.
+	/// </summary>
+	/// <returns>A task that completes after the failure is reported.</returns>
+	[Test]
+	public async Task ImportEmails_FailureAllowsRetry()
+	{
+		Mock<IJobQueryService> queries = new Mock<IJobQueryService>();
+		JobsDashboardViewModel viewModel =
+			new JobsDashboardViewModel(queries.Object);
+
+		await viewModel.ImportEmailsAsync(" ").ConfigureAwait(false);
+
+		Assert.That(viewModel.IsLoading, Is.False);
+		Assert.That(viewModel.CanLoad, Is.True);
+		Assert.That(viewModel.StatusMessage, Does.Contain("Unable to import"));
+		queries.VerifyNoOtherCalls();
+	}
+
+
 	private static Job CreatePosting(
 		int id,
 		int day,

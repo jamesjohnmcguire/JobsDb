@@ -12,7 +12,6 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 - [ ] **Feature** - Add an X button on each posting to hide it from the dashboard. Make hidden postings accessible for restoration.
 - [ ] **Feature** - Add a top-level **Purge** command with a confirmation dialog and an optional **From date** filter. Show what will be removed before confirming.
-- [ ] **Feature** - Add an **Import Emails** button to choose an export directory, run a manual import through the library, and report the outcome.
 - [ ] **Feature** - Size the listing viewport to show whole rows at the bottom when resizing the window or dragging the splitter.
 
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
@@ -28,8 +27,8 @@ Open work only. Each item names its type and the result to deliver. The [archite
 ## Email import
 
 - [ ] **Feature** — Add plain-text fallback for LinkedIn .eml messages with no usable HTML body.
-- [ ] **Feature (High priority)** - Add the first Dice job-alert parser after Indeed. Verify stable posting IDs and real-batch report outcomes.
-- [ ] **Feature** - Evaluate Remogu, DTCC, DirectlyApply, and additional digest and recruiter templates in small batches. Add Indeed match and sponsored listings when a stable posting ID can be recovered.
+- [ ] **Feature (High priority)** - Add the first Dice job-alert parser when representative .eml alerts are available. The current eight messages are recruiter or campaign mail and do not expose stable Dice posting IDs.
+- [ ] **Feature** - Evaluate Remogu, DTCC, DirectlyApply, and additional digest and recruiter templates in small batches. The current DirectlyApply exports contain opaque tracking links. Use samples that expose stable posting IDs. Add Indeed match and sponsored listings when a stable posting ID can be recovered.
 - [ ] **Feature** — Add email provenance with a reviewed SQL upgrade. Store source identity, fingerprints, parser versions, and outcomes. Link each message to its jobs and record when a posting date came from the email.
 - [ ] **Feature** — Add bounded retention for email content and stale postings. Base expiry on successful source checks and preserve application history and notes.
 - [ ] **Feature** — Enrich leads from full postings as needed. Preserve known values during partial updates and replace estimated dates when a reliable posting date is available.

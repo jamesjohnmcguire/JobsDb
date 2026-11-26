@@ -12,6 +12,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using DigitalZenWorks.JobsDb.Library.Models;
+using Microsoft.Win32;
 
 /// <summary>
 /// Presents the dashboard and forwards load requests to its view model.
@@ -158,6 +159,18 @@ internal sealed partial class MainWindow : Window
 		}
 
 		return JobsGrid.Items[nextIndex] as Job;
+	}
+
+	private async void ImportEmails_Click(object sender, RoutedEventArgs e)
+	{
+		OpenFolderDialog dialog = new OpenFolderDialog();
+		dialog.Title = "Select a folder containing email exports";
+
+		if (dialog.ShowDialog(this) == true)
+		{
+			await viewModel.ImportEmailsAsync(dialog.FolderName)
+				.ConfigureAwait(true);
+		}
 	}
 
 	private async void ReloadJobs_Click(object sender, RoutedEventArgs e)

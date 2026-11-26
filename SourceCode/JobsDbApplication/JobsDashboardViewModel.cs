@@ -13,6 +13,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using DigitalZenWorks.JobsDb.Library;
+using DigitalZenWorks.JobsDb.Library.EmailImport;
 using DigitalZenWorks.JobsDb.Library.Models;
 using DigitalZenWorks.JobsDb.Library.Services;
 
@@ -161,7 +163,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	}
 
 	/// <summary>
-	/// Gets a value indicating whether a job load is in progress.
+	/// Gets whether a job load or email import is in progress.
 	/// </summary>
 	public bool IsLoading
 	{
@@ -222,9 +224,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 
 		try
 		{
-			List<Job> loadedJobs = await jobQueries.GetJobsAsync()
-				.ConfigureAwait(true);
-			ApplyLoadedJobs(loadedJobs);
+			await RefreshJobsAsync().ConfigureAwait(true);
 			UpdateLoadedStatus();
 		}
 		catch (Exception exception)
@@ -236,6 +236,55 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			IsLoading = false;
 		}
 	}
+
+	/// <summary>
+	/// Imports email exports and refreshes the displayed listings.
+	/// </summary>
+	/// <param name="directoryPath">The selected export folder.</param>
+	/// <returns>A task that completes after the outcome is displayed.</returns>
+	[SuppressMessage(
+		"Design",
+		"CA1031",
+		Justification = "The view reports import and reload failures.")]
+	public async Task ImportEmailsAsync(string directoryPath)
+	{
+		if (!CanLoad)
+		{
+			return;
+		}
+
+		IsLoading = true;
+		StatusMessage = "Importing emails...";
+		string summary = string.Empty;
+
+		try
+		{
+			EmailImportBatchResult batch = await Task.Run(
+				() => LibraryManager.ImportEmailsAsync(directoryPath))
+				.ConfigureAwait(true);
+			summary = "Import finished. " + batch.JobSummary +
+				" " + batch.MessageSummary;
+			await RefreshJobsAsync().ConfigureAwait(true);
+			StatusMessage = summary;
+		}
+		catch (Exception exception)
+		{
+			if (summary.Length == 0)
+			{
+				StatusMessage = "Unable to import emails: " + exception.Message;
+			}
+			else
+			{
+				StatusMessage = summary + " Unable to reload jobs: " +
+					exception.Message;
+			}
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
 
 	/// <summary>
 	/// Opens the selected posting and reports the outcome in the status line.
@@ -313,6 +362,13 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			isSavingPriority = false;
 			NotifyOperationAvailability();
 		}
+	}
+
+	private async Task RefreshJobsAsync()
+	{
+		List<Job> loadedJobs = await jobQueries.GetJobsAsync()
+			.ConfigureAwait(true);
+		ApplyLoadedJobs(loadedJobs);
 	}
 
 	private void NotifyOperationAvailability()

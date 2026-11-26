@@ -141,6 +141,9 @@
 				<Button DockPanel.Dock="Right" Content="Reload Jobs"
 					Padding="12,6" IsEnabled="{Binding CanLoad}"
 					Click="ReloadJobs_Click" />
+				<Button x:Name="ImportEmailsButton" DockPanel.Dock="Right"
+					Content="Import Emails" Margin="0,0,8,0" Padding="12,6"
+					IsEnabled="{Binding CanLoad}" Click="ImportEmails_Click" />
 				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
 					Margin="0,0,12,0" VerticalAlignment="Center">
 					<TextBlock Text="Theme" VerticalAlignment="Center"

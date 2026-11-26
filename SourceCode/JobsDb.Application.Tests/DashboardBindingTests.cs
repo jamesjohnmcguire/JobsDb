@@ -96,6 +96,9 @@ internal sealed class DashboardBindingTests
 				Dispatcher.CurrentDispatcher.Invoke(
 					() => { }, DispatcherPriority.ApplicationIdle);
 
+				Button import = (Button)window.FindName("ImportEmailsButton");
+				Assert.That(import.Content, Is.EqualTo("Import Emails"));
+				Assert.That(import.IsEnabled, Is.True);
 				DataGrid grid = (DataGrid)window.FindName("JobsGrid");
 				RichTextBox description =
 					(RichTextBox)window.FindName("JobDescription");
