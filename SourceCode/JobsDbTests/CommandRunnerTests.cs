@@ -24,26 +24,22 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 	/// Verifies that help works without opening a database.
 	/// </summary>
 	/// <param name="command">
-	/// The help command or an empty argument list.
+	/// The help command.
 	/// </param>
 	/// <returns>A task that completes when the assertions finish.</returns>
-	[TestCase("")]
 	[TestCase("help")]
+	[TestCase("HELP")]
 	public async Task Help_DoesNotInitializeDatabase(string command)
 	{
 		using StringWriter output =
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
+
 		CommandRunner runner = new CommandRunner(
 			output, error, FailInitialization);
-		string[] arguments = Array.Empty<string>();
-		if (command.Length > 0)
-		{
-			arguments = new[] { command };
-		}
-
-		int result = await runner.RunAsync(arguments).ConfigureAwait(false);
+		int result = await runner.RunAsync(new[] { command })
+			.ConfigureAwait(false);
 
 		Assert.That(result, Is.Zero);
 		Assert.That(
@@ -56,21 +52,27 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 	/// </summary>
 	/// <param name="command">The invalid or incomplete command.</param>
 	/// <returns>A task that completes when the assertions finish.</returns>
+	[TestCase("")]
 	[TestCase("unknown")]
 	[TestCase("import")]
+	[TestCase("help extra")]
+	[TestCase("import first second")]
 	public async Task InvalidArguments_ReturnUsageError(string command)
 	{
 		using StringWriter output =
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
 			new StringWriter(CultureInfo.InvariantCulture);
+
 		CommandRunner runner = new CommandRunner(
 			output, error, FailInitialization);
 
-		int result = await runner.RunAsync(new[] { command })
+		string[] arguments = command.Split(
+			' ', StringSplitOptions.RemoveEmptyEntries);
+		int result = await runner.RunAsync(arguments)
 			.ConfigureAwait(false);
 
-		Assert.That(result, Is.EqualTo(2));
+		Assert.That(result, Is.EqualTo(-1));
 		Assert.That(error.ToString(), Does.Contain("Invalid command"));
 	}
 
@@ -81,7 +83,7 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 	[Test]
 	public async Task Import_SavesJobsAndReportsRepeatRuns()
 	{
-		WriteMessage("message.html", CreateCard("123", "Developer", "Company"));
+		WriteMessage("message.eml", CreateCard("123", "Developer", "Company"));
 		using StringWriter output =
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
@@ -90,7 +92,8 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 		string[] arguments = { "import", ImportDirectory };
 
 		int first = await runner.RunAsync(arguments).ConfigureAwait(false);
-		int repeated = await runner.RunAsync(arguments).ConfigureAwait(false);
+		string[] uppercase = { "IMPORT", ImportDirectory };
+		int repeated = await runner.RunAsync(uppercase).ConfigureAwait(false);
 
 		Assert.That(first, Is.Zero);
 		Assert.That(repeated, Is.Zero);
@@ -116,7 +119,7 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 
 		int result = await runner.RunAsync(arguments).ConfigureAwait(false);
 
-		Assert.That(result, Is.EqualTo(1));
+		Assert.That(result, Is.EqualTo(-1));
 		Assert.That(error.ToString(), Is.Not.Empty);
 	}
 
@@ -128,7 +131,7 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 	[Test]
 	public async Task Import_IgnoredMessagesReturnSuccessWithReason()
 	{
-		WriteMessage("other.html", "<body>Other</body>", "jobs@indeed.com");
+		WriteMessage("other.eml", "<body>Other</body>", "jobs@indeed.com");
 		using StringWriter output =
 			new StringWriter(CultureInfo.InvariantCulture);
 		using StringWriter error =
@@ -150,9 +153,19 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 	[Test]
 	public async Task Import_ItemFailureReturnsFailureAndKeepsValidJobs()
 	{
-		WriteMessage("valid.html", CreateCard("123", "Developer", "Company"));
-		string path = Path.Combine(ImportDirectory, "broken.txt");
-		await File.WriteAllTextAsync(path, "Sent: invalid\nSender: jobs@x.com")
+		WriteMessage("valid.eml", CreateCard("123", "Developer", "Company"));
+		WriteMessage("other.eml", "<body>Other</body>", "jobs@indeed.com");
+		WriteMessage("review.eml", CreateCard("456", "Engineer", null));
+		string partial = CreateCard("987", "Architect", "Company") +
+			"<a class='font-bold' " +
+			"href='https://www.linkedin.com/jobs/view/7'>" +
+			"Incomplete card</a>";
+		WriteMessage("partial.eml", partial);
+		string stale = Path.Combine(ImportDirectory, "processed.txt");
+		File.WriteAllText(stale, "stale-id");
+		string path = Path.Combine(ImportDirectory, "broken.eml");
+		string malformed = "From: jobs@x.com\r\nDate: invalid\r\n\r\nBody";
+		await File.WriteAllTextAsync(path, malformed)
 			.ConfigureAwait(false);
 		using StringWriter output =
 			new StringWriter(CultureInfo.InvariantCulture);
@@ -163,9 +176,15 @@ internal sealed class CommandRunnerTests : EmailImportTestSupport
 
 		int result = await runner.RunAsync(arguments).ConfigureAwait(false);
 
-		Assert.That(result, Is.EqualTo(1));
-		Assert.That(output.ToString(), Does.Contain("1 added"));
-		Assert.That(error.ToString(), Does.Contain("Invalid Sent"));
+		Assert.That(result, Is.EqualTo(-1));
+		Assert.That(output.ToString(), Does.Contain("2 added"));
+		Assert.That(error.ToString(), Does.Contain("Invalid EML"));
+		string processed = Path.Combine(ImportDirectory, "processed.txt");
+		string unprocessed = Path.Combine(ImportDirectory, "unprocessed.txt");
+		string[] accepted = { "valid" };
+		Assert.That(File.ReadAllLines(processed), Is.EqualTo(accepted));
+		string[] rejected = { "broken", "other", "partial", "review" };
+		Assert.That(File.ReadAllLines(unprocessed), Is.EqualTo(rejected));
 	}
 
 	private static LibraryManager FailInitialization()

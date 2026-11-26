@@ -20,15 +20,12 @@ internal static class Program
 {
 	private static async Task<int> Main(string[] args)
 	{
-		if (!CommandRunner.IsImportCommand(args))
-		{
-			return await CreateRunner().RunAsync(args).ConfigureAwait(false);
-		}
-
 		ConfigureImportLogging();
+
+		CommandRunner runner = CreateRunner(Log.Logger);
+
 		try
 		{
-			CommandRunner runner = CreateRunner(Log.Logger);
 			return await runner.RunAsync(args).ConfigureAwait(false);
 		}
 		finally
@@ -52,6 +49,7 @@ internal static class Program
 			Environment.SpecialFolder.LocalApplicationData);
 		string logPath = Path.Combine(
 			applicationData, "JobsDb", "Logs", "import-.log");
+
 		LogService.Configure(logPath);
 	}
 }
