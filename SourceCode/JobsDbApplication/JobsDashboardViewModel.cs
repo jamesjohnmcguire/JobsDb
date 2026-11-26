@@ -26,13 +26,14 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	private readonly IJobQueryService jobQueries;
 	private readonly Action<Uri> openPosting;
 	private readonly IJobPriorityService? jobPriorities;
+	private readonly IJobApplicationService? jobApplications;
 	private IReadOnlyList<Job> jobs = Array.Empty<Job>();
 	private List<Job> visibleJobs = new List<Job>();
 	private int selectedReviewTab;
 	private Job? selectedJob;
 	private string statusMessage = "Ready";
 	private bool isLoading;
-	private bool isSavingPriority;
+	private bool isSavingReview;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="JobsDashboardViewModel"/>
@@ -43,15 +44,18 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	/// The browser action, or null to use the default launcher.
 	/// </param>
 	/// <param name="jobPriorities">The optional priority write service.</param>
+	/// <param name="jobApplications">The applied-mark service.</param>
 	public JobsDashboardViewModel(
 		IJobQueryService jobQueries,
 		Action<Uri>? openPosting = null,
-		IJobPriorityService? jobPriorities = null)
+		IJobPriorityService? jobPriorities = null,
+		IJobApplicationService? jobApplications = null)
 	{
 		ArgumentNullException.ThrowIfNull(jobQueries);
 		this.jobQueries = jobQueries;
 		this.openPosting = openPosting ?? PostingLauncher.Open;
 		this.jobPriorities = jobPriorities;
+		this.jobApplications = jobApplications;
 	}
 
 	/// <inheritdoc/>
@@ -187,7 +191,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	{
 		get
 		{
-			return !isLoading && !isSavingPriority;
+			return !isLoading && !isSavingReview;
 		}
 	}
 
@@ -201,6 +205,11 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			return jobPriorities != null && CanLoad;
 		}
 	}
+
+	/// <summary>
+	/// Gets whether the dashboard can edit an applied mark.
+	/// </summary>
+	public bool CanEditApplied => jobApplications != null && CanLoad;
 
 	/// <summary>
 	/// Reloads active listings and updates the selection and status.
@@ -338,7 +347,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			return;
 		}
 
-		isSavingPriority = true;
+		isSavingReview = true;
 		NotifyOperationAvailability();
 		try
 		{
@@ -359,10 +368,58 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 		}
 		finally
 		{
-			isSavingPriority = false;
+			isSavingReview = false;
 			NotifyOperationAvailability();
 		}
 	}
+
+	/// <summary>
+	/// Toggles the basic applied mark for a displayed job.
+	/// </summary>
+	/// <param name="job">The posting to update.</param>
+	/// <param name="nextJobId">The adjacent row, when available.</param>
+	/// <returns>A task that completes after the outcome is reported.</returns>
+	[SuppressMessage(
+		"Design",
+		"CA1031",
+		Justification = "The view reports write failures and allows retry.")]
+	public async Task ToggleAppliedAsync(Job job, int? nextJobId)
+	{
+		if (jobApplications == null || !CanLoad || !jobs.Contains(job) ||
+			job.Status is not (ApplicationStatus.NotApplied or
+				ApplicationStatus.Applied))
+		{
+			return;
+		}
+
+		bool applied = job.Status == ApplicationStatus.NotApplied;
+		isSavingReview = true;
+		NotifyOperationAvailability();
+		try
+		{
+			bool saved = await jobApplications.SetAppliedAsync(job.Id, applied)
+				.ConfigureAwait(true);
+			if (saved)
+			{
+				ApplySavedApplication(job, applied, nextJobId);
+			}
+			else
+			{
+				StatusMessage = "Application status changed. Reload jobs.";
+			}
+		}
+		catch (Exception exception)
+		{
+			StatusMessage = "Unable to save applied status: " +
+				exception.Message;
+		}
+		finally
+		{
+			isSavingReview = false;
+			NotifyOperationAvailability();
+		}
+	}
+
 
 	private async Task RefreshJobsAsync()
 	{
@@ -375,6 +432,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	{
 		OnPropertyChanged(nameof(CanLoad));
 		OnPropertyChanged(nameof(CanEditPriority));
+		OnPropertyChanged(nameof(CanEditApplied));
 	}
 
 	private static bool HasApplicationStatus(Job job)
@@ -424,6 +482,29 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 			StatusMessage = "Priority saved.";
 		}
 	}
+
+	private void ApplySavedApplication(Job job, bool applied, int? nextJobId)
+	{
+		int rowIndex = visibleJobs.IndexOf(job);
+		bool wasReviewed = IsReviewed(job);
+		job.Status = ApplicationStatus.NotApplied;
+		StatusMessage = "Applied mark removed.";
+		if (applied)
+		{
+			job.Status = ApplicationStatus.Applied;
+			StatusMessage = "Marked as applied.";
+		}
+
+		if (wasReviewed == IsReviewed(job))
+		{
+			ApplyReviewFilter(SelectedJob?.Id);
+		}
+		else
+		{
+			ApplyReviewFilter(nextJobId, Math.Max(rowIndex, 0));
+		}
+	}
+
 
 	private void ApplyReviewFilter(int? preferredJobId, int fallbackIndex = 0)
 	{

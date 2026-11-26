@@ -73,7 +73,7 @@ internal sealed class DashboardBindingTests
 				SourceJobId = "3",
 				SourceUrl = "https://example.com/jobs/3",
 				DatePosted = secondJob.DatePosted.AddDays(-1),
-				Status = ApplicationStatus.Applied
+				Status = ApplicationStatus.Interviewing
 			};
 			using JobsDbContext preparation = new JobsDbContext(databasePath);
 			JobRepository repository = new JobRepository(preparation);
@@ -83,7 +83,10 @@ internal sealed class DashboardBindingTests
 			List<Uri> opened = new List<Uri>();
 			JobsDashboardViewModel viewModel =
 				new JobsDashboardViewModel(
-				manager.JobQueries, opened.Add, manager.JobPriorities);
+				manager.JobQueries,
+					opened.Add,
+					manager.JobPriorities,
+					manager.JobApplications);
 			viewModel.LoadJobsAsync().GetAwaiter().GetResult();
 			MainWindow window = new MainWindow(viewModel);
 			try
@@ -151,6 +154,7 @@ internal sealed class DashboardBindingTests
 				CheckLongTitleCell(grid, (Job)grid.Items[1]);
 				CheckColumnAlignment(grid);
 				SavePreview(dashboard);
+				CheckAppliedToggle(grid, tabs, manager, firstJob.Id);
 			}
 			finally
 			{
@@ -304,6 +308,59 @@ internal sealed class DashboardBindingTests
 
 			Assert.That(secondOffset, Is.EqualTo(firstOffset).Within(0.5));
 		}
+	}
+
+	private static void CheckAppliedToggle(
+		DataGrid grid, TabControl tabs, LibraryManager manager, int jobId)
+	{
+		tabs.SelectedIndex = 0;
+		grid.UpdateLayout();
+		Button applied = FindAppliedButton(grid, 0);
+		Assert.That(applied.Content, Is.EqualTo("\u2717"));
+		Assert.That(applied.IsEnabled, Is.True);
+		ClickAppliedButton(applied);
+		Assert.That(grid.Items.Count, Is.Zero);
+		CheckStoredStatus(manager, jobId, ApplicationStatus.Applied);
+
+		tabs.SelectedIndex = 1;
+		grid.UpdateLayout();
+		Button interviewing = FindAppliedButton(grid, 0);
+		Assert.That(interviewing.IsEnabled, Is.False);
+		applied = FindAppliedButton(grid, 1);
+		Assert.That(applied.Content, Is.EqualTo("\u2713"));
+		Assert.That(applied.IsEnabled, Is.True);
+		ClickAppliedButton(applied);
+		Assert.That(grid.Items.Count, Is.EqualTo(2));
+		CheckStoredStatus(manager, jobId, ApplicationStatus.NotApplied);
+
+		tabs.SelectedIndex = 0;
+		Assert.That(((Job)grid.Items[0]).Id, Is.EqualTo(jobId));
+	}
+
+	private static void ClickAppliedButton(Button button)
+	{
+		button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+		Dispatcher.CurrentDispatcher.Invoke(
+			() => { }, DispatcherPriority.ApplicationIdle);
+	}
+
+	private static void CheckStoredStatus(
+		LibraryManager manager, int jobId, ApplicationStatus expected)
+	{
+		List<Job> jobs = manager.JobQueries.GetJobsAsync()
+			.GetAwaiter().GetResult();
+		Job job = jobs.Find(candidate => candidate.Id == jobId)!;
+		Assert.That(job.Status, Is.EqualTo(expected));
+	}
+
+	private static Button FindAppliedButton(DataGrid grid, int row)
+	{
+		DataGridTemplateColumn column =
+			(DataGridTemplateColumn)grid.Columns[^2];
+		ContentPresenter cell =
+			(ContentPresenter)column.GetCellContent(grid.Items[row]);
+		cell.ApplyTemplate();
+		return (Button)column.CellTemplate.FindName("AppliedToggle", cell);
 	}
 
 	private static void CheckPriorityButton(

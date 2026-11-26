@@ -144,6 +144,16 @@ internal sealed partial class MainWindow : Window
 		}
 	}
 
+	private async void Applied_Click(object sender, RoutedEventArgs e)
+	{
+		if (sender is Button button && button.DataContext is Job job)
+		{
+			Job? nextJob = FindAdjacentPosting(job);
+			await viewModel.ToggleAppliedAsync(job, nextJob?.Id)
+				.ConfigureAwait(true);
+		}
+	}
+
 	private Job? FindAdjacentPosting(Job job)
 	{
 		int rowIndex = JobsGrid.Items.IndexOf(job);

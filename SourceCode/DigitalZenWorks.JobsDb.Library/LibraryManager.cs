@@ -23,6 +23,7 @@ public sealed class LibraryManager : IDisposable
 	private readonly string databasePath;
 	private readonly IJobQueryService jobQueries;
 	private readonly IJobPriorityService jobPriorities;
+	private readonly IJobApplicationService jobApplications;
 	private readonly IEmailImportService emailImports;
 	private readonly Lazy<IJobRefreshService> refreshService;
 	private bool disposed;
@@ -34,6 +35,8 @@ public sealed class LibraryManager : IDisposable
 			new DatabaseJobReader(CreateOperationContext);
 		jobQueries = new JobQueryService(jobReader);
 		jobPriorities = new DatabaseJobPriorityService(CreateOperationContext);
+		jobApplications = new DatabaseJobApplicationService(
+			CreateOperationContext);
 		emailImports = new EmailImportService(
 			CreateOperationContext, CreateEmailJobParser());
 		refreshService = new Lazy<IJobRefreshService>(CreateRefreshService);
@@ -58,6 +61,16 @@ public sealed class LibraryManager : IDisposable
 		{
 			ObjectDisposedException.ThrowIf(disposed, this);
 			return jobPriorities;
+		}
+	}
+
+	/// <summary>Gets the service for recording applied marks.</summary>
+	public IJobApplicationService JobApplications
+	{
+		get
+		{
+			ObjectDisposedException.ThrowIf(disposed, this);
+			return jobApplications;
 		}
 	}
 

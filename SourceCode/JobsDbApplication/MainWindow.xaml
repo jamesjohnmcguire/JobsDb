@@ -99,6 +99,80 @@
 					</DataTrigger>
 				</Style.Triggers>
 			</Style>
+			<DataTemplate x:Key="AppliedCell">
+				<Button x:Name="AppliedToggle" Click="Applied_Click"
+					Padding="6,0"
+					HorizontalAlignment="Center" FontWeight="Bold">
+					<Button.Template>
+						<ControlTemplate TargetType="Button">
+							<Border x:Name="AppliedFace" Background="Transparent"
+								BorderThickness="1" BorderBrush="Transparent"
+								CornerRadius="4"
+								Padding="{TemplateBinding Padding}">
+								<ContentPresenter HorizontalAlignment="Center"
+									VerticalAlignment="Center" />
+							</Border>
+							<ControlTemplate.Triggers>
+								<Trigger Property="IsMouseOver" Value="True">
+									<Setter TargetName="AppliedFace"
+										Property="Background"
+										Value="{DynamicResource
+											ControlFillColorSecondaryBrush}" />
+								</Trigger>
+								<Trigger Property="IsKeyboardFocused"
+									Value="True">
+									<Setter TargetName="AppliedFace"
+										Property="BorderBrush"
+										Value="{DynamicResource
+											ControlStrongStrokeColorDefaultBrush}" />
+								</Trigger>
+							</ControlTemplate.Triggers>
+						</ControlTemplate>
+					</Button.Template>
+
+					<Button.Style>
+						<Style TargetType="Button">
+							<Setter Property="Content" Value="&#x2713;" />
+							<Setter Property="Foreground" Value="#299357" />
+							<Setter Property="ToolTip" Value="Applied" />
+							<Setter Property="AutomationProperties.Name"
+								Value="Applied" />
+							<Setter Property="IsEnabled" Value="False" />
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Status}"
+									Value="{x:Static
+										models:ApplicationStatus.Applied}">
+									<Setter Property="ToolTip"
+										Value="Clear applied mark" />
+									<Setter Property="AutomationProperties.Name"
+										Value="Clear applied mark" />
+									<Setter Property="IsEnabled"
+										Value="{Binding DataContext.CanEditApplied,
+											RelativeSource={RelativeSource
+											AncestorType=DataGrid}}" />
+								</DataTrigger>
+								<DataTrigger Binding="{Binding Status}"
+									Value="{x:Static
+										models:ApplicationStatus.NotApplied}">
+									<Setter Property="Content"
+										Value="&#x2717;" />
+									<Setter Property="Foreground"
+										Value="#CD434A" />
+									<Setter Property="ToolTip"
+										Value="Mark as applied" />
+									<Setter Property="AutomationProperties.Name"
+										Value="Mark as applied" />
+									<Setter Property="IsEnabled"
+										Value="{Binding DataContext.CanEditApplied,
+											RelativeSource={RelativeSource
+											AncestorType=DataGrid}}" />
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</Button.Style>
+				</Button>
+			</DataTemplate>
+
 			<DataTemplate x:Key="PriorityCell">
 				<StackPanel Orientation="Horizontal"
 					HorizontalAlignment="Center">
@@ -198,8 +272,9 @@
 					<DataGridTextColumn Header="Posted"
 						Binding="{Binding DatePosted, StringFormat=d}"
 						Width="Auto" />
-					<DataGridTextColumn Header="Status"
-						Binding="{Binding Status}" Width="Auto" />
+					<DataGridTemplateColumn Header="Applied" Width="Auto"
+						SortMemberPath="Status"
+						CellTemplate="{StaticResource AppliedCell}" />
 					<DataGridTemplateColumn Header="Priority" Width="108"
 						CellTemplate="{StaticResource PriorityCell}" />
 				</DataGrid.Columns>

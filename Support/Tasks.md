@@ -16,9 +16,8 @@ Open work only. Each item names its type and the result to deliver. The [archite
 
 - [ ] **Feature** — Filter the job collection using explicit lead criteria and show why listings match. Add pagination when list size warrants it.
 - [ ] **Feature** - Hide the Location column when the dashboard grid is narrow. Keep the location accessible in the selected posting details.
-- [ ] **Bug** - Align dashboard column headers with their cell text. Add horizontal padding to Source, Posted, and Status.
-- [ ] **Feature** - Rename the dashboard Status column to Applied. Show a green check mark for applied postings and a red X for postings without an application. Let users click the indicator to mark a posting as applied or undo an accidental mark. Save the change through the library.
-- [ ] **Feature** — Save application status, notes, and archive state through library operations. Provide a way to view archived jobs.
+- [ ] **Bug** - Align dashboard column headers with their cell text. Add horizontal padding to Source, Posted, and Applied.
+- [ ] **Feature** — Save later application stages, notes, and archive state through library operations. Provide a way to view archived jobs.
 - [ ] **Feature** - Add a **Pull Full Job Description** button in the details pane. Fetch and save the full description for the selected posting through the library, then refresh the pane.
 - [ ] **Feature** — Add **Refresh Db** once the acquisition bugs below are addressed. Await the library refresh, reload the list, and report partial failures in the status line.
 - [ ] **Feature** — Offer optional UTM removal when opening a posting. Preserve query parameters needed to identify or access the job.
