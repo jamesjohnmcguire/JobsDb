@@ -26,10 +26,16 @@ using JobsDbTests;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Verifies dashboard bindings against persisted jobs and preferences.
+/// </summary>
 [TestFixture]
 [Apartment(ApartmentState.STA)]
 internal sealed class DashboardBindingTests
 {
+	/// <summary>
+	/// Checks job display, selection, links, and saved review controls.
+	/// </summary>
 	[Test]
 	public void Dashboard_ShowsDatabaseJobsAndUpdatesSelection()
 	{

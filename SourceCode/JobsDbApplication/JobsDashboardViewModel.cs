@@ -167,7 +167,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	}
 
 	/// <summary>
-	/// Gets whether a job load or email import is in progress.
+	/// Gets a value indicating whether jobs are loading or importing.
 	/// </summary>
 	public bool IsLoading
 	{
@@ -207,7 +207,7 @@ internal sealed class JobsDashboardViewModel : INotifyPropertyChanged
 	}
 
 	/// <summary>
-	/// Gets whether the dashboard can edit an applied mark.
+	/// Gets a value indicating whether the dashboard can edit applied marks.
 	/// </summary>
 	public bool CanEditApplied => jobApplications != null && CanLoad;
 

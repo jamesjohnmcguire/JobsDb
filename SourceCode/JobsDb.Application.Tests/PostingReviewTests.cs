@@ -15,9 +15,16 @@ using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers posting links and the selected job description.
+/// </summary>
 [TestFixture]
 internal sealed class PostingReviewTests
 {
+	/// <summary>
+	/// Checks that the selected web address opens in the browser.
+	/// </summary>
+	/// <param name="address">The selected posting URL.</param>
 	[TestCase("https://example.com/jobs/123")]
 	[TestCase("http://example.com/jobs/123")]
 	public void OpenSelectedPosting_UsesSelectedWebAddress(string address)
@@ -34,6 +41,10 @@ internal sealed class PostingReviewTests
 		Assert.That(viewModel.StatusMessage, Does.Contain("Opening"));
 	}
 
+	/// <summary>
+	/// Checks that unusable posting addresses never reach the browser.
+	/// </summary>
+	/// <param name="address">The invalid or disallowed posting address.</param>
 	[TestCase("")]
 	[TestCase("not an address")]
 	[TestCase("/jobs/123")]
@@ -55,6 +66,9 @@ internal sealed class PostingReviewTests
 		Assert.That(viewModel.StatusMessage, Does.Contain("HTTP or HTTPS"));
 	}
 
+	/// <summary>
+	/// Checks that opening a posting requires a selection.
+	/// </summary>
 	[Test]
 	public void OpenSelectedPosting_NoSelectionDoesNotLaunch()
 	{
@@ -69,6 +83,9 @@ internal sealed class PostingReviewTests
 			viewModel.SelectedDescription, Does.Contain("Select a job"));
 	}
 
+	/// <summary>
+	/// Checks that the status line reports a browser launch failure.
+	/// </summary>
 	[Test]
 	public void OpenSelectedPosting_BrowserFailureIsDisplayed()
 	{
@@ -85,6 +102,9 @@ internal sealed class PostingReviewTests
 			viewModel.StatusMessage, Does.Contain("No browser available"));
 	}
 
+	/// <summary>
+	/// Checks that selection changes update link and description bindings.
+	/// </summary>
 	[Test]
 	public void SelectionChangesNotifyPostingAndDescriptionBindings()
 	{
@@ -112,6 +132,10 @@ internal sealed class PostingReviewTests
 			viewModel.SelectedDescription, Does.Contain("Select a job"));
 	}
 
+	/// <summary>
+	/// Checks the placeholder for an absent job description.
+	/// </summary>
+	/// <param name="description">The absent or blank description.</param>
 	[TestCase(null)]
 	[TestCase("")]
 	[TestCase(" \n ")]

@@ -15,9 +15,16 @@ using DigitalZenWorks.JobsDb.Library.Services;
 using Moq;
 using NUnit.Framework;
 
+/// <summary>
+/// Covers dashboard loading, review order, and import failures.
+/// </summary>
 [TestFixture]
 internal sealed class JobsDashboardViewModelTests
 {
+	/// <summary>
+	/// Checks load notifications and the initial posting selection.
+	/// </summary>
+	/// <returns>A task that completes after verification.</returns>
 	[Test]
 	public async Task LoadJobsAsync_NotifiesBindingsAndSelectsFirstJob()
 	{
@@ -81,6 +88,10 @@ internal sealed class JobsDashboardViewModelTests
 		Assert.That(viewModel.VisibleJobs, Is.EqualTo(expectedReviewed));
 	}
 
+	/// <summary>
+	/// Checks that a pending load prevents another query.
+	/// </summary>
+	/// <returns>A task that completes after verification.</returns>
 	[Test]
 	public async Task LoadJobsAsync_IgnoresOverlappingRequests()
 	{
@@ -109,6 +120,10 @@ internal sealed class JobsDashboardViewModelTests
 			viewModel.StatusMessage, Is.EqualTo("Inbox: 0 postings."));
 	}
 
+	/// <summary>
+	/// Checks that a failed reload preserves the current jobs and selection.
+	/// </summary>
+	/// <returns>A task that completes after verification.</returns>
 	[Test]
 	public async Task LoadJobsAsync_FailureKeepsJobsAndAllowsRetry()
 	{
